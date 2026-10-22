@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bored os</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ðŸ’»</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   BORED OS â€” Design System & Core Styles
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════
+   BORED OS — Design System & Core Styles
+   ═══════════════════════════════════════════ */
 
 :root {
   --bg-primary: #0a0a0f;
@@ -90,7 +90,7 @@ html, body {
 ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 
-/* â•â•â• Boot Screen â•â•â• */
+/* ═══ Boot Screen ═══ */
 #boot-screen {
   position: fixed; inset: 0; z-index: 99999;
   background: #050508;
@@ -120,7 +120,7 @@ html, body {
 @keyframes bootFadeIn { to { opacity: 1; } }
 @keyframes bootProgress { to { width: 100%; } }
 
-/* â•â•â• Desktop â•â•â• */
+/* ═══ Desktop ═══ */
 #desktop {
   position: fixed; inset: 0;
   background-size: cover;
@@ -136,7 +136,7 @@ html, body {
   pointer-events: none;
 }
 
-/* â•â•â• Desktop Icons â•â•â• */
+/* ═══ Desktop Icons ═══ */
 #desktop-icons {
   position: absolute; top: 20px; left: 20px;
   display: flex; flex-direction: column; gap: 8px;
@@ -167,7 +167,7 @@ html, body {
   max-width: 72px; word-wrap: break-word;
 }
 
-/* â•â•â• Dock â•â•â• */
+/* ═══ Dock ═══ */
 #dock {
   position: fixed; bottom: 8px;
   left: 50%; transform: translateX(-50%);
@@ -224,7 +224,7 @@ html, body {
   margin: 0 4px;
 }
 
-/* â•â•â• Top Bar â•â•â• */
+/* ═══ Top Bar ═══ */
 #topbar {
   position: fixed; top: 0; left: 0; right: 0;
   height: 30px;
@@ -257,7 +257,7 @@ html, body {
 .topbar-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
 #topbar-clock { color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
-/* â•â•â• Window System â•â•â• */
+/* ═══ Window System ═══ */
 .app-window {
   position: absolute;
   min-width: 400px; min-height: 300px;
@@ -329,7 +329,7 @@ html, body {
   position: relative;
 }
 
-/* â•â•â• App Launcher / Start Menu â•â•â• */
+/* ═══ App Launcher / Start Menu ═══ */
 #app-launcher {
   position: fixed;
   bottom: 76px; left: 50%;
@@ -411,7 +411,7 @@ html, body {
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* â•â•â• Context Menu â•â•â• */
+/* ═══ Context Menu ═══ */
 .context-menu {
   position: fixed; z-index: 2000;
   min-width: 180px;
@@ -440,7 +440,7 @@ html, body {
   margin: 4px 8px;
 }
 
-/* â•â•â• Notification â•â•â• */
+/* ═══ Notification ═══ */
 .notification {
   position: fixed; top: 40px; right: 16px;
   padding: 12px 18px;
@@ -457,7 +457,7 @@ html, body {
 @keyframes notifIn { from { opacity: 0; transform: translateY(-10px); } }
 @keyframes notifOut { to { opacity: 0; transform: translateY(-10px); } }
 
-/* â•â•â• App Content Styles â•â•â• */
+/* ═══ App Content Styles ═══ */
 .app-content { padding: 20px; height: 100%; overflow-y: auto; }
 
 /* Home App */
@@ -1029,13 +1029,13 @@ html, body {
 </head>
 <body>
 
-<!-- â•â•â• Boot Screen â•â•â• -->
+<!-- ═══ Boot Screen ═══ -->
 <div id="boot-screen">
   <div class="boot-logo">bored <span>os</span></div>
   <div class="boot-progress"><div class="boot-progress-bar"></div></div>
 </div>
 
-<!-- â•â•â• Desktop â•â•â• -->
+<!-- ═══ Desktop ═══ -->
 <div id="desktop">
   <div class="wallpaper-overlay"></div>
 
@@ -1043,10 +1043,10 @@ html, body {
   <div id="desktop-icons"></div>
 </div>
 
-<!-- â•â•â• Top Bar â•â•â• -->
+<!-- ═══ Top Bar ═══ -->
 <div id="topbar">
   <div class="topbar-left">
-    <div class="topbar-brand" onclick="toggleLauncher()">âŒ˜ bored os</div>
+    <div class="topbar-brand" onclick="toggleLauncher()">⌘ bored os</div>
   </div>
   <div class="topbar-right">
     <button class="topbar-btn" onclick="openApp('settings')" title="Settings">
@@ -1059,7 +1059,7 @@ html, body {
   </div>
 </div>
 
-<!-- â•â•â• App Launcher â•â•â• -->
+<!-- ═══ App Launcher ═══ -->
 <div id="app-launcher">
   <div class="launcher-search" style="position:relative">
     <i data-lucide="search" class="launcher-search-icon" style="width:16px;height:16px"></i>
@@ -1068,22 +1068,22 @@ html, body {
   <div class="launcher-body" id="launcher-body"></div>
 </div>
 
-<!-- â•â•â• Dock â•â•â• -->
+<!-- ═══ Dock ═══ -->
 <div id="dock"></div>
 
-<!-- â•â•â• Windows Container â•â•â• -->
+<!-- ═══ Windows Container ═══ -->
 <div id="windows-container" style="position:absolute;inset:0;z-index:100;pointer-events:none;">
 </div>
 
-<!-- â•â•â• Lumi SDK â•â•â• -->
+<!-- ═══ Lumi SDK ═══ -->
 <script src="https://cdn.jsdelivr.net/gh/Vanta-the-guy/Lumi@latest/lumi.js"></script>
 
 <script>
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   BORED OS â€” Complete Operating System Engine
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════
+   BORED OS — Complete Operating System Engine
+   ═══════════════════════════════════════════════════════ */
 
-// â”€â”€â”€ State â”€â”€â”€
+// ─── State ───
 const OS = {
   windows: [],
   activeWindowId: null,
@@ -1122,11 +1122,21 @@ if (!OS.files) {
   };
 }
 
-// â”€â”€â”€ Initialize â”€â”€â”€
+// ─── Initialize ───
 function boot() {
   applyTheme(OS.theme);
   applyAccent(OS.accentColor);
   applyWallpaper(OS.wallpaper);
+  // Restore saved cloak
+  const savedCloak = localStorage.getItem('bored-os-cloak');
+  if (savedCloak && savedCloak !== 'none') {
+    applyTabCloak(savedCloak);
+  }
+  // Restore saved bare server
+  const savedBare = localStorage.getItem('bored-os-bare');
+  if (savedBare && window.__uv$config) {
+    window.__uv$config.bare = savedBare;
+  }
   buildDock();
   buildDesktopIcons();
   buildLauncher();
@@ -1181,7 +1191,7 @@ function boot() {
   setTimeout(() => loadAllGames(), 1500);
 }
 
-// â”€â”€â”€ Clock â”€â”€â”€
+// ─── Clock ───
 function startClock() {
   function update() {
     const now = new Date();
@@ -1195,7 +1205,7 @@ function startClock() {
   setInterval(update, 10000);
 }
 
-// â”€â”€â”€ Theme â”€â”€â”€
+// ─── Theme ───
 function applyTheme(theme) {
   OS.theme = theme;
   document.documentElement.setAttribute('data-theme', theme);
@@ -1205,7 +1215,7 @@ function toggleTheme() {
   applyTheme(OS.theme === 'dark' ? 'light' : 'dark');
 }
 
-// â”€â”€â”€ Accent Color â”€â”€â”€
+// ─── Accent Color ───
 function applyAccent(color) {
   OS.accentColor = color;
   document.documentElement.style.setProperty('--accent', color);
@@ -1217,7 +1227,7 @@ function applyAccent(color) {
   localStorage.setItem('bored-os-accent', color);
 }
 
-// â”€â”€â”€ Wallpaper â”€â”€â”€
+// ─── Wallpaper ───
 const WALLPAPERS = [
   { id: 'gradient-1', type: 'gradient', value: 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)', label: 'Midnight' },
   { id: 'gradient-2', type: 'gradient', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Nebula' },
@@ -1244,7 +1254,7 @@ function applyWallpaper(id) {
   localStorage.setItem('bored-os-wallpaper', id);
 }
 
-// â”€â”€â”€ Desktop Icons â”€â”€â”€
+// ─── Desktop Icons ───
 function buildDesktopIcons() {
   const icons = [
     { id: 'games', label: 'Games', icon: 'gamepad-2' },
@@ -1261,7 +1271,7 @@ function buildDesktopIcons() {
   `).join('');
 }
 
-// â”€â”€â”€ Dock â”€â”€â”€
+// ─── Dock ───
 const DOCK_ITEMS = [
   { id: 'launcher', label: 'App Launcher', icon: 'layout-grid', isLauncher: true },
   { type: 'separator' },
@@ -1301,7 +1311,7 @@ function updateDock() {
   });
 }
 
-// â”€â”€â”€ App Launcher â”€â”€â”€
+// ─── App Launcher ───
 const ALL_APPS = [
   { id: 'home', label: 'Home', icon: 'home', category: 'system' },
   { id: 'games', label: 'Games', icon: 'gamepad-2', category: 'entertainment' },
@@ -1375,7 +1385,7 @@ function closeLauncher() {
   document.getElementById('app-launcher').classList.remove('open');
 }
 
-// â”€â”€â”€ Context Menu â”€â”€â”€
+// ─── Context Menu ───
 function showContextMenu(x, y, items) {
   if (OS.contextMenu) OS.contextMenu.remove();
   const menu = document.createElement('div');
@@ -1398,7 +1408,7 @@ function showContextMenu(x, y, items) {
   lucide.createIcons();
 }
 
-// â”€â”€â”€ Notification â”€â”€â”€
+// ─── Notification ───
 function notify(message, duration = 3000) {
   const el = document.createElement('div');
   el.className = 'notification';
@@ -1411,7 +1421,7 @@ function notify(message, duration = 3000) {
   }, duration);
 }
 
-// â”€â”€â”€ Window Management â”€â”€â”€
+// ─── Window Management ───
 function createWindow(appId, title, width, height, content, options = {}) {
   const id = OS.nextWindowId++;
   const existing = OS.windows.find(w => w.appId === appId && !options.allowMultiple);
@@ -1587,13 +1597,13 @@ function setupWindowResize(el, id) {
   });
 }
 
-// â”€â”€â”€ Recent Apps â”€â”€â”€
+// ─── Recent Apps ───
 function addRecentApp(appId) {
   OS.recentApps = [appId, ...OS.recentApps.filter(a => a !== appId)].slice(0, 8);
   localStorage.setItem('bored-os-recent-apps', JSON.stringify(OS.recentApps));
 }
 
-// â”€â”€â”€ App Opener â”€â”€â”€
+// ─── App Opener ───
 function openApp(appId) {
   switch (appId) {
     case 'home': openHome(); break;
@@ -1610,9 +1620,9 @@ function openApp(appId) {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Home
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openHome() {
   const now = new Date();
   const hour = now.getHours();
@@ -1638,7 +1648,7 @@ function openHome() {
   `).join('');
 
   const content = `<div class="app-content">
-    <div class="home-greeting">${greeting} ðŸ‘‹</div>
+    <div class="home-greeting">${greeting} 👋</div>
     <div class="home-date">${dateStr}</div>
 
     <div class="home-section">
@@ -1686,9 +1696,9 @@ function openHome() {
   updateHomeClock();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Games
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 let gamesCurrentTab = 'discover';
 let gamesCurrentSource = 'All';
 let gamesCurrentSearch = '';
@@ -1913,7 +1923,7 @@ function renderGamesDiscover(body) {
       <div class="featured-game-content">
         <div class="featured-game-badge"><i data-lucide="star" style="width:10px;height:10px"></i> Featured</div>
         <div class="featured-game-title">${escHtml(feat.title)}</div>
-        <div class="featured-game-desc">Click to play â€¢ Source: ${feat.source}</div>
+        <div class="featured-game-desc">Click to play • Source: ${feat.source}</div>
       </div>
     </div>`;
   }
@@ -1941,13 +1951,13 @@ function renderGamesDiscover(body) {
   // Pagination
   if (totalPages > 1) {
     html += `<div class="pagination">`;
-    if (gamesCurrentPage > 1) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage - 1})">â† Prev</button>`;
+    if (gamesCurrentPage > 1) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage - 1})">← Prev</button>`;
     const startP = Math.max(1, gamesCurrentPage - 2);
     const endP = Math.min(totalPages, startP + 4);
     for (let i = startP; i <= endP; i++) {
       html += `<button class="page-btn ${i === gamesCurrentPage ? 'active' : ''}" onclick="gamesGoPage(${i})">${i}</button>`;
     }
-    if (gamesCurrentPage < totalPages) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage + 1})">Next â†’</button>`;
+    if (gamesCurrentPage < totalPages) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage + 1})">Next →</button>`;
     html += `</div>`;
   }
 
@@ -1974,13 +1984,13 @@ function renderGamesLibrary(body) {
 
   if (totalPages > 1) {
     html += `<div class="pagination">`;
-    if (gamesCurrentPage > 1) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage - 1})">â† Prev</button>`;
+    if (gamesCurrentPage > 1) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage - 1})">← Prev</button>`;
     const startP = Math.max(1, gamesCurrentPage - 2);
     const endP = Math.min(totalPages, startP + 4);
     for (let i = startP; i <= endP; i++) {
       html += `<button class="page-btn ${i === gamesCurrentPage ? 'active' : ''}" onclick="gamesGoPage(${i})">${i}</button>`;
     }
-    if (gamesCurrentPage < totalPages) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage + 1})">Next â†’</button>`;
+    if (gamesCurrentPage < totalPages) html += `<button class="page-btn" onclick="gamesGoPage(${gamesCurrentPage + 1})">Next →</button>`;
     html += `</div>`;
   }
 
@@ -2187,9 +2197,9 @@ function showGameError(iframe) {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Calculator
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openCalculator() {
   const content = `<div style="display:flex;flex-direction:column;height:100%">
     <div class="calc-display">
@@ -2198,17 +2208,17 @@ function openCalculator() {
     </div>
     <div class="calc-grid" style="flex:1">
       <button class="calc-btn" onclick="calcInput('C')">C</button>
-      <button class="calc-btn op" onclick="calcInput('Â±')">Â±</button>
+      <button class="calc-btn op" onclick="calcInput('±')">±</button>
       <button class="calc-btn op" onclick="calcInput('%')">%</button>
-      <button class="calc-btn op" onclick="calcInput('Ã·')">Ã·</button>
+      <button class="calc-btn op" onclick="calcInput('÷')">÷</button>
       <button class="calc-btn" onclick="calcInput('7')">7</button>
       <button class="calc-btn" onclick="calcInput('8')">8</button>
       <button class="calc-btn" onclick="calcInput('9')">9</button>
-      <button class="calc-btn op" onclick="calcInput('Ã—')">Ã—</button>
+      <button class="calc-btn op" onclick="calcInput('×')">×</button>
       <button class="calc-btn" onclick="calcInput('4')">4</button>
       <button class="calc-btn" onclick="calcInput('5')">5</button>
       <button class="calc-btn" onclick="calcInput('6')">6</button>
-      <button class="calc-btn op" onclick="calcInput('-')">âˆ’</button>
+      <button class="calc-btn op" onclick="calcInput('-')">−</button>
       <button class="calc-btn" onclick="calcInput('1')">1</button>
       <button class="calc-btn" onclick="calcInput('2')">2</button>
       <button class="calc-btn" onclick="calcInput('3')">3</button>
@@ -2228,10 +2238,10 @@ function calcInput(val) {
   if (!result) return;
 
   if (val === 'C') { calcCurrent = '0'; calcPrev = ''; calcOp = ''; calcNewNum = true; result.textContent = '0'; expr.textContent = ''; return; }
-  if (val === 'Â±') { calcCurrent = String(-parseFloat(calcCurrent)); result.textContent = calcCurrent; return; }
+  if (val === '±') { calcCurrent = String(-parseFloat(calcCurrent)); result.textContent = calcCurrent; return; }
   if (val === '%') { calcCurrent = String(parseFloat(calcCurrent) / 100); result.textContent = calcCurrent; return; }
 
-  if (['+','-','Ã—','Ã·'].includes(val)) {
+  if (['+','-','×','÷'].includes(val)) {
     if (calcOp && !calcNewNum) {
       calcPrev = String(calcEval(parseFloat(calcPrev), parseFloat(calcCurrent), calcOp));
       result.textContent = calcPrev;
@@ -2265,24 +2275,24 @@ function calcEval(a, b, op) {
   switch (op) {
     case '+': return a + b;
     case '-': return a - b;
-    case 'Ã—': return a * b;
-    case 'Ã·': return b !== 0 ? a / b : 'Error';
+    case '×': return a * b;
+    case '÷': return b !== 0 ? a / b : 'Error';
   }
   return b;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Notes
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openNotes() {
   const content = `<textarea class="notes-editor" id="notes-editor" placeholder="Start typing..."
     oninput="OS.notes=this.value;localStorage.setItem('bored-os-notes',this.value)">${escHtml(OS.notes)}</textarea>`;
   createWindow('notes', 'Notes', 500, 400, content, { icon: 'file-text' });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Clock
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openClock() {
   const content = `<div class="clock-display" id="clock-app-display">
     <div class="clock-time" id="clock-app-time"></div>
@@ -2306,9 +2316,9 @@ function openClock() {
   updateClockApp();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: File Manager
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 let fileCurrentPath = ['root'];
 
 function openFiles() {
@@ -2465,9 +2475,9 @@ function saveFiles() {
   localStorage.setItem('bored-os-files', JSON.stringify(OS.files));
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Text Editor
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openEditor() {
   const content = `<div style="display:flex;flex-direction:column;height:100%">
     <div class="editor-toolbar">
@@ -2479,9 +2489,9 @@ function openEditor() {
   createWindow('editor', 'Text Editor', 560, 420, content, { icon: 'code' });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Browser (Proxy)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openBrowser() {
   const content = `<div style="display:flex;flex-direction:column;height:100%">
     <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border-subtle);flex-shrink:0;background:var(--bg-tertiary)">
@@ -2526,9 +2536,9 @@ function browserGo() {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Apps List
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openApps() {
   let html = `<div class="app-content">
     <div style="font-size:18px;font-weight:700;margin-bottom:16px">All Apps</div>
@@ -2543,9 +2553,9 @@ function openApps() {
   createWindow('apps', 'Apps', 500, 400, html, { icon: 'grid-3x3' });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: Settings
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 let settingsTab = 'appearance';
 
 function openSettings() {
@@ -2562,6 +2572,12 @@ function openSettings() {
       </div>
       <div class="settings-nav-item" data-tab="games-settings" onclick="switchSettingsTab('games-settings')">
         <i data-lucide="gamepad-2" style="width:16px;height:16px"></i> Games
+      </div>
+      <div class="settings-nav-item" data-tab="cloak" onclick="switchSettingsTab('cloak')">
+        <i data-lucide="shield" style="width:16px;height:16px"></i> Tab Cloak
+      </div>
+      <div class="settings-nav-item" data-tab="proxy" onclick="switchSettingsTab('proxy')">
+        <i data-lucide="globe" style="width:16px;height:16px"></i> Web Proxy
       </div>
       <div class="settings-nav-item" data-tab="storage" onclick="switchSettingsTab('storage')">
         <i data-lucide="hard-drive" style="width:16px;height:16px"></i> Storage
@@ -2593,6 +2609,8 @@ function renderSettingsTab() {
     case 'wallpaper': renderSettingsWallpaper(content); break;
     case 'dock': renderSettingsDock(content); break;
     case 'games-settings': renderSettingsGames(content); break;
+    case 'cloak': renderSettingsCloak(content); break;
+    case 'proxy': renderSettingsProxy(content); break;
     case 'storage': renderSettingsStorage(content); break;
     case 'about-settings': renderSettingsAbout(content); break;
   }
@@ -2664,6 +2682,111 @@ function renderSettingsGames(el) {
     </div>`;
 }
 
+const CLOAK_PRESETS = [
+  { id: 'none', label: 'Default (bored os)', title: 'bored os', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>" },
+  { id: 'google', label: 'Google Search', title: 'Google', icon: 'https://www.google.com/favicon.ico' },
+  { id: 'classroom', label: 'Google Classroom', title: 'Classes', icon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+  { id: 'drive', label: 'Google Drive', title: 'My Drive - Google Drive', icon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
+  { id: 'canvas', label: 'Canvas LMS', title: 'Dashboard', icon: 'https://du11hjcvx0uqb.cloudfront.net/br/dist/images/favicon-e10d657a73.ico' },
+  { id: 'desmos', label: 'Desmos Graphing Calculator', title: 'Desmos | Graphing Calculator', icon: 'https://www.desmos.com/favicon.ico' },
+  { id: 'bing', label: 'Bing Search', title: 'Bing', icon: 'https://www.bing.com/favicon.ico' },
+  { id: 'wikipedia', label: 'Wikipedia', title: 'Wikipedia, the free encyclopedia', icon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
+];
+
+function applyTabCloak(presetId) {
+  const preset = CLOAK_PRESETS.find(p => p.id === presetId) || CLOAK_PRESETS[0];
+  document.title = preset.title;
+  let link = document.querySelector("link[rel*='icon']");
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  link.href = preset.icon;
+  localStorage.setItem('bored-os-cloak', presetId);
+  notify(`Tab cloaked as ${preset.label}`);
+}
+
+function openAboutBlank() {
+  const win = window.open('about:blank', '_blank');
+  if (!win) {
+    alert('Pop-ups blocked! Please allow popups for this site.');
+    return;
+  }
+  const iframe = win.document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:0;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;';
+  iframe.src = window.location.href;
+  win.document.body.style.margin = '0';
+  win.document.body.appendChild(iframe);
+}
+
+function renderSettingsCloak(el) {
+  const activeCloak = localStorage.getItem('bored-os-cloak') || 'none';
+  el.innerHTML = `
+    <div class="settings-section">
+      <div class="settings-section-title">Tab Cloak (Stealth Disguise)</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Disguises the browser tab's title and favicon so teachers or observers only see school apps.</div>
+      <div class="home-shortcuts" style="grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px">
+        ${CLOAK_PRESETS.map(p => `
+          <div class="home-shortcut ${p.id === activeCloak ? 'active' : ''}" style="cursor:pointer;border-color:${p.id === activeCloak ? 'var(--accent)' : 'var(--border-subtle)'};background:${p.id === activeCloak ? 'var(--accent-subtle)' : 'var(--bg-surface)'}" onclick="applyTabCloak('${p.id}');renderSettingsTab()">
+            <img src="${p.icon}" style="width:18px;height:18px;border-radius:2px" onerror="this.style.display='none'">
+            <div style="font-size:12px;font-weight:600">${p.label}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">about:blank Cloak</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Launch in about:blank</div>
+          <div class="settings-row-desc">Opens BORED OS in a new stealth tab where the URL bar displays "about:blank" to bypass browser history & monitoring extensions.</div>
+        </div>
+        <button class="btn btn-sm" onclick="openAboutBlank()">Open about:blank</button>
+      </div>
+    </div>`;
+}
+
+function renderSettingsProxy(el) {
+  const currentBare = localStorage.getItem('bored-os-bare') || (window.__uv$config ? window.__uv$config.bare : 'https://uv.studentportal.lol/bare/');
+  el.innerHTML = `
+    <div class="settings-section">
+      <div class="settings-section-title">Bare Server / Proxy Connection</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Configure the Bare server endpoint that powers the built-in unblocked browser.</div>
+      
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase">Bare Server URL</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="text" id="bare-server-input" value="${escHtml(currentBare)}" style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:var(--text-primary);font-family:monospace;font-size:12px;outline:none">
+          <button class="btn btn-sm" onclick="saveBareServer()">Save</button>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:600;margin-bottom:8px">Quick Public Bare Endpoints:</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://uv.studentportal.lol/bare/';saveBareServer()">
+          🚀 StudentPortal Bare (High speed unblocked)
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://tomp.app/bare/';saveBareServer()">
+          ⚡ Tomp Official Bare
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='/bare/';saveBareServer()">
+          🏠 Local Server (/bare/)
+        </button>
+      </div>
+    </div>`;
+}
+
+function saveBareServer() {
+  const val = document.getElementById('bare-server-input').value.trim();
+  if (!val) return;
+  localStorage.setItem('bored-os-bare', val);
+  if (window.__uv$config) {
+    window.__uv$config.bare = val;
+  }
+  notify('Bare Server updated successfully!');
+}
+
 function renderSettingsStorage(el) {
   let totalSize = 0;
   for (let i = 0; i < localStorage.length; i++) {
@@ -2691,7 +2814,7 @@ function renderSettingsAbout(el) {
   el.innerHTML = `
     <div class="settings-section" style="text-align:center;padding-top:30px">
       <div style="font-size:36px;font-weight:800;letter-spacing:-1.5px;margin-bottom:4px;background:linear-gradient(135deg,var(--accent),#a78bfa,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">bored os</div>
-      <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:20px">Version 2.0 â€¢ Built with â¤ï¸</div>
+      <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:20px">Version 2.0 • Built with ❤️</div>
       <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;max-width:360px;margin:0 auto">
         A browser-based desktop operating system with a built-in game launcher, file manager, and productivity apps.<br><br>
         <strong>Game Sources:</strong> GNMath, UGS, Daknux, Seraph<br>
@@ -2724,9 +2847,9 @@ function resetAll() {
   location.reload();
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 // APP: About
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════
 function openAbout() {
   const content = `<div class="about-container">
     <div class="about-logo">bored os</div>
@@ -2735,7 +2858,7 @@ function openAbout() {
       A premium browser-based desktop environment with a built-in game launcher featuring hundreds of games, productivity apps, and a customizable interface.
     </div>
     <div class="about-credits">
-      Games powered by <strong>Lumi SDK</strong> â€¢ GNMath â€¢ UGS â€¢ Daknux â€¢ Seraph<br>
+      Games powered by <strong>Lumi SDK</strong> • GNMath • UGS • Daknux • Seraph<br>
       Icons by <strong>Lucide</strong><br>
       Built with vanilla HTML, CSS & JavaScript
     </div>
@@ -2743,18 +2866,18 @@ function openAbout() {
   createWindow('about', 'About bored os', 480, 380, content, { icon: 'info' });
 }
 
-// â”€â”€â”€ Utility â”€â”€â”€
+// ─── Utility ───
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// â”€â”€â”€ UV Proxy Service Worker â”€â”€â”€
+// ─── UV Proxy Service Worker ───
 if ('serviceWorker' in navigator && typeof window.__uv$config !== 'undefined' && window.__uv$config) {
   navigator.serviceWorker.register('/sw.js', { scope: window.__uv$config.prefix }).catch(() => {});
 }
 
-// â”€â”€â”€ Boot â”€â”€â”€
+// ─── Boot ───
 document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
