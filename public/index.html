@@ -1127,6 +1127,16 @@ function boot() {
   applyTheme(OS.theme);
   applyAccent(OS.accentColor);
   applyWallpaper(OS.wallpaper);
+  // Restore saved cloak
+  const savedCloak = localStorage.getItem('bored-os-cloak');
+  if (savedCloak && savedCloak !== 'none') {
+    applyTabCloak(savedCloak);
+  }
+  // Restore saved bare server
+  const savedBare = localStorage.getItem('bored-os-bare');
+  if (savedBare && window.__uv$config) {
+    window.__uv$config.bare = savedBare;
+  }
   buildDock();
   buildDesktopIcons();
   buildLauncher();
@@ -2563,6 +2573,12 @@ function openSettings() {
       <div class="settings-nav-item" data-tab="games-settings" onclick="switchSettingsTab('games-settings')">
         <i data-lucide="gamepad-2" style="width:16px;height:16px"></i> Games
       </div>
+      <div class="settings-nav-item" data-tab="cloak" onclick="switchSettingsTab('cloak')">
+        <i data-lucide="shield" style="width:16px;height:16px"></i> Tab Cloak
+      </div>
+      <div class="settings-nav-item" data-tab="proxy" onclick="switchSettingsTab('proxy')">
+        <i data-lucide="globe" style="width:16px;height:16px"></i> Web Proxy
+      </div>
       <div class="settings-nav-item" data-tab="storage" onclick="switchSettingsTab('storage')">
         <i data-lucide="hard-drive" style="width:16px;height:16px"></i> Storage
       </div>
@@ -2593,6 +2609,8 @@ function renderSettingsTab() {
     case 'wallpaper': renderSettingsWallpaper(content); break;
     case 'dock': renderSettingsDock(content); break;
     case 'games-settings': renderSettingsGames(content); break;
+    case 'cloak': renderSettingsCloak(content); break;
+    case 'proxy': renderSettingsProxy(content); break;
     case 'storage': renderSettingsStorage(content); break;
     case 'about-settings': renderSettingsAbout(content); break;
   }
@@ -2662,6 +2680,111 @@ function renderSettingsGames(el) {
         ${OS.recentGames.length > 0 ? `<button class="btn btn-sm btn-outline" onclick="if(confirm('Clear recently played?')){OS.recentGames=[];localStorage.setItem('bored-os-recent-games','[]');renderSettingsTab();notify('Recent games cleared')}">Clear</button>` : ''}
       </div>
     </div>`;
+}
+
+const CLOAK_PRESETS = [
+  { id: 'none', label: 'Default (bored os)', title: 'bored os', icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>" },
+  { id: 'google', label: 'Google Search', title: 'Google', icon: 'https://www.google.com/favicon.ico' },
+  { id: 'classroom', label: 'Google Classroom', title: 'Classes', icon: 'https://ssl.gstatic.com/classroom/favicon.png' },
+  { id: 'drive', label: 'Google Drive', title: 'My Drive - Google Drive', icon: 'https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png' },
+  { id: 'canvas', label: 'Canvas LMS', title: 'Dashboard', icon: 'https://du11hjcvx0uqb.cloudfront.net/br/dist/images/favicon-e10d657a73.ico' },
+  { id: 'desmos', label: 'Desmos Graphing Calculator', title: 'Desmos | Graphing Calculator', icon: 'https://www.desmos.com/favicon.ico' },
+  { id: 'bing', label: 'Bing Search', title: 'Bing', icon: 'https://www.bing.com/favicon.ico' },
+  { id: 'wikipedia', label: 'Wikipedia', title: 'Wikipedia, the free encyclopedia', icon: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
+];
+
+function applyTabCloak(presetId) {
+  const preset = CLOAK_PRESETS.find(p => p.id === presetId) || CLOAK_PRESETS[0];
+  document.title = preset.title;
+  let link = document.querySelector("link[rel*='icon']");
+  if (!link) {
+    link = document.createElement('link');
+    link.rel = 'icon';
+    document.head.appendChild(link);
+  }
+  link.href = preset.icon;
+  localStorage.setItem('bored-os-cloak', presetId);
+  notify(`Tab cloaked as ${preset.label}`);
+}
+
+function openAboutBlank() {
+  const win = window.open('about:blank', '_blank');
+  if (!win) {
+    alert('Pop-ups blocked! Please allow popups for this site.');
+    return;
+  }
+  const iframe = win.document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:0;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;';
+  iframe.src = window.location.href;
+  win.document.body.style.margin = '0';
+  win.document.body.appendChild(iframe);
+}
+
+function renderSettingsCloak(el) {
+  const activeCloak = localStorage.getItem('bored-os-cloak') || 'none';
+  el.innerHTML = `
+    <div class="settings-section">
+      <div class="settings-section-title">Tab Cloak (Stealth Disguise)</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Disguises the browser tab's title and favicon so teachers or observers only see school apps.</div>
+      <div class="home-shortcuts" style="grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px">
+        ${CLOAK_PRESETS.map(p => `
+          <div class="home-shortcut ${p.id === activeCloak ? 'active' : ''}" style="cursor:pointer;border-color:${p.id === activeCloak ? 'var(--accent)' : 'var(--border-subtle)'};background:${p.id === activeCloak ? 'var(--accent-subtle)' : 'var(--bg-surface)'}" onclick="applyTabCloak('${p.id}');renderSettingsTab()">
+            <img src="${p.icon}" style="width:18px;height:18px;border-radius:2px" onerror="this.style.display='none'">
+            <div style="font-size:12px;font-weight:600">${p.label}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">about:blank Cloak</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Launch in about:blank</div>
+          <div class="settings-row-desc">Opens BORED OS in a new stealth tab where the URL bar displays "about:blank" to bypass browser history & monitoring extensions.</div>
+        </div>
+        <button class="btn btn-sm" onclick="openAboutBlank()">Open about:blank</button>
+      </div>
+    </div>`;
+}
+
+function renderSettingsProxy(el) {
+  const currentBare = localStorage.getItem('bored-os-bare') || (window.__uv$config ? window.__uv$config.bare : 'https://uv.studentportal.lol/bare/');
+  el.innerHTML = `
+    <div class="settings-section">
+      <div class="settings-section-title">Bare Server / Proxy Connection</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Configure the Bare server endpoint that powers the built-in unblocked browser.</div>
+      
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase">Bare Server URL</label>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <input type="text" id="bare-server-input" value="${escHtml(currentBare)}" style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:var(--text-primary);font-family:monospace;font-size:12px;outline:none">
+          <button class="btn btn-sm" onclick="saveBareServer()">Save</button>
+        </div>
+      </div>
+
+      <div style="font-size:12px;font-weight:600;margin-bottom:8px">Quick Public Bare Endpoints:</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://uv.studentportal.lol/bare/';saveBareServer()">
+          🚀 StudentPortal Bare (High speed unblocked)
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://tomp.app/bare/';saveBareServer()">
+          ⚡ Tomp Official Bare
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='/bare/';saveBareServer()">
+          🏠 Local Server (/bare/)
+        </button>
+      </div>
+    </div>`;
+}
+
+function saveBareServer() {
+  const val = document.getElementById('bare-server-input').value.trim();
+  if (!val) return;
+  localStorage.setItem('bored-os-bare', val);
+  if (window.__uv$config) {
+    window.__uv$config.bare = val;
+  }
+  notify('Bare Server updated successfully!');
 }
 
 function renderSettingsStorage(el) {
