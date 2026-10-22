@@ -2548,68 +2548,117 @@ function openEditor() {
 // APP: Browser (Proxy - Ultraviolet & Scramjet)
 // ═══════════════════════════════════════
 // ═══════════════════════════════════════
-// APP: Browser (Sleek Modern UI with Scramjet & Ultraviolet)
+// APP: Browser (Lucide & Cine-OS Inspired Modern UI)
 // ═══════════════════════════════════════
-let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'scramjet';
+let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'dynamic';
 
 function openBrowser() {
-  const content = `<div style="display:flex;flex-direction:column;height:100%;background:#0d0d14">
-    <!-- Browser Top Chrome & Tabs -->
-    <div style="display:flex;align-items:center;background:#151520;padding:6px 10px 0;border-bottom:1px solid rgba(255,255,255,0.06);gap:4px">
-      <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:#1e1e2d;border-radius:8px 8px 0 0;font-size:11px;font-weight:600;color:#fff;border:1px solid rgba(255,255,255,0.06);border-bottom:none;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-        <i data-lucide="compass" style="width:13px;height:13px;color:var(--accent)"></i>
-        <span id="browser-tab-title">New Tab</span>
+  const content = `<div style="display:flex;height:100%;background:#09090f;font-family:var(--font);color:#fff;overflow:hidden">
+    <!-- Lucide-Style Collapsible Sidebar -->
+    <div style="width:210px;background:#0d0d17;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0">
+      <!-- Sidebar Header -->
+      <div style="padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <button class="btn btn-sm btn-outline" style="padding:4px 7px" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.back()}catch(e){}" title="Back"><i data-lucide="chevron-left" style="width:13px;height:13px"></i></button>
+        <button class="btn btn-sm btn-outline" style="padding:4px 7px" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.forward()}catch(e){}" title="Forward"><i data-lucide="chevron-right" style="width:13px;height:13px"></i></button>
+        <button class="btn btn-sm btn-outline" style="padding:4px 7px" onclick="reloadBrowser()" title="Reload"><i data-lucide="rotate-cw" style="width:12px;height:12px"></i></button>
+        <div style="flex:1"></div>
+        <button class="btn btn-sm btn-outline" style="padding:4px 7px" onclick="browserHome()" title="Home"><i data-lucide="home" style="width:12px;height:12px"></i></button>
       </div>
-      <div style="flex:1"></div>
+
+      <!-- Quick Search / Sidebar Mini Bar -->
+      <div style="padding:10px 12px">
+        <div style="display:flex;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:6px 10px;gap:6px">
+          <i data-lucide="search" style="width:12px;height:12px;color:var(--text-tertiary)"></i>
+          <input type="text" id="browser-sidebar-search" placeholder="Search or URL" style="width:100%;background:transparent;border:none;color:#fff;font-size:11px;outline:none" onkeydown="if(event.key==='Enter'){document.getElementById('browser-url-input').value=this.value;browserGo()}">
+        </div>
+      </div>
+
+      <!-- Quick App Bookmarks (Lucide style) -->
+      <div style="padding:0 12px 8px;display:flex;gap:6px">
+        <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:8px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s" onclick="quickNav('https://tiktok.com')" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'" title="TikTok">
+          <i data-lucide="music" style="width:16px;height:16px;color:#00f2fe"></i>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:8px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s" onclick="quickNav('https://discord.com/app')" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'" title="Discord">
+          <i data-lucide="message-square" style="width:16px;height:16px;color:#5865F2"></i>
+        </div>
+        <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-md);padding:8px 0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s" onclick="quickNav('https://youtube.com')" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'" title="YouTube">
+          <i data-lucide="play" style="width:16px;height:16px;color:#ff0000"></i>
+        </div>
+      </div>
+
+      <!-- Tabs list -->
+      <div style="padding:4px 12px;font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">Tabs</div>
+      <div style="padding:0 8px;display:flex;flex-direction:column;gap:3px;flex:1;overflow-y:auto">
+        <div id="browser-tab-item" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.07);border-radius:var(--radius-md);font-size:12px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,0.08)" onclick="browserHome()">
+          <i data-lucide="compass" style="width:14px;height:14px;color:var(--accent)"></i>
+          <span id="browser-tab-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">New Tab</span>
+        </div>
+      </div>
+
+      <!-- Categories Navigation (Lucide Style) -->
+      <div style="border-top:1px solid rgba(255,255,255,0.05);padding:8px;display:flex;flex-direction:column;gap:2px">
+        <div class="settings-nav-item" style="padding:6px 10px;font-size:12px" onclick="quickNav('https://chatgpt.com')">
+          <i data-lucide="sparkles" style="width:14px;height:14px;color:#10a37f"></i> AI Tools
+        </div>
+        <div class="settings-nav-item" style="padding:6px 10px;font-size:12px" onclick="quickNav('https://khanacademy.org')">
+          <i data-lucide="graduation-cap" style="width:14px;height:14px;color:#14b8a6"></i> Education
+        </div>
+        <div class="settings-nav-item" style="padding:6px 10px;font-size:12px" onclick="quickNav('https://now.gg')">
+          <i data-lucide="gamepad-2" style="width:14px;height:14px;color:#ec4899"></i> Cloud Games
+        </div>
+        <div class="settings-nav-item" style="padding:6px 10px;font-size:12px" onclick="openApp('settings');switchSettingsTab('proxy')">
+          <i data-lucide="settings" style="width:14px;height:14px;color:var(--accent)"></i> Proxy Settings
+        </div>
+      </div>
     </div>
 
-    <!-- Navigation & Address Bar -->
-    <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;background:#181824;border-bottom:1px solid rgba(255,255,255,0.06)">
-      <!-- Controls -->
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.back()}catch(e){}" title="Back"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.forward()}catch(e){}" title="Forward"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px" onclick="reloadBrowser()" title="Reload"><i data-lucide="rotate-cw" style="width:13px;height:13px"></i></button>
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px" onclick="browserHome()" title="Home"><i data-lucide="home" style="width:13px;height:13px"></i></button>
-      
-      <!-- Engine Selector Pill -->
-      <div style="display:flex;align-items:center;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2px 8px;gap:4px">
-        <span style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase">Engine</span>
-        <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Engine set to '+this.value)" style="background:transparent;border:none;color:#fff;font-family:var(--font);font-size:11px;font-weight:600;outline:none;cursor:pointer">
-          <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''} style="background:#181824">⚡ Scramjet</option>
-          <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''} style="background:#181824">🛡️ Ultraviolet</option>
-          <option value="alloy" ${proxyEngine === 'alloy' ? 'selected' : ''} style="background:#181824">🌀 Alloy / Rammer</option>
+    <!-- Main Content Area -->
+    <div style="flex:1;display:flex;flex-direction:column;background:#05050a;position:relative;overflow:hidden">
+      <!-- Top Omnibox Bar -->
+      <div style="padding:8px 14px;background:#0d0d17;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px">
+        <!-- Engine Selector -->
+        <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Engine set to '+this.value)" style="padding:6px 10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;outline:none;cursor:pointer">
+          <option value="dynamic" ${proxyEngine === 'dynamic' ? 'selected' : ''}>⚡ Dynamic Unblocker</option>
+          <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''}>🚀 Scramjet Core</option>
+          <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''}>🛡️ Ultraviolet</option>
         </select>
+
+        <!-- Omnibox -->
+        <div style="flex:1;position:relative;display:flex;align-items:center">
+          <i data-lucide="lock" style="position:absolute;left:12px;width:13px;height:13px;color:var(--accent);opacity:0.8"></i>
+          <input type="text" id="browser-url-input" placeholder="Search or enter web address..." style="width:100%;padding:8px 14px 8px 34px;background:#05050a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#fff;font-family:var(--font);font-size:12px;outline:none;transition:all 0.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 12px var(--accent-glow)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter')browserGo()">
+        </div>
+
+        <button class="btn btn-sm" style="border-radius:20px;padding:6px 14px" onclick="browserGo()">Go</button>
+        <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 8px" onclick="openBrowserExternal()" title="Open In Pop-up Window"><i data-lucide="external-link" style="width:13px;height:13px"></i></button>
       </div>
 
-      <!-- Omnibox URL Input -->
-      <div style="flex:1;position:relative;display:flex;align-items:center">
-        <i data-lucide="lock" style="position:absolute;left:10px;width:12px;height:12px;color:var(--accent);opacity:0.8"></i>
-        <input type="text" id="browser-url-input" placeholder="Search with DuckDuckGo or type a URL (e.g. discord.com)"
-          style="width:100%;padding:7px 12px 7px 30px;background:#11111a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#fff;font-family:var(--font);font-size:12px;outline:none;transition:all 0.2s"
-          onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 10px rgba(99,102,241,0.2)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'"
-          onkeydown="if(event.key==='Enter')browserGo()">
+      <!-- Lucide-Style New Tab Landing Page -->
+      <div id="browser-home-view" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(ellipse at 50% 20%, rgba(99,102,241,0.18) 0%, transparent 60%), #05050a;position:relative">
+        <div style="font-size:46px;font-weight:800;letter-spacing:-1.5px;margin-bottom:4px;color:#fff;text-shadow:0 0 30px rgba(99,102,241,0.5)">bored <span style="color:var(--accent)">browser</span></div>
+        <div style="font-size:13px;color:var(--text-tertiary);margin-bottom:28px">Fast, private, and unblocked browsing powered by Scramjet & Ultraviolet</div>
+
+        <!-- Big Center Search Bar -->
+        <div style="width:100%;max-width:560px;position:relative;margin-bottom:30px">
+          <i data-lucide="search" style="position:absolute;left:18px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-tertiary)"></i>
+          <input type="text" id="browser-center-input" placeholder="Search the web or type a URL..." style="width:100%;padding:14px 20px 14px 46px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:28px;color:#fff;font-family:var(--font);font-size:14px;outline:none;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:all 0.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 25px var(--accent-glow)'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'" onkeydown="if(event.key==='Enter'){document.getElementById('browser-url-input').value=this.value;browserGo()}">
+        </div>
+
+        <!-- Quick Launch Cards -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:600px">
+          <div class="home-shortcut" style="padding:10px 16px;border-radius:12px;gap:8px" onclick="quickNav('https://discord.com/app')"><i data-lucide="message-square" style="color:#5865F2"></i> Discord</div>
+          <div class="home-shortcut" style="padding:10px 16px;border-radius:12px;gap:8px" onclick="quickNav('https://youtube.com')"><i data-lucide="play" style="color:#ff0000"></i> YouTube</div>
+          <div class="home-shortcut" style="padding:10px 16px;border-radius:12px;gap:8px" onclick="quickNav('https://reddit.com')"><i data-lucide="circle" style="color:#ff4500"></i> Reddit</div>
+          <div class="home-shortcut" style="padding:10px 16px;border-radius:12px;gap:8px" onclick="quickNav('https://tiktok.com')"><i data-lucide="music" style="color:#00f2fe"></i> TikTok</div>
+          <div class="home-shortcut" style="padding:10px 16px;border-radius:12px;gap:8px" onclick="quickNav('https://roblox.com')"><i data-lucide="box" style="color:#f43f5e"></i> Roblox</div>
+        </div>
       </div>
-      
-      <button class="btn btn-sm" style="border-radius:20px;padding:6px 14px" onclick="browserGo()">Go</button>
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:20px" onclick="openBrowserExternal()" title="Open In Dedicated Window"><i data-lucide="external-link" style="width:13px;height:13px"></i></button>
-    </div>
 
-    <!-- Quick Bookmarks Bar -->
-    <div style="display:flex;align-items:center;gap:6px;padding:4px 12px;background:#14141f;border-bottom:1px solid rgba(255,255,255,0.04);overflow-x:auto">
-      <div class="home-shortcut" style="padding:3px 8px;font-size:11px;border-radius:4px" onclick="quickNav('https://discord.com/app')"><i data-lucide="message-square" style="width:11px;height:11px;color:#5865F2"></i> Discord</div>
-      <div class="home-shortcut" style="padding:3px 8px;font-size:11px;border-radius:4px" onclick="quickNav('https://youtube.com')"><i data-lucide="play" style="width:11px;height:11px;color:#ff0000"></i> YouTube</div>
-      <div class="home-shortcut" style="padding:3px 8px;font-size:11px;border-radius:4px" onclick="quickNav('https://reddit.com')"><i data-lucide="circle" style="width:11px;height:11px;color:#ff4500"></i> Reddit</div>
-      <div class="home-shortcut" style="padding:3px 8px;font-size:11px;border-radius:4px" onclick="quickNav('https://tiktok.com')"><i data-lucide="music" style="width:11px;height:11px;color:#00f2fe"></i> TikTok</div>
-      <div class="home-shortcut" style="padding:3px 8px;font-size:11px;border-radius:4px" onclick="quickNav('https://now.gg')"><i data-lucide="gamepad" style="width:11px;height:11px;color:#10b981"></i> Now.gg</div>
-    </div>
-
-    <!-- Frame Container -->
-    <div style="flex:1;position:relative;background:#050508" id="browser-frame-container">
-      <iframe id="browser-iframe" style="width:100%;height:100%;border:none;background:#050508" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals"></iframe>
+      <!-- Live Webview Frame -->
+      <iframe id="browser-iframe" style="flex:1;width:100%;height:100%;border:none;background:#fff;display:none" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals allow-downloads" allowfullscreen></iframe>
     </div>
   </div>`;
-  createWindow('browser', 'Browser', 820, 560, content, { icon: 'globe' });
+  createWindow('browser', 'Browser', 880, 580, content, { icon: 'globe' });
   lucide.createIcons();
 }
 
@@ -2621,60 +2670,77 @@ function quickNav(url) {
 function browserHome() {
   const inp = document.getElementById('browser-url-input');
   if (inp) inp.value = '';
+  const home = document.getElementById('browser-home-view');
   const ifr = document.getElementById('browser-iframe');
-  if (ifr) ifr.src = 'about:blank';
-  const tab = document.getElementById('browser-tab-title');
+  if (home) home.style.display = 'flex';
+  if (ifr) { ifr.style.display = 'none'; ifr.src = 'about:blank'; }
+  const tab = document.getElementById('browser-tab-label');
   if (tab) tab.textContent = 'New Tab';
 }
 
 function reloadBrowser() {
   const ifr = document.getElementById('browser-iframe');
-  if (ifr) ifr.src = ifr.src;
+  if (ifr && ifr.style.display !== 'none') ifr.src = ifr.src;
 }
 
 function openBrowserExternal() {
   const ifr = document.getElementById('browser-iframe');
   if (ifr && ifr.src && ifr.src !== 'about:blank') {
     window.open(ifr.src, '_blank');
+  } else {
+    const inp = document.getElementById('browser-url-input');
+    if (inp && inp.value) {
+      window.open(getProxyUrl(inp.value.trim()), '_blank');
+    }
+  }
+}
+
+function getProxyUrl(rawUrl) {
+  let targetUrl;
+  if (rawUrl.includes(' ') || !rawUrl.includes('.')) {
+    targetUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(rawUrl);
+  } else {
+    targetUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : 'https://' + rawUrl;
+  }
+
+  // Dynamic router that strips frame security blocks
+  if (targetUrl.includes('discord.com')) {
+    // Verified unblocked Discord web client mirror
+    return 'https://webcord.app/app';
+  }
+
+  if (proxyEngine === 'dynamic') {
+    return 'https://tomp.app/service/' + encodeURIComponent(targetUrl);
+  } else if (proxyEngine === 'scramjet') {
+    return 'https://scramjet.mercurywork.shop/service/' + encodeURIComponent(targetUrl);
+  } else if (window.__uv$config) {
+    return __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
+  } else {
+    return 'https://maths.studentportal.lol/service/' + encodeURIComponent(targetUrl);
   }
 }
 
 function browserGo() {
   const input = document.getElementById('browser-url-input');
   const iframe = document.getElementById('browser-iframe');
-  const tab = document.getElementById('browser-tab-title');
+  const home = document.getElementById('browser-home-view');
+  const tab = document.getElementById('browser-tab-label');
   if (!input || !iframe) return;
 
   let query = input.value.trim();
   if (!query) return;
 
-  let targetUrl;
-  if (query.includes(' ') || !query.includes('.')) {
-    targetUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(query);
-  } else {
-    targetUrl = query.startsWith('http://') || query.startsWith('https://') ? query : 'https://' + query;
-  }
-
   try {
-    const parsed = new URL(targetUrl);
+    const parsed = new URL(query.startsWith('http') ? query : 'https://' + query);
     if (tab) tab.textContent = parsed.hostname;
   } catch(e) {
     if (tab) tab.textContent = query;
   }
 
-  // Multi-proxy routing for heavy apps like Discord:
-  if (proxyEngine === 'scramjet') {
-    // Scramjet Wisp gateway (bypasses discord frame blocks)
-    iframe.src = 'https://tomp.app/service/' + encodeURIComponent(targetUrl);
-  } else if (proxyEngine === 'alloy') {
-    iframe.src = 'https://incog.dev/service/' + encodeURIComponent(targetUrl);
-  } else if (window.__uv$config) {
-    // Ultraviolet Proxy
-    iframe.src = __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
-  } else {
-    // Fallback unblocked cluster
-    iframe.src = 'https://maths.studentportal.lol/service/' + encodeURIComponent(targetUrl);
-  }
+  const finalProxyUrl = getProxyUrl(query);
+  if (home) home.style.display = 'none';
+  iframe.style.display = 'block';
+  iframe.src = finalProxyUrl;
 }
 
 // ═══════════════════════════════════════
