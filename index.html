@@ -2490,21 +2490,29 @@ function openEditor() {
 }
 
 // ═══════════════════════════════════════
-// APP: Browser (Proxy)
+// APP: Browser (Proxy - Ultraviolet & Scramjet)
 // ═══════════════════════════════════════
+let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'scramjet';
+
 function openBrowser() {
   const content = `<div style="display:flex;flex-direction:column;height:100%">
     <div style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border-subtle);flex-shrink:0;background:var(--bg-tertiary)">
+      <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Switched engine to '+this.value)" style="padding:6px 10px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font);font-size:12px;font-weight:600;outline:none;cursor:pointer">
+        <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''}>⚡ Scramjet</option>
+        <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''}>🛡️ Ultraviolet</option>
+      </select>
+      <button class="btn btn-sm btn-outline" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)ifr.src=ifr.src" title="Reload"><i data-lucide="refresh-cw" style="width:12px;height:12px"></i></button>
       <input type="text" id="browser-url-input" placeholder="Search DuckDuckGo or enter URL"
         style="flex:1;padding:7px 12px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font);font-size:13px;outline:none"
         onkeydown="if(event.key==='Enter')browserGo()">
       <button class="btn btn-sm" onclick="browserGo()">Go</button>
     </div>
     <div style="flex:1;position:relative" id="browser-frame-container">
-      <iframe id="browser-iframe" style="width:100%;height:100%;border:none;background:white" src="about:blank"></iframe>
+      <iframe id="browser-iframe" style="width:100%;height:100%;border:none;background:white" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups"></iframe>
     </div>
   </div>`;
-  createWindow('browser', 'Browser', 700, 500, content, { icon: 'globe' });
+  createWindow('browser', 'Browser', 750, 520, content, { icon: 'globe' });
+  lucide.createIcons();
 }
 
 function browserGo() {
@@ -2515,24 +2523,27 @@ function browserGo() {
   let query = input.value.trim();
   if (!query) return;
 
-  // Check if UV proxy is available
-  if (window.__uv$config) {
-    let url;
-    if (query.includes(' ') || !query.includes('.')) {
-      url = 'https://duckduckgo.com/?q=' + encodeURIComponent(query);
-    } else {
-      url = query.startsWith('http') ? query : 'https://' + query;
-    }
+  let url;
+  if (query.includes(' ') || !query.includes('.')) {
+    url = 'https://duckduckgo.com/?q=' + encodeURIComponent(query);
+  } else {
+    url = query.startsWith('http://') || query.startsWith('https://') ? query : 'https://' + query;
+  }
+
+  // Scramjet Proxy Gateway (Mercury Workshop public cluster / wisp)
+  if (proxyEngine === 'scramjet') {
+    // Encode via Scramjet standard gateway
+    const scramjetGateways = [
+      'https://scramjet.mercurywork.shop/service/',
+      'https://maths.studentportal.lol/service/'
+    ];
+    iframe.src = scramjetGateways[0] + encodeURIComponent(url);
+  } else if (window.__uv$config) {
+    // Ultraviolet Proxy Gateway
     iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url);
   } else {
-    // Fallback: basic URL or search
-    let url;
-    if (query.includes(' ') || !query.includes('.')) {
-      url = 'https://duckduckgo.com/?q=' + encodeURIComponent(query);
-    } else {
-      url = query.startsWith('http') ? query : 'https://' + query;
-    }
-    iframe.src = url;
+    // Direct or fallback
+    iframe.src = 'https://maths.studentportal.lol/service/' + encodeURIComponent(url);
   }
 }
 
