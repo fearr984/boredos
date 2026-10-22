@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bored os</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 /* ═══════════════════════════════════════════
@@ -123,16 +123,19 @@ html, body {
 /* ═══ Desktop ═══ */
 #desktop {
   position: fixed; inset: 0;
-  background-size: cover;
-  background-position: center;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   background-color: var(--bg-primary);
   overflow: hidden;
+  transition: background 0.4s ease;
 }
 
 .wallpaper-overlay {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 70% 80%, rgba(139,92,246,0.06) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(139,92,246,0.04) 0%, transparent 60%),
+              rgba(0,0,0,0.12);
   pointer-events: none;
 }
 
@@ -1104,7 +1107,9 @@ const OS = {
   recentApps: JSON.parse(localStorage.getItem('bored-os-recent-apps') || '[]'),
   theme: localStorage.getItem('bored-os-theme') || 'dark',
   accentColor: localStorage.getItem('bored-os-accent') || '#6366f1',
-  wallpaper: localStorage.getItem('bored-os-wallpaper') || 'gradient-1',
+  wallpaper: localStorage.getItem('bored-os-wallpaper') || 'pixel-city',
+  font: localStorage.getItem('bored-os-font') || 'inter',
+  customWallpapers: JSON.parse(localStorage.getItem('bored-os-custom-wallpapers') || '[]'),
   notes: localStorage.getItem('bored-os-notes') || 'Welcome to bored os!\n\nStart typing your notes here...',
   files: JSON.parse(localStorage.getItem('bored-os-files') || 'null'),
   gameSettings: JSON.parse(localStorage.getItem('bored-os-game-settings') || '{}'),
@@ -1131,6 +1136,7 @@ if (!OS.files) {
 function boot() {
   applyTheme(OS.theme);
   applyAccent(OS.accentColor);
+  applyFont(OS.font);
   applyWallpaper(OS.wallpaper);
   // Restore saved cloak
   const savedCloak = localStorage.getItem('bored-os-cloak');
@@ -1232,31 +1238,133 @@ function applyAccent(color) {
   localStorage.setItem('bored-os-accent', color);
 }
 
-// ─── Wallpaper ───
-const WALLPAPERS = [
-  { id: 'gradient-1', type: 'gradient', value: 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)', label: 'Midnight' },
-  { id: 'gradient-2', type: 'gradient', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Nebula' },
-  { id: 'gradient-3', type: 'gradient', value: 'linear-gradient(135deg, #0c1220 0%, #1a3a4a 50%, #0a1a2a 100%)', label: 'Ocean' },
-  { id: 'gradient-4', type: 'gradient', value: 'linear-gradient(135deg, #1a0a0a 0%, #3a1020 50%, #1a0a1a 100%)', label: 'Ruby' },
-  { id: 'gradient-5', type: 'gradient', value: 'linear-gradient(135deg, #0a1a0a 0%, #0a3a1a 50%, #0a1a0a 100%)', label: 'Forest' },
-  { id: 'gradient-6', type: 'gradient', value: 'linear-gradient(135deg, #000000 0%, #111111 50%, #000000 100%)', label: 'Void' },
-  { id: 'solid-dark', type: 'solid', value: '#0a0a0f', label: 'Dark' },
-  { id: 'solid-light', type: 'solid', value: '#e8e8f0', label: 'Light' },
+// ─── Font Engine ───
+const AVAILABLE_FONTS = [
+  { id: 'inter', name: 'Inter (Modern Clean)', font: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", preview: 'Clean Modern OS Font' },
+  { id: 'silkscreen', name: 'Silkscreen (Pixel Font)', font: "'Silkscreen', monospace", preview: 'RETRO 8-BIT PIXEL' },
+  { id: 'press-start', name: 'Press Start 2P (Arcade)', font: "'Press Start 2P', monospace", preview: 'PRESS START' },
+  { id: 'vt323', name: 'VT323 (CRT Terminal)', font: "'VT323', monospace", preview: 'CRT TERMINAL 1985' },
+  { id: 'space-grotesk', name: 'Space Grotesk (Futuristic)', font: "'Space Grotesk', sans-serif", preview: 'Cyber Futuristic' },
 ];
-function applyWallpaper(id) {
-  OS.wallpaper = id;
-  const wp = WALLPAPERS.find(w => w.id === id);
+
+function applyFont(fontId) {
+  OS.font = fontId;
+  const f = AVAILABLE_FONTS.find(x => x.id === fontId) || AVAILABLE_FONTS[0];
+  document.documentElement.style.setProperty('--font', f.font);
+  document.documentElement.setAttribute('data-font', fontId);
+  localStorage.setItem('bored-os-font', fontId);
+}
+
+// ─── Wallpapers Library (Curated HD & Pixel) ───
+const WALLPAPERS = [
+  // Pixel & Retro
+  { id: 'pixel-city', type: 'image', value: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop', label: 'Pixel Cyber City', category: 'Pixel / Retro' },
+  { id: 'retro-arcade', type: 'image', value: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop', label: 'Neon Arcade', category: 'Pixel / Retro' },
+  { id: 'vaporwave-grid', type: 'image', value: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=2000&auto=format&fit=crop', label: 'Synthwave Night', category: 'Pixel / Retro' },
+
+  // Cyberpunk & Lucide
+  { id: 'cyber-neon', type: 'image', value: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop', label: 'Cyberpunk Alley', category: 'Cyber' },
+  { id: 'lucide-purple', type: 'image', value: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop', label: 'Lucide Aura', category: 'Cyber' },
+  { id: 'matrix-terminal', type: 'image', value: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop', label: 'Matrix Terminal', category: 'Cyber' },
+
+  // Space & Anime Aesthetic
+  { id: 'space-nebula', type: 'image', value: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2070&auto=format&fit=crop', label: 'Deep Nebula', category: 'Space' },
+  { id: 'anime-twilight', type: 'image', value: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop', label: 'Anime Twilight', category: 'Aesthetic' },
+  { id: 'orbit-night', type: 'image', value: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', label: 'Earth Orbit', category: 'Space' },
+
+  // Minimalist Gradients
+  { id: 'gradient-1', type: 'gradient', value: 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)', label: 'Midnight Blue', category: 'Minimal' },
+  { id: 'gradient-2', type: 'gradient', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Cosmic Violet', category: 'Minimal' },
+  { id: 'gradient-3', type: 'gradient', value: 'linear-gradient(135deg, #0c1220 0%, #1a3a4a 50%, #0a1a2a 100%)', label: 'Ocean Depths', category: 'Minimal' },
+  { id: 'gradient-4', type: 'gradient', value: 'linear-gradient(135deg, #1a0a0a 0%, #3a1020 50%, #1a0a1a 100%)', label: 'Crimson Eclipse', category: 'Minimal' },
+  { id: 'gradient-6', type: 'gradient', value: 'linear-gradient(135deg, #000000 0%, #121217 50%, #000000 100%)', label: 'OLED Pure Black', category: 'Minimal' },
+];
+
+function applyWallpaper(idOrUrl) {
+  if (!idOrUrl) return;
+  OS.wallpaper = idOrUrl;
   const desktop = document.getElementById('desktop');
-  if (wp) {
-    if (wp.type === 'gradient') {
-      desktop.style.background = wp.value;
-      desktop.style.backgroundImage = '';
+  if (!desktop) return;
+
+  const preset = WALLPAPERS.find(w => w.id === idOrUrl);
+  let bgValue = '';
+  if (preset) {
+    if (preset.type === 'image') {
+      bgValue = `url('${preset.value}') center center / cover no-repeat`;
     } else {
-      desktop.style.background = wp.value;
-      desktop.style.backgroundImage = '';
+      bgValue = preset.value;
     }
+  } else if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://') || idOrUrl.startsWith('data:image')) {
+    bgValue = `url('${idOrUrl}') center center / cover no-repeat`;
+  } else if (idOrUrl.startsWith('linear-gradient') || idOrUrl.startsWith('radial-gradient') || idOrUrl.startsWith('#')) {
+    bgValue = idOrUrl;
+  } else {
+    bgValue = 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)';
   }
-  localStorage.setItem('bored-os-wallpaper', id);
+
+  desktop.style.background = bgValue;
+  desktop.style.backgroundSize = 'cover';
+  desktop.style.backgroundPosition = 'center center';
+  desktop.style.backgroundRepeat = 'no-repeat';
+
+  localStorage.setItem('bored-os-wallpaper', idOrUrl);
+}
+
+function addCustomWallpaperUrl() {
+  const input = document.getElementById('custom-wallpaper-input');
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url) return;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    notify('Please enter a valid image URL (https://...)');
+    return;
+  }
+
+  if (!OS.customWallpapers.includes(url)) {
+    OS.customWallpapers.unshift(url);
+    if (OS.customWallpapers.length > 12) OS.customWallpapers.pop();
+    localStorage.setItem('bored-os-custom-wallpapers', JSON.stringify(OS.customWallpapers));
+  }
+  applyWallpaper(url);
+  renderSettingsTab();
+  notify('Custom wallpaper applied!');
+  input.value = '';
+}
+
+function uploadCustomWallpaper(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    notify('Please select an image file');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    if (!OS.customWallpapers.includes(dataUrl)) {
+      OS.customWallpapers.unshift(dataUrl);
+      if (OS.customWallpapers.length > 8) OS.customWallpapers.pop();
+      try {
+        localStorage.setItem('bored-os-custom-wallpapers', JSON.stringify(OS.customWallpapers));
+      } catch (err) {
+        OS.customWallpapers = [dataUrl];
+        try { localStorage.setItem('bored-os-custom-wallpapers', JSON.stringify(OS.customWallpapers)); } catch(e2){}
+      }
+    }
+    applyWallpaper(dataUrl);
+    renderSettingsTab();
+    notify('Uploaded wallpaper applied!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCustomWallpaper(url) {
+  OS.customWallpapers = OS.customWallpapers.filter(u => u !== url);
+  localStorage.setItem('bored-os-custom-wallpapers', JSON.stringify(OS.customWallpapers));
+  if (OS.wallpaper === url) {
+    applyWallpaper('pixel-city');
+  }
+  renderSettingsTab();
+  notify('Custom wallpaper removed');
 }
 
 // ─── Desktop Icons ───
@@ -1629,6 +1737,7 @@ function openApp(appId) {
 // COMMUNITY QUOTES & TESTIMONIALS
 // ═══════════════════════════════════════
 const COMMUNITY_QUOTES = [
+  { author: "fearr", role: "Creator of bored os", quote: "falling asleep making ts" },
   { author: "Technonyte", role: "Owner of VAPOR", quote: "bored os" },
   { author: "ZXS", role: "Owner of Luna", quote: "bored os is clean imo" },
   { author: "Divine", role: "Owner of Starlight", quote: "cute lil site" },
@@ -1721,6 +1830,19 @@ function openHome() {
       <div class="home-section-title" style="display:flex;align-items:center;gap:6px">
         <i data-lucide="quote" style="width:14px;height:14px;color:var(--accent)"></i> Community Quotes & Reviews
       </div>
+
+      <!-- Featured Quote Box -->
+      <div style="background:linear-gradient(135deg, rgba(99,102,241,0.22), rgba(168,85,247,0.18));border:1px solid rgba(99,102,241,0.4);border-radius:var(--radius-lg);padding:18px 22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 0 25px rgba(99,102,241,0.18)">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(99,102,241,0.25);border:1px solid rgba(99,102,241,0.4);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#c4b5fd;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:6px">
+            <i data-lucide="sparkles" style="width:10px;height:10px"></i> Featured Developer Quote
+          </div>
+          <div style="font-size:22px;font-weight:800;color:#fff;font-style:italic;line-height:1.3;letter-spacing:-0.5px">"falling asleep making ts"</div>
+          <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px">— fearr, Creator of bored os</div>
+        </div>
+        <div style="font-size:36px;opacity:0.9">😴</div>
+      </div>
+
       <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px">
         ${COMMUNITY_QUOTES.map(q => `
           <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;transition:all var(--transition-fast)" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-subtle)';this.style.transform='none'">
@@ -2839,17 +2961,94 @@ function renderSettingsAppearance(el) {
       <div class="color-swatches">
         ${accents.map(c => `<div class="color-swatch ${c === OS.accentColor ? 'active' : ''}" style="background:${c}" onclick="applyAccent('${c}');renderSettingsTab()"></div>`).join('')}
       </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Typography & Pixel Fonts</span>
+        <button class="btn btn-sm ${OS.font === 'silkscreen' || OS.font === 'press-start' ? '' : 'btn-outline'}" onclick="applyFont(OS.font === 'silkscreen' ? 'inter' : 'silkscreen');renderSettingsTab()">
+          👾 ${OS.font === 'silkscreen' || OS.font === 'press-start' ? 'Pixel Font: ON' : 'Turn Pixel Font ON'}
+        </button>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Choose a font for all windows, menus, docks, and apps:</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:8px">
+        ${AVAILABLE_FONTS.map(f => `
+          <div class="home-shortcut ${f.id === OS.font ? 'active' : ''}" 
+               style="cursor:pointer;border-color:${f.id === OS.font ? 'var(--accent)' : 'var(--border-subtle)'};background:${f.id === OS.font ? 'var(--accent-subtle)' : 'var(--bg-surface)'};padding:12px;flex-direction:column;align-items:flex-start;gap:6px"
+               onclick="applyFont('${f.id}');renderSettingsTab()">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <div style="font-size:12px;font-weight:700">${f.name}</div>
+              ${f.id === OS.font ? '<i data-lucide="check" style="width:14px;height:14px;color:var(--accent)"></i>' : ''}
+            </div>
+            <div style="font-family:${f.font};font-size:14px;color:#fff;letter-spacing:0.5px">${f.preview}</div>
+          </div>
+        `).join('')}
+      </div>
     </div>`;
 }
 
 function renderSettingsWallpaper(el) {
+  const isCustomActive = !WALLPAPERS.some(w => w.id === OS.wallpaper);
   el.innerHTML = `
+    <!-- Custom Wallpaper Tools -->
     <div class="settings-section">
-      <div class="settings-section-title">Wallpaper</div>
+      <div class="settings-section-title">Custom Wallpaper</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Upload any image file from your device or paste an online image link:</div>
+      
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="custom-wallpaper-input" placeholder="Paste image link (https://...)" 
+               style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:#fff;font-family:var(--font);font-size:12px;outline:none"
+               onkeydown="if(event.key==='Enter')addCustomWallpaperUrl()">
+        <button class="btn btn-sm" onclick="addCustomWallpaperUrl()">Apply Link</button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="file" id="wallpaper-file-input" accept="image/*" style="display:none" onchange="uploadCustomWallpaper(this.files[0])">
+        <button class="btn btn-sm btn-outline" onclick="document.getElementById('wallpaper-file-input').click()">
+          <i data-lucide="upload" style="width:13px;height:13px;margin-right:4px"></i> Upload from Device
+        </button>
+        <button class="btn btn-sm btn-outline" onclick="applyWallpaper('pixel-city');renderSettingsTab()">
+          <i data-lucide="rotate-ccw" style="width:13px;height:13px;margin-right:4px"></i> Reset Default
+        </button>
+      </div>
+    </div>
+
+    <!-- Your Custom Wallpapers -->
+    ${OS.customWallpapers && OS.customWallpapers.length > 0 ? `
+    <div class="settings-section">
+      <div class="settings-section-title">Your Uploads & Custom Links (${OS.customWallpapers.length})</div>
       <div class="wallpaper-grid">
+        ${OS.customWallpapers.map((url, idx) => `
+          <div class="wallpaper-option ${OS.wallpaper === url ? 'active' : ''}" 
+               style="position:relative"
+               onclick="applyWallpaper('${escHtml(url)}');renderSettingsTab()">
+            <img src="${escHtml(url)}" style="width:100%;height:100%;object-fit:cover" alt="Custom ${idx+1}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070'">
+            <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 6px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+              <span>Custom #${idx+1}</span>
+              <button onclick="event.stopPropagation();removeCustomWallpaper('${escHtml(url)}')" style="background:none;border:none;color:#f87171;cursor:pointer;padding:0" title="Delete">✕</button>
+            </div>
+            ${OS.wallpaper === url ? '<div style="position:absolute;top:6px;right:6px;background:var(--accent);width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></div>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Curated Wallpapers Collection -->
+    <div class="settings-section">
+      <div class="settings-section-title">Curated Wallpapers (HD & Pixel)</div>
+      <div class="wallpaper-grid" style="grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:12px">
         ${WALLPAPERS.map(wp => `
-          <div class="wallpaper-option ${wp.id === OS.wallpaper ? 'active' : ''}" onclick="applyWallpaper('${wp.id}');renderSettingsTab()">
-            <div class="wallpaper-color" style="background:${wp.type === 'gradient' ? wp.value : wp.value};width:100%;height:100%"></div>
+          <div class="wallpaper-option ${wp.id === OS.wallpaper ? 'active' : ''}" 
+               onclick="applyWallpaper('${wp.id}');renderSettingsTab()"
+               style="position:relative;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/10">
+            ${wp.type === 'image' 
+              ? `<img src="${wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
+              : `<div class="wallpaper-color" style="background:${wp.value};width:100%;height:100%"></div>`
+            }
+            <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent, rgba(0,0,0,0.85));padding:6px 8px;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(wp.label)}</span>
+              <span style="font-size:9px;opacity:0.7;background:rgba(255,255,255,0.1);padding:1px 4px;border-radius:3px">${wp.category}</span>
+            </div>
+            ${wp.id === OS.wallpaper ? '<div style="position:absolute;top:6px;right:6px;background:var(--accent);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 8px var(--accent-glow)"><i data-lucide="check" style="width:12px;height:12px;color:#fff"></i></div>' : ''}
           </div>
         `).join('')}
       </div>
