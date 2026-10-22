@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════
    BORED OS — Design System & Core Styles
@@ -2024,6 +2025,7 @@ function openGames() {
     </div>
     <div class="tabs" id="games-tabs">
       <div class="tab active" data-tab="discover" onclick="switchGamesTab('discover')">Discover</div>
+      <div class="tab" data-tab="lumin" onclick="switchGamesTab('lumin')">⚡ Lumin Hub</div>
       <div class="tab" data-tab="library" onclick="switchGamesTab('library')">Library</div>
       <div class="tab" data-tab="favorites" onclick="switchGamesTab('favorites')">Favorites</div>
       <div class="tab" data-tab="recent" onclick="switchGamesTab('recent')">Recent</div>
@@ -2083,9 +2085,64 @@ function renderGamesTab() {
   }
 
   if (gamesCurrentTab === 'discover') renderGamesDiscover(body);
+  else if (gamesCurrentTab === 'lumin') renderGamesLumin(body);
   else if (gamesCurrentTab === 'library') renderGamesLibrary(body);
   else if (gamesCurrentTab === 'favorites') renderGamesFavorites(body);
   else if (gamesCurrentTab === 'recent') renderGamesRecent(body);
+}
+
+function renderGamesLumin(body) {
+  body.innerHTML = `
+    <div style="padding:16px;height:100%;overflow-y:auto;box-sizing:border-box">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:var(--radius-md);padding:10px 16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">⚡</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#fff">Lumin Games Network</div>
+            <div style="font-size:11px;color:var(--text-tertiary)">Official Lumin SDK dark container integration</div>
+          </div>
+        </div>
+        <button onclick="initLuminGames()" style="background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer">Reload Lumin</button>
+      </div>
+      <div id="games" style="min-height:380px;background:var(--bg-secondary);border-radius:var(--radius-md);border:1px solid var(--border-subtle);overflow:hidden"></div>
+    </div>
+  `;
+  setTimeout(initLuminGames, 150);
+}
+
+function initLuminGames() {
+  const container = document.getElementById('games');
+  if (!container) return;
+  try {
+    if (typeof Lumin !== 'undefined' && Lumin.init) {
+      container.innerHTML = '';
+      Lumin.init({
+        container: '#games',
+        theme: 'dark'
+      });
+    } else {
+      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-tertiary)">Loading Lumin SDK...<br><span style="font-size:11px;opacity:0.7">If this takes long, verify your connection to jsdelivr</span></div>';
+      // Retry once loaded
+      let tries = 0;
+      const interval = setInterval(() => {
+        tries++;
+        if (typeof Lumin !== 'undefined' && Lumin.init) {
+          clearInterval(interval);
+          container.innerHTML = '';
+          Lumin.init({
+            container: '#games',
+            theme: 'dark'
+          });
+        } else if (tries > 10) {
+          clearInterval(interval);
+          container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger)">Could not connect to Lumin SDK CDN. Check network settings.</div>';
+        }
+      }, 500);
+    }
+  } catch (err) {
+    console.error('Lumin init error:', err);
+    container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger)">Lumin initialization error: ' + err.message + '</div>';
+  }
 }
 
 function renderGamesDiscover(body) {
