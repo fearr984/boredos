@@ -1626,6 +1626,35 @@ function openApp(appId) {
 }
 
 // ═══════════════════════════════════════
+// COMMUNITY QUOTES & TESTIMONIALS
+// ═══════════════════════════════════════
+const COMMUNITY_QUOTES = [
+  { author: "Technonyte", role: "Owner of VAPOR", quote: "chair e" },
+  { author: "ZXS", role: "Owner of Luna", quote: "cherri is clean imo" },
+  { author: "Divine", role: "Owner of Starlight", quote: "cute lil site" },
+  { author: "TestUser", role: "Co-Owner of Hydra Network", quote: "i like cherri because it is ugly" },
+  { author: "JOSH", role: "User", quote: "i like cherries" },
+  { author: "4xmq", role: "Owner of Fern", quote: "cherri, like cherry ice cream? delicious" },
+  { author: "ap5z", role: "Owner of Lucide", quote: "cherri has upgraded my unblocking experience" },
+  { author: "Jayy", role: "Dev at Nautilus Labs", quote: "too much [inappropriate material] in shrek 2" },
+  { author: "CompactAI", role: "Dev at Nautilus Labs", quote: "Cherri brings in very smart and intelligent children. I bring in not as smart people." },
+  { author: "carbon06", role: "A guy", quote: "i love x8r's cherries" },
+  { author: "NC", role: "Owner of Shadow", quote: "i like cherries (nc's version)" },
+  { author: "Veteraning", role: "Owner of Krypton", quote: "this site is very good it makes me jealous. also very underrated." },
+  { author: "duderucool", role: "Owner of Flux", quote: "el cherri is el good" },
+  { author: "NebuLord", role: "Owner of NebuliOS", quote: "Cherri got me through 6-7 years of white room torture. 10/10" },
+  { author: "Lunza", role: "User", quote: "rip franklin saint you would've loved unblocked sites" },
+  { author: "Beetlejuice", role: "Vortex Jr. Mod", quote: "i love finally being able to cherri pick the web your school blocked" },
+  { author: "jrdn", role: "Owner of Celestial", quote: "cherri is a REALLY great competitor to sites like lucide, fern, and even celestial! (cannot be beaten trust)" },
+  { author: "m", role: "VIP", quote: "the huzz came to me when i had unblocked sites" },
+  { author: "spark", role: "CEO of Cloudflare", quote: "cherri chat has the best community ever" },
+  { author: "Bull-33", role: "YouTuber", quote: "I post this website on YT for a reason 🔥" },
+  { author: "ODXD", role: "User", quote: "Cherri on top" },
+  { author: "snake", role: "Vortex Jr. Moderator", quote: "cherri is prob one of the best proxy/game site ive ever seen" },
+  { author: "Evicly", role: "Owner of Vortex Chat", quote: "Cherri is one of, if not the most modern proxy site. It has all the latest feature, good speeds, smooth UI, and overall just works" }
+];
+
+// ═══════════════════════════════════════
 // APP: Home
 // ═══════════════════════════════════════
 function openHome() {
@@ -1684,6 +1713,27 @@ function openHome() {
           <div style="font-size:40px;font-weight:800;letter-spacing:-2px" id="home-clock-display"></div>
           <div style="font-size:13px;color:var(--text-tertiary)">${dateStr}</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Community Reviews & Quotes -->
+    <div class="home-section">
+      <div class="home-section-title" style="display:flex;align-items:center;gap:6px">
+        <i data-lucide="quote" style="width:14px;height:14px;color:var(--accent)"></i> Community Quotes & Reviews
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:10px">
+        ${COMMUNITY_QUOTES.map(q => `
+          <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;transition:all var(--transition-fast)" onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border-subtle)';this.style.transform='none'">
+            <div style="font-size:12px;color:var(--text-primary);line-height:1.5;font-style:italic">"${escHtml(q.quote)}"</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.05);padding-top:8px;margin-top:2px">
+              <div>
+                <div style="font-size:12px;font-weight:700;color:#fff">${escHtml(q.author)}</div>
+                <div style="font-size:10px;color:var(--accent);font-weight:600">${escHtml(q.role)}</div>
+              </div>
+              <i data-lucide="check-circle" style="width:13px;height:13px;color:var(--success);opacity:0.8"></i>
+            </div>
+          </div>
+        `).join('')}
       </div>
     </div>
   </div>`;
