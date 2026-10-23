@@ -2039,7 +2039,6 @@ function openGames() {
       </div>
       <select class="games-filter-btn" id="games-source-filter" onchange="onGamesSourceChange(this.value)" style="padding:8px 10px;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font);font-size:12px;outline:none;cursor:pointer">
         <option value="All">All Sources</option>
-        <option value="Lumin">⚡ Lumin SDK (Live)</option>
         <option value="GNMath">GNMath</option>
         <option value="UGS">UGS</option>
         <option value="Daknux">Daknux</option>
@@ -2165,24 +2164,7 @@ function renderGamesDiscover(body) {
 
   let html = '';
 
-  // Seamless integrated Lumin Banner when on Discover
-  if (!isSearching) {
-    html += `
-      <div style="margin-bottom:18px;background:linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.12));border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-lg);padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px">⚡</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;color:#fff">Lumin SDK Active Catalog</div>
-              <div style="font-size:11px;color:var(--text-tertiary)">1,000+ unblocked web games combined with bored os library</div>
-            </div>
-          </div>
-          <button onclick="initLuminContainer()" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer">Refresh Lumin</button>
-        </div>
-        <div id="games" style="min-height:220px;max-height:300px;overflow-y:auto;border-radius:var(--radius-md);background:var(--bg-primary);border:1px solid rgba(255,255,255,0.06)"></div>
-      </div>
-    `;
-  }
+  // Lumin games are merged into the main grid below (no separate grid)
 
   // Featured game (only when not searching)
   if (!isSearching && filtered.length > 0) {
@@ -2233,9 +2215,6 @@ function renderGamesDiscover(body) {
   html += `</div>`;
   body.innerHTML = html;
   lucide.createIcons();
-  if (!isSearching && gamesCurrentTab === 'discover') {
-    setTimeout(initLuminContainer, 150);
-  }
 }
 
 function renderGamesLibrary(body) {
