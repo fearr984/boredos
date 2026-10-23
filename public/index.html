@@ -3050,6 +3050,27 @@ async function ensureProxy() {
 
     await Promise.all([controllerReady, transportReady, swReadyPromise]);
 
+    // navigator.serviceWorker.ready only means a worker is active. On the very
+    // first visit the current page may not be controlled yet, and an iframe
+    // navigation would bypass the proxy and hit the static host's 404 page.
+    if (!navigator.serviceWorker.controller) {
+      const registration = await navigator.serviceWorker.ready;
+      registration.active?.postMessage({ type: 'CLAIM' });
+      await new Promise(resolve => {
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          navigator.serviceWorker.removeEventListener('controllerchange', finish);
+          resolve();
+        };
+        const timer = setTimeout(finish, 5000);
+        navigator.serviceWorker.addEventListener('controllerchange', finish);
+        if (navigator.serviceWorker.controller) finish();
+      });
+    }
+
     proxyController = controller;
     proxyConnection = connection;
     proxyWispUrl = wisp.url;
