@@ -7,6 +7,10 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
+<link rel="modulepreload" href="scramjet/scramjet.bundle.js?v=4">
+<link rel="modulepreload" href="baremux/index.mjs?v=4">
+<link rel="prefetch" href="scramjet/scramjet.all.js?v=4" as="script">
+<link rel="prefetch" href="libcurl/index.mjs?v=4" as="script">
 <style>
 /* ═══════════════════════════════════════════
    BORED OS — Design System & Core Styles
@@ -1197,6 +1201,11 @@ function boot() {
 
   // Pre-load games in background
   setTimeout(() => loadAllGames(), 1500);
+
+  // Warm the proxy in the background so the Browser app opens immediately.
+  setTimeout(() => {
+    if (document.visibilityState === 'visible') ensureProxy().catch(() => {});
+  }, 2800);
 }
 
 // ─── Clock ───
@@ -2869,8 +2878,8 @@ function getWispNodes() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     nodes.push({ name: 'Local Wisp', url: `${wsProtocol}//${window.location.host}/wisp/` });
   }
-  nodes.push({ name: 'Fern Wisp', url: 'wss://fern.best/wisp/' });
   nodes.push({ name: 'Anura Wisp', url: 'wss://anura.pro/wisp/' });
+  nodes.push({ name: 'Fern Wisp', url: 'wss://fern.best/wisp/' });
 
   const saved = localStorage.getItem('bored-os-wisp');
   if (saved && !nodes.some(n => n.url === saved)) {
@@ -2887,15 +2896,44 @@ function getSelectedWisp() {
 
 async function setProxyTransport(wispUrl) {
   if (!proxyConnection || proxyWispUrl === wispUrl) return;
-  const { BareMuxConnection } = await import(new URL('baremux/index.mjs', PROXY_BASE).href);
+  const { BareMuxConnection } = await import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href);
   if (!(proxyConnection instanceof BareMuxConnection)) {
     proxyConnection = new BareMuxConnection(new URL('baremux/worker.js', PROXY_BASE).href);
   }
   await proxyConnection.setTransport(
-    new URL('libcurl/index.mjs', PROXY_BASE).href,
+    new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
     [{ wisp: wispUrl }]
   );
   proxyWispUrl = wispUrl;
+}
+
+// Use a BoredOS-specific DB name. GitHub Pages projects share one origin, so
+// a "$scramjet" database left by another project can be empty or incompatible.
+// Creating a complete database before the service worker starts also prevents
+// the worker from creating an empty one first.
+function ensureScramjetDb() {
+  return new Promise(resolve => {
+    if (!('indexedDB' in window)) return resolve();
+    const stores = ['config', 'cookies', 'redirectTrackers', 'referrerPolicies', 'publicSuffixList'];
+    let req;
+    try {
+      req = indexedDB.open('$boredos-scramjet', 1);
+    } catch (e) {
+      return resolve();
+    }
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      for (const name of stores) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
+      }
+    };
+    req.onsuccess = () => {
+      req.result.close();
+      resolve();
+    };
+    req.onerror = () => resolve();
+    req.onblocked = () => setTimeout(resolve, 1500);
+  });
 }
 
 async function ensureProxy() {
@@ -2911,13 +2949,17 @@ async function ensureProxy() {
 
     const swUrl = new URL('sw.js', PROXY_BASE);
     const scope = new URL('./', PROXY_BASE).pathname;
-    const registration = await navigator.serviceWorker.register(swUrl.href, { scope });
-    await navigator.serviceWorker.ready;
-    if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    const dbPromise = ensureScramjetDb();
+    const bundlePromise = window.$scramjetLoadController
+      ? Promise.resolve()
+      : import(new URL('scramjet/scramjet.bundle.js?v=4', PROXY_BASE).href);
+    const baremuxPromise = import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href);
 
-    if (!window.$scramjetLoadController) {
-      await import(new URL('scramjet/scramjet.bundle.js', PROXY_BASE).href);
-    }
+    const [, , baremuxModule] = await Promise.all([
+      dbPromise,
+      bundlePromise,
+      baremuxPromise
+    ]);
     if (!window.$scramjetLoadController) {
       throw new Error('Scramjet controller failed to load.');
     }
@@ -2926,20 +2968,50 @@ async function ensureProxy() {
     const controller = new ScramjetController({
       prefix: new URL('service/', PROXY_BASE).pathname,
       files: {
-        wasm: new URL('scramjet/scramjet.wasm.wasm', PROXY_BASE).pathname,
-        all: new URL('scramjet/scramjet.all.js', PROXY_BASE).pathname,
-        sync: new URL('scramjet/scramjet.sync.js', PROXY_BASE).pathname
+        wasm: new URL('scramjet/scramjet.wasm.wasm?v=4', PROXY_BASE).pathname,
+        all: new URL('scramjet/scramjet.all.js?v=4', PROXY_BASE).pathname,
+        sync: new URL('scramjet/scramjet.sync.js?v=4', PROXY_BASE).pathname
       }
     });
-    await controller.init();
 
-    const { BareMuxConnection } = await import(new URL('baremux/index.mjs', PROXY_BASE).href);
-    const connection = new BareMuxConnection(new URL('baremux/worker.js', PROXY_BASE).href);
     const wisp = getSelectedWisp();
-    await connection.setTransport(
-      new URL('libcurl/index.mjs', PROXY_BASE).href,
+    const connection = new baremuxModule.BareMuxConnection(
+      new URL('baremux/worker.js', PROXY_BASE).href
+    );
+
+    // Start the config write and transport download together. Register the
+    // service worker only after the database is complete so it cannot create
+    // an empty one before Scramjet does.
+    const controllerReady = controller.init();
+    const transportReady = connection.setTransport(
+      new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
       [{ wisp: wisp.url }]
     );
+    const swReadyPromise = controllerReady
+      .then(() => navigator.serviceWorker.register(swUrl.href, { scope }))
+      .then(registration => {
+        if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        const worker = registration.installing || registration.waiting;
+        if (!worker || worker.state === 'activated') return navigator.serviceWorker.ready;
+        return new Promise(resolve => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            worker.removeEventListener('statechange', check);
+            resolve();
+          };
+          const check = () => {
+            if (worker.state === 'activated' || worker.state === 'redundant') finish();
+          };
+          const timer = setTimeout(finish, 5000);
+          worker.addEventListener('statechange', check);
+          check();
+        }).then(() => navigator.serviceWorker.ready);
+      });
+
+    await Promise.all([controllerReady, transportReady, swReadyPromise]);
 
     proxyController = controller;
     proxyConnection = connection;
@@ -3583,11 +3655,11 @@ function renderSettingsProxy(el) {
         ${isLocal ? `<button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/wisp/')">
           Local Wisp (same server)
         </button>` : ''}
-        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://fern.best/wisp/')">
-          Fern Wisp (Public)
-        </button>
         <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://anura.pro/wisp/')">
-          Anura Wisp (Public)
+          Anura Wisp (Public, Default)
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://fern.best/wisp/')">
+          Fern Wisp (Backup)
         </button>
       </div>
       <div style="font-size:11px;color:var(--text-tertiary);margin-top:12px;line-height:1.5">Public Wisp nodes are third-party services. If a page will not load, switch nodes and press Go again.</div>
