@@ -132,7 +132,7 @@ html, body {
   background-repeat: no-repeat !important;
   background-color: var(--bg-primary);
   overflow: hidden;
-  transition: background 0.4s ease;
+  transition: background-color 0.4s ease;
 }
 
 .wallpaper-overlay {
@@ -1265,6 +1265,33 @@ function applyFont(fontId) {
 
 // ─── Wallpapers Library (Curated HD & Pixel) ───
 const WALLPAPERS = [
+  // Anime (Alpha Coders)
+  { id: 'anime-demon-slayer', type: 'image', value: 'https://images7.alphacoders.com/137/thumb-1920-1371405.jpeg', thumb: 'https://images7.alphacoders.com/137/thumb-350-1371405.webp', label: 'Demon Slayer', category: 'Anime' },
+  { id: 'anime-jujutsu-kaisen', type: 'image', value: 'https://images2.alphacoders.com/136/thumb-1920-1360490.jpeg', thumb: 'https://images2.alphacoders.com/136/thumb-350-1360490.webp', label: 'Jujutsu Kaisen', category: 'Anime' },
+  { id: 'anime-one-piece', type: 'image', value: 'https://images8.alphacoders.com/135/thumb-1920-1350086.jpeg', thumb: 'https://images8.alphacoders.com/135/thumb-350-1350086.webp', label: 'One Piece', category: 'Anime' },
+  { id: 'anime-naruto', type: 'image', value: 'https://images.alphacoders.com/605/thumb-1920-605592.png', thumb: 'https://images.alphacoders.com/605/thumb-350-605592.webp', label: 'Naruto', category: 'Anime' },
+  { id: 'anime-attack-on-titan', type: 'image', value: 'https://images.alphacoders.com/137/thumb-1920-1379590.png', thumb: 'https://images.alphacoders.com/137/thumb-350-1379590.webp', label: 'Attack on Titan', category: 'Anime' },
+  { id: 'anime-chainsaw-man', type: 'image', value: 'https://images3.alphacoders.com/131/thumb-1920-1319293.jpeg', thumb: 'https://images3.alphacoders.com/131/thumb-350-1319293.webp', label: 'Chainsaw Man', category: 'Anime' },
+  { id: 'anime-spy-x-family', type: 'image', value: 'https://images5.alphacoders.com/131/thumb-1920-1319300.jpeg', thumb: 'https://images5.alphacoders.com/131/thumb-350-1319300.webp', label: 'Spy x Family', category: 'Anime' },
+  { id: 'anime-frieren', type: 'image', value: 'https://images6.alphacoders.com/135/thumb-1920-1355194.jpeg', thumb: 'https://images6.alphacoders.com/135/thumb-350-1355194.webp', label: 'Frieren', category: 'Anime' },
+  { id: 'anime-your-name', type: 'image', value: 'https://images3.alphacoders.com/100/thumb-1920-1006667.jpg', thumb: 'https://images3.alphacoders.com/100/thumb-350-1006667.webp', label: 'Your Name', category: 'Anime' },
+  { id: 'anime-bocchi-the-rock', type: 'image', value: 'https://images5.alphacoders.com/135/thumb-1920-1355038.jpeg', thumb: 'https://images5.alphacoders.com/135/thumb-350-1355038.webp', label: 'Bocchi the Rock', category: 'Anime' },
+  { id: 'anime-oshi-no-ko', type: 'image', value: 'https://images6.alphacoders.com/134/thumb-1920-1343080.jpeg', thumb: 'https://images6.alphacoders.com/134/thumb-350-1343080.webp', label: 'Oshi no Ko', category: 'Anime' },
+  { id: 'anime-solo-leveling', type: 'image', value: 'https://images6.alphacoders.com/137/thumb-1920-1372163.jpeg', thumb: 'https://images6.alphacoders.com/137/thumb-350-1372163.webp', label: 'Solo Leveling', category: 'Anime' },
+  { id: 'anime-dandadan', type: 'image', value: 'https://images.alphacoders.com/138/thumb-1920-1382324.png', thumb: 'https://images.alphacoders.com/138/thumb-350-1382324.webp', label: 'Dandadan', category: 'Anime' },
+  { id: 'anime-blue-lock', type: 'image', value: 'https://images3.alphacoders.com/136/thumb-1920-1368057.jpeg', thumb: 'https://images3.alphacoders.com/136/thumb-350-1368057.webp', label: 'Blue Lock', category: 'Anime' },
+  { id: 'anime-vocaloid', type: 'image', value: 'https://images7.alphacoders.com/131/thumb-1920-1311796.png', thumb: 'https://images7.alphacoders.com/131/thumb-350-1311796.webp', label: 'Vocaloid', category: 'Anime' },
+  { id: 'anime-hatsune-miku', type: 'image', value: 'https://images5.alphacoders.com/139/thumb-1920-1396456.png', thumb: 'https://images5.alphacoders.com/139/thumb-350-1396456.webp', label: 'Hatsune Miku', category: 'Anime' },
+
+  // Anime GIFs (Alpha Coders)
+  { id: 'anime-gif-sukuna', type: 'image', value: 'https://giffiles.alphacoders.com/221/221968.gif', thumb: 'https://giffiles.alphacoders.com/221/thumb-221968.jpg', label: 'Sukuna', category: 'Anime GIF' },
+  { id: 'anime-gif-gojo-vs-sukuna', type: 'image', value: 'https://giffiles.alphacoders.com/221/221617.gif', thumb: 'https://giffiles.alphacoders.com/221/thumb-221617.jpg', label: 'Gojo vs Sukuna', category: 'Anime GIF' },
+  { id: 'anime-gif-demon-slayer', type: 'image', value: 'https://giffiles.alphacoders.com/221/221017.gif', thumb: 'https://giffiles.alphacoders.com/221/thumb-221017.jpg', label: 'Demon Slayer', category: 'Anime GIF' },
+  { id: 'anime-gif-gojo', type: 'image', value: 'https://giffiles.alphacoders.com/220/220764.gif', thumb: 'https://giffiles.alphacoders.com/220/thumb-220764.jpg', label: 'Gojo', category: 'Anime GIF' },
+  { id: 'anime-gif-luffy', type: 'image', value: 'https://giffiles.alphacoders.com/220/220069.gif', thumb: 'https://giffiles.alphacoders.com/220/thumb-220069.jpg', label: 'Luffy Gear 5', category: 'Anime GIF' },
+  { id: 'anime-gif-rengoku', type: 'image', value: 'https://giffiles.alphacoders.com/221/221754.gif', thumb: 'https://giffiles.alphacoders.com/221/thumb-221754.jpg', label: 'Rengoku', category: 'Anime GIF' },
+  { id: 'anime-gif-pikachu', type: 'image', value: 'https://giffiles.alphacoders.com/398/3987.gif', thumb: 'https://giffiles.alphacoders.com/398/thumb-3987.jpg', label: 'Pikachu', category: 'Anime GIF' },
+
   // Pixel & Retro
   { id: 'pixel-city', type: 'image', value: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop', label: 'Pixel Cyber City', category: 'Pixel / Retro' },
   { id: 'retro-arcade', type: 'image', value: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop', label: 'Neon Arcade', category: 'Pixel / Retro' },
@@ -1287,6 +1314,13 @@ const WALLPAPERS = [
   { id: 'gradient-4', type: 'gradient', value: 'linear-gradient(135deg, #1a0a0a 0%, #3a1020 50%, #1a0a1a 100%)', label: 'Crimson Eclipse', category: 'Minimal' },
   { id: 'gradient-6', type: 'gradient', value: 'linear-gradient(135deg, #000000 0%, #121217 50%, #000000 100%)', label: 'OLED Pure Black', category: 'Minimal' },
 ];
+
+let wallpaperFilter = 'All';
+
+function setWallpaperFilter(category) {
+  wallpaperFilter = category;
+  renderSettingsTab();
+}
 
 function applyWallpaper(idOrUrl) {
   if (!idOrUrl) return;
@@ -3475,6 +3509,10 @@ function renderSettingsAppearance(el) {
 
 function renderSettingsWallpaper(el) {
   const isCustomActive = !WALLPAPERS.some(w => w.id === OS.wallpaper);
+  const categories = ['All', ...new Set(WALLPAPERS.map(w => w.category))];
+  const visibleWallpapers = wallpaperFilter === 'All'
+    ? WALLPAPERS
+    : WALLPAPERS.filter(w => w.category === wallpaperFilter);
   el.innerHTML = `
     <!-- Custom Wallpaper Tools -->
     <div class="settings-section">
@@ -3521,14 +3559,21 @@ function renderSettingsWallpaper(el) {
 
     <!-- Curated Wallpapers Collection -->
     <div class="settings-section">
-      <div class="settings-section-title">Curated Wallpapers (HD & Pixel)</div>
+      <div class="settings-section-title">Curated Wallpapers (HD, Anime & Pixel)</div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:10px">Anime wallpapers and GIFs via Alpha Coders.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+        ${categories.map(cat => `
+          <button class="btn btn-sm ${wallpaperFilter === cat ? '' : 'btn-outline'}"
+                  onclick="setWallpaperFilter('${escHtml(cat)}')">${escHtml(cat)}</button>
+        `).join('')}
+      </div>
       <div class="wallpaper-grid" style="grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:12px">
-        ${WALLPAPERS.map(wp => `
+        ${visibleWallpapers.map(wp => `
           <div class="wallpaper-option ${wp.id === OS.wallpaper ? 'active' : ''}" 
                onclick="applyWallpaper('${wp.id}');renderSettingsTab()"
                style="position:relative;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/10">
             ${wp.type === 'image' 
-              ? `<img src="${wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
+              ? `<img src="${wp.thumb || wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
               : `<div class="wallpaper-color" style="background:${wp.value};width:100%;height:100%"></div>`
             }
             <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent, rgba(0,0,0,0.85));padding:6px 8px;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
