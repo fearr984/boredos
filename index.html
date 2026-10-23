@@ -2878,8 +2878,8 @@ function getWispNodes() {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     nodes.push({ name: 'Local Wisp', url: `${wsProtocol}//${window.location.host}/wisp/` });
   }
-  nodes.push({ name: 'Anura Wisp', url: 'wss://anura.pro/wisp/' });
   nodes.push({ name: 'Fern Wisp', url: 'wss://fern.best/wisp/' });
+  nodes.push({ name: 'Anura Wisp', url: 'wss://anura.pro/wisp/' });
 
   const saved = localStorage.getItem('bored-os-wisp');
   if (saved && !nodes.some(n => n.url === saved)) {
@@ -3662,11 +3662,11 @@ function renderSettingsProxy(el) {
         ${isLocal ? `<button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/wisp/')">
           Local Wisp (same server)
         </button>` : ''}
-        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://anura.pro/wisp/')">
-          Anura Wisp (Public, Default)
-        </button>
         <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://fern.best/wisp/')">
-          Fern Wisp (Backup)
+          Fern Wisp (Public, Default)
+        </button>
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://anura.pro/wisp/')">
+          Anura Wisp (Backup)
         </button>
       </div>
       <div style="font-size:11px;color:var(--text-tertiary);margin-top:12px;line-height:1.5">Public Wisp nodes are third-party services. If a page will not load, switch nodes and press Go again.</div>
