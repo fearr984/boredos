@@ -3000,15 +3000,6 @@ function browserGo() {
   iframe.src = finalProxyUrl;
 }
 
-  let query = input.value.trim();
-  if (!query) return;
-
-  const finalProxyUrl = getProxyUrl(query);
-  if (home) home.style.display = 'none';
-  if (frameContainer) frameContainer.style.display = 'block';
-  iframe.src = finalProxyUrl;
-}
-
 // ═══════════════════════════════════════
 // APP: Apps List
 // ═══════════════════════════════════════
