@@ -1083,9 +1083,6 @@ html, body {
 <div id="windows-container" style="position:absolute;inset:0;z-index:100;pointer-events:none;">
 </div>
 
-<!-- ═══ Lumi SDK ═══ -->
-<script src="https://cdn.jsdelivr.net/gh/Vanta-the-guy/Lumi@latest/lumi.js"></script>
-
 <script>
 /* ═══════════════════════════════════════════════════════
    BORED OS — Complete Operating System Engine
@@ -2016,9 +2013,11 @@ function openGames() {
       </div>
       <select class="games-filter-btn" id="games-source-filter" onchange="onGamesSourceChange(this.value)" style="padding:8px 10px;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font);font-size:12px;outline:none;cursor:pointer">
         <option value="All">All Sources</option>
-        <option value="Lumin">⚡ Lumin SDK (Live)</option>
+        <option value="Selenite">Selenite</option>
+        <option value="Truffled">Truffled</option>
+        <option value="Quasar">Quasar</option>
+        <option value="Builtin">Builtin</option>
         <option value="GNMath">GNMath</option>
-        <option value="UGS">UGS</option>
         <option value="Daknux">Daknux</option>
         <option value="Seraph">Seraph</option>
       </select>
@@ -2172,6 +2171,17 @@ function ensureLuminReady() {
   return luminInitPromise;
 }
 
+// LuminSDK aggregates several upstream game sites. Show each upstream as its
+// own source instead of flattening everything into a single "Lumin" bucket.
+function getLuminSource(id) {
+  const prefix = String(id || '').split('/')[0].toLowerCase();
+  if (prefix === 'selenite') return 'Selenite';
+  if (prefix === 'truffled') return 'Truffled';
+  if (prefix === 'quasar') return 'Quasar';
+  if (prefix === 'builtin') return 'Builtin';
+  return 'Lumin';
+}
+
 async function loadLuminCatalog() {
   try {
     await ensureLuminReady();
@@ -2189,7 +2199,7 @@ async function loadLuminCatalog() {
           title: g.name,
           cover: 'https://s3.envato.com/files/fed15e2f-5abf-4758-a1a2-3e3d68013f0d/inline_image_preview.jpg',
           url: '',
-          source: 'Lumin',
+          source: getLuminSource(g.id),
           luminId: g.id,
           imageToken: g.image_token || '',
           lumin: true
@@ -2841,40 +2851,138 @@ function openEditor() {
 // ═══════════════════════════════════════
 // APP: Bored Browser (Scramjet Wisp Proxy)
 // ═══════════════════════════════════════
-let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'scramjet';
-let proxyGatewayIdx = parseInt(localStorage.getItem('bored-os-proxy-gateway-idx') || '0', 10);
+let proxyGatewayIdx = parseInt(localStorage.getItem('bored-os-wisp-idx') || '0', 10);
+let proxyController = null;
+let proxyConnection = null;
+let proxyWispUrl = '';
+let proxyReadyPromise = null;
+let browserProxyFrame = null;
+let browserProxyTarget = '';
 
-const BORED_GATEWAYS = [
-  { name: 'Scramjet Mercury Edge (Fast)', type: 'scramjet', url: 'https://scramjet.mercurywork.shop/service/' },
-  { name: 'StudentPortal Cluster', type: 'scramjet', url: 'https://maths.studentportal.lol/service/' },
-  { name: 'Tomp Wisp Node', type: 'scramjet', url: 'https://tomp.app/service/' },
-  { name: 'Incog High-Speed', type: 'scramjet', url: 'https://incog.dev/service/' }
-];
+const PROXY_BASE = new URL('./', window.location.href);
+const PROXY_ENGINE_LABEL = 'Scramjet Wisp';
 
-function cycleProxyGateway() {
-  proxyGatewayIdx = (proxyGatewayIdx + 1) % BORED_GATEWAYS.length;
-  localStorage.setItem('bored-os-proxy-gateway-idx', proxyGatewayIdx);
-  notify('Switched to ' + BORED_GATEWAYS[proxyGatewayIdx].name);
-  const input = document.getElementById('browser-url-input');
-  if (input && input.value) {
-    browserGo();
+function getWispNodes() {
+  const nodes = [];
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (isLocal) {
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    nodes.push({ name: 'Local Wisp', url: `${wsProtocol}//${window.location.host}/wisp/` });
+  }
+  nodes.push({ name: 'Fern Wisp', url: 'wss://fern.best/wisp/' });
+  nodes.push({ name: 'Anura Wisp', url: 'wss://anura.pro/wisp/' });
+
+  const saved = localStorage.getItem('bored-os-wisp');
+  if (saved && !nodes.some(n => n.url === saved)) {
+    nodes.unshift({ name: 'Custom Wisp', url: saved });
+  }
+  return nodes;
+}
+
+function getSelectedWisp() {
+  const nodes = getWispNodes();
+  if (proxyGatewayIdx < 0 || proxyGatewayIdx >= nodes.length) proxyGatewayIdx = 0;
+  return nodes[proxyGatewayIdx];
+}
+
+async function setProxyTransport(wispUrl) {
+  if (!proxyConnection || proxyWispUrl === wispUrl) return;
+  const { BareMuxConnection } = await import(new URL('baremux/index.mjs', PROXY_BASE).href);
+  if (!(proxyConnection instanceof BareMuxConnection)) {
+    proxyConnection = new BareMuxConnection(new URL('baremux/worker.js', PROXY_BASE).href);
+  }
+  await proxyConnection.setTransport(
+    new URL('libcurl/index.mjs', PROXY_BASE).href,
+    [{ wisp: wispUrl }]
+  );
+  proxyWispUrl = wispUrl;
+}
+
+async function ensureProxy() {
+  if (proxyReadyPromise) return proxyReadyPromise;
+
+  proxyReadyPromise = (async () => {
+    if (!window.isSecureContext) {
+      throw new Error('The proxy needs HTTPS (or localhost) to register its service worker.');
+    }
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('This browser does not support service workers.');
+    }
+
+    const swUrl = new URL('sw.js', PROXY_BASE);
+    const scope = new URL('./', PROXY_BASE).pathname;
+    const registration = await navigator.serviceWorker.register(swUrl.href, { scope });
+    await navigator.serviceWorker.ready;
+    if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+
+    if (!window.$scramjetLoadController) {
+      await import(new URL('scramjet/scramjet.bundle.js', PROXY_BASE).href);
+    }
+    if (!window.$scramjetLoadController) {
+      throw new Error('Scramjet controller failed to load.');
+    }
+
+    const { ScramjetController } = window.$scramjetLoadController();
+    const controller = new ScramjetController({
+      prefix: new URL('service/', PROXY_BASE).pathname,
+      files: {
+        wasm: new URL('scramjet/scramjet.wasm.wasm', PROXY_BASE).pathname,
+        all: new URL('scramjet/scramjet.all.js', PROXY_BASE).pathname,
+        sync: new URL('scramjet/scramjet.sync.js', PROXY_BASE).pathname
+      }
+    });
+    await controller.init();
+
+    const { BareMuxConnection } = await import(new URL('baremux/index.mjs', PROXY_BASE).href);
+    const connection = new BareMuxConnection(new URL('baremux/worker.js', PROXY_BASE).href);
+    const wisp = getSelectedWisp();
+    await connection.setTransport(
+      new URL('libcurl/index.mjs', PROXY_BASE).href,
+      [{ wisp: wisp.url }]
+    );
+
+    proxyController = controller;
+    proxyConnection = connection;
+    proxyWispUrl = wisp.url;
+    return controller;
+  })().catch(err => {
+    proxyReadyPromise = null;
+    throw err;
+  });
+
+  return proxyReadyPromise;
+}
+
+async function cycleProxyGateway() {
+  const nodes = getWispNodes();
+  proxyGatewayIdx = (proxyGatewayIdx + 1) % nodes.length;
+  localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
+  const node = nodes[proxyGatewayIdx];
+  notify('Proxy node: ' + node.name);
+
+  try {
+    if (proxyConnection) {
+      await setProxyTransport(node.url);
+    }
+    const input = document.getElementById('browser-url-input');
+    if (input && input.value.trim()) browserGo();
+  } catch (e) {
+    notify('Node failed: ' + (e.message || 'unknown error'));
   }
 }
 
 function openBrowser() {
-  const activeGateway = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
-
   const content = `<div style="display:flex;flex-direction:column;height:100%;background:#08080c;font-family:var(--font);color:#fff;overflow:hidden;position:relative">
     <!-- Top Navigation Chrome -->
     <div style="padding:8px 14px;background:#0f0f16;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;z-index:10">
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.back()}catch(e){}" title="Back"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
-      <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.forward()}catch(e){}" title="Forward"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
+      <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="browserBack()" title="Back"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
+      <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="browserForward()" title="Forward"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="reloadBrowser()" title="Reload"><i data-lucide="rotate-cw" style="width:13px;height:13px"></i></button>
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="browserHome()" title="Home"><i data-lucide="home" style="width:13px;height:13px"></i></button>
 
       <!-- Engine Selector -->
       <div style="padding:6px 14px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px">
-        ⚡ Scramjet Wisp
+        ⚡ ${PROXY_ENGINE_LABEL}
       </div>
 
       <!-- Omnibox -->
@@ -3016,10 +3124,59 @@ function openBrowser() {
     <!-- Live Proxy Webview Frame -->
     <div id="browser-frame-container" style="flex:1;position:relative;background:#050508;display:none">
       <iframe id="browser-iframe" style="width:100%;height:100%;border:none;background:#fff" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals allow-downloads" allowfullscreen></iframe>
+      <div id="browser-proxy-status" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#08080c;color:#fff;text-align:center;padding:24px">
+        <div class="game-player-spinner"></div>
+        <div id="browser-proxy-status-text" style="font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.5">Connecting to proxy...</div>
+      </div>
     </div>
   </div>`;
   createWindow('browser', 'Browser', 920, 620, content, { icon: 'globe' });
   lucide.createIcons();
+  initBrowserProxy();
+}
+
+function setBrowserStatus(message, spinning = true, isError = false) {
+  const status = document.getElementById('browser-proxy-status');
+  const text = document.getElementById('browser-proxy-status-text');
+  if (!status || !text) return;
+  status.style.display = 'flex';
+  status.querySelector('.game-player-spinner').style.display = spinning ? 'block' : 'none';
+  text.innerHTML = isError
+    ? `${escHtml(message)}<br><span style="font-size:11px;color:var(--text-tertiary)">Try the Switch Node button, then press Go again.</span>`
+    : escHtml(message);
+  text.style.color = isError ? 'var(--danger)' : 'var(--text-secondary)';
+}
+
+function hideBrowserStatus() {
+  const status = document.getElementById('browser-proxy-status');
+  if (status) status.style.display = 'none';
+}
+
+function setupBrowserFrame(controller) {
+  const iframe = document.getElementById('browser-iframe');
+  if (!iframe) return null;
+
+  if (browserProxyFrame && browserProxyFrame.frame === iframe) return browserProxyFrame;
+
+  browserProxyFrame = controller.createFrame(iframe);
+  iframe.addEventListener('load', () => {
+    if (browserProxyTarget) hideBrowserStatus();
+  });
+  browserProxyFrame.addEventListener('urlchange', (event) => {
+    const input = document.getElementById('browser-url-input');
+    if (input && event.url) input.value = String(event.url);
+  });
+  return browserProxyFrame;
+}
+
+async function initBrowserProxy() {
+  try {
+    const controller = await ensureProxy();
+    setupBrowserFrame(controller);
+  } catch (e) {
+    console.warn('Proxy setup failed:', e);
+    setBrowserStatus(e.message || 'Proxy setup failed.', false, true);
+  }
 }
 
 function promptAddShortcut() {
@@ -3041,64 +3198,79 @@ function browserHome() {
   const home = document.getElementById('browser-home-view');
   const frameContainer = document.getElementById('browser-frame-container');
   const ifr = document.getElementById('browser-iframe');
+  browserProxyTarget = '';
+  hideBrowserStatus();
   if (home) home.style.display = 'flex';
   if (frameContainer) frameContainer.style.display = 'none';
   if (ifr) ifr.src = 'about:blank';
 }
 
-function reloadBrowser() {
-  const ifr = document.getElementById('browser-iframe');
-  if (ifr && ifr.style.display !== 'none') ifr.src = ifr.src;
-}
-
-function openBrowserExternal() {
-  const ifr = document.getElementById('browser-iframe');
-  if (ifr && ifr.src && ifr.src !== 'about:blank') {
-    window.open(ifr.src, '_blank');
-  } else {
-    const inp = document.getElementById('browser-url-input');
-    if (inp && inp.value) {
-      window.open(getProxyUrl(inp.value.trim()), '_blank');
-    }
+function normalizeBrowserTarget(rawUrl) {
+  if (rawUrl.includes(' ') || !rawUrl.includes('.')) {
+    return 'https://duckduckgo.com/?q=' + encodeURIComponent(rawUrl);
   }
+  return rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : 'https://' + rawUrl;
 }
 
 function getProxyUrl(rawUrl) {
-  let targetUrl;
-  if (rawUrl.includes(' ') || !rawUrl.includes('.')) {
-    targetUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(rawUrl);
-  } else {
-    targetUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : 'https://' + rawUrl;
-  }
-
-  // Handle Discord Web
-  if (targetUrl.includes('discord.com')) {
-    return 'https://webcord.app/app';
-  }
-
-  // If running on local server with Scramjet SW active, use local service prefix
-  if (window.location.protocol.startsWith('http') && window.location.hostname === 'localhost') {
-    return '/service/' + encodeURIComponent(targetUrl);
-  }
-
-  const currentGw = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
-  return currentGw.url + encodeURIComponent(targetUrl);
+  const targetUrl = normalizeBrowserTarget(rawUrl);
+  if (proxyController) return proxyController.encodeUrl(targetUrl);
+  return new URL('service/', PROXY_BASE).pathname + encodeURIComponent(targetUrl);
 }
 
-function browserGo() {
+function browserBack() {
+  if (browserProxyFrame) browserProxyFrame.back();
+}
+
+function browserForward() {
+  if (browserProxyFrame) browserProxyFrame.forward();
+}
+
+function reloadBrowser() {
+  if (browserProxyFrame && browserProxyTarget) browserProxyFrame.reload();
+  else {
+    const ifr = document.getElementById('browser-iframe');
+    if (ifr && ifr.style.display !== 'none') ifr.src = ifr.src;
+  }
+}
+
+function openBrowserExternal() {
+  const inp = document.getElementById('browser-url-input');
+  if (inp && inp.value.trim()) {
+    window.open(getProxyUrl(inp.value.trim()), '_blank');
+    return;
+  }
+  const ifr = document.getElementById('browser-iframe');
+  if (ifr && ifr.src && ifr.src !== 'about:blank') window.open(ifr.src, '_blank');
+}
+
+async function browserGo() {
   const input = document.getElementById('browser-url-input');
-  const iframe = document.getElementById('browser-iframe');
   const home = document.getElementById('browser-home-view');
   const frameContainer = document.getElementById('browser-frame-container');
-  if (!input || !iframe) return;
+  if (!input) return;
 
-  let query = input.value.trim();
+  const query = input.value.trim();
   if (!query) return;
 
-  const finalProxyUrl = getProxyUrl(query);
+  const targetUrl = normalizeBrowserTarget(query);
+  browserProxyTarget = targetUrl;
   if (home) home.style.display = 'none';
   if (frameContainer) frameContainer.style.display = 'block';
-  iframe.src = finalProxyUrl;
+  setBrowserStatus('Connecting to the proxy...');
+
+  try {
+    const controller = await ensureProxy();
+    if (browserProxyTarget !== targetUrl) return;
+    const frame = setupBrowserFrame(controller);
+    if (!frame) throw new Error('Browser frame is not available.');
+    input.value = targetUrl;
+    frame.go(targetUrl);
+  } catch (e) {
+    console.warn('Browser navigation failed:', e);
+    browserProxyTarget = '';
+    setBrowserStatus(`Could not load ${targetUrl}. ${e.message || 'Proxy unavailable.'}`, false, true);
+  }
 }
 
 // ═══════════════════════════════════════
@@ -3390,43 +3562,67 @@ function renderSettingsCloak(el) {
 }
 
 function renderSettingsProxy(el) {
-  const currentBare = localStorage.getItem('bored-os-bare') || (window.__uv$config ? window.__uv$config.bare : 'https://uv.studentportal.lol/bare/');
+  const node = getSelectedWisp();
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
   el.innerHTML = `
     <div class="settings-section">
-      <div class="settings-section-title">Bare Server / Proxy Connection</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">Configure the Bare server endpoint that powers the built-in unblocked browser.</div>
-      
+      <div class="settings-section-title">Scramjet / Wisp Proxy</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px">The built-in browser uses Scramjet with a Wisp transport. Pick a node below or enter your own Wisp endpoint.</div>
+
       <div style="margin-bottom:16px">
-        <label style="font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase">Bare Server URL</label>
+        <label style="font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase">Current Wisp Node</label>
         <div style="display:flex;gap:8px;margin-top:6px">
-          <input type="text" id="bare-server-input" value="${escHtml(currentBare)}" style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:var(--text-primary);font-family:monospace;font-size:12px;outline:none">
-          <button class="btn btn-sm" onclick="saveBareServer()">Save</button>
+          <input type="text" id="wisp-server-input" value="${escHtml(node.url)}" style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:var(--text-primary);font-family:monospace;font-size:12px;outline:none">
+          <button class="btn btn-sm" onclick="saveWispServer()">Save</button>
         </div>
+        <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">Active: ${escHtml(node.name)}. Use Switch Node in the browser toolbar to rotate quickly.</div>
       </div>
 
-      <div style="font-size:12px;font-weight:600;margin-bottom:8px">Quick Public Bare Endpoints:</div>
+      <div style="font-size:12px;font-weight:600;margin-bottom:8px">Quick Wisp Endpoints:</div>
       <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://uv.studentportal.lol/bare/';saveBareServer()">
-          🚀 StudentPortal Bare (High speed unblocked)
+        ${isLocal ? `<button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/wisp/')">
+          Local Wisp (same server)
+        </button>` : ''}
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://fern.best/wisp/')">
+          Fern Wisp (Public)
         </button>
-        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='https://tomp.app/bare/';saveBareServer()">
-          ⚡ Tomp Official Bare
-        </button>
-        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="document.getElementById('bare-server-input').value='/bare/';saveBareServer()">
-          🏠 Local Server (/bare/)
+        <button class="btn btn-sm btn-outline" style="text-align:left;justify-content:flex-start" onclick="setWispEndpoint('wss://anura.pro/wisp/')">
+          Anura Wisp (Public)
         </button>
       </div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-top:12px;line-height:1.5">Public Wisp nodes are third-party services. If a page will not load, switch nodes and press Go again.</div>
     </div>`;
 }
 
-function saveBareServer() {
-  const val = document.getElementById('bare-server-input').value.trim();
+async function saveWispServer() {
+  const input = document.getElementById('wisp-server-input');
+  if (!input) return;
+  let val = input.value.trim();
   if (!val) return;
-  localStorage.setItem('bored-os-bare', val);
-  if (window.__uv$config) {
-    window.__uv$config.bare = val;
+  if (!val.startsWith('ws://') && !val.startsWith('wss://')) {
+    notify('Wisp URL must start with ws:// or wss://');
+    return;
   }
-  notify('Bare Server updated successfully!');
+  if (!val.endsWith('/')) val += '/';
+
+  localStorage.setItem('bored-os-wisp', val);
+  const nodeIndex = getWispNodes().findIndex(n => n.url === val);
+  proxyGatewayIdx = nodeIndex >= 0 ? nodeIndex : 0;
+  localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
+
+  try {
+    await setProxyTransport(val);
+    notify('Wisp node updated!');
+  } catch (e) {
+    notify('Could not switch node: ' + (e.message || 'unknown error'));
+  }
+  renderSettingsProxy(document.getElementById('settings-content'));
+}
+
+function setWispEndpoint(url) {
+  const input = document.getElementById('wisp-server-input');
+  if (input) input.value = url;
+  saveWispServer();
 }
 
 function renderSettingsStorage(el) {
@@ -3500,7 +3696,7 @@ function openAbout() {
       A premium browser-based desktop environment with a built-in game launcher featuring hundreds of games, productivity apps, and a customizable interface.
     </div>
     <div class="about-credits">
-      Games powered by <strong>Lumi SDK</strong> • GNMath • UGS • Daknux • Seraph<br>
+      Games powered by <strong>LuminSDK</strong> (Selenite • Truffled • Quasar) • GNMath • Daknux • Seraph<br>
       Icons by <strong>Lucide</strong><br>
       Built with vanilla HTML, CSS & JavaScript
     </div>
@@ -3515,9 +3711,7 @@ function escHtml(str) {
 }
 
 // ─── UV Proxy Service Worker ───
-if ('serviceWorker' in navigator && typeof window.__uv$config !== 'undefined' && window.__uv$config) {
-  navigator.serviceWorker.register('/sw.js', { scope: window.__uv$config.prefix }).catch(() => {});
-}
+// Scramjet registers its service worker lazily when the Browser app opens.
 
 // ─── Boot ───
 document.addEventListener('DOMContentLoaded', boot);
