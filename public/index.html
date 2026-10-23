@@ -1996,33 +1996,10 @@ async function loadAllGames() {
     });
 
     OS.games = allGames.filter(g => g.url && g.title);
-
-    // Combine Vanta Lumi SDK games into the main games grid
-    try {
-      if (window.Lumi && typeof window.Lumi.init === 'function') {
-        let hidden = document.getElementById('lumi-hidden-container');
-        if (!hidden) {
-          hidden = document.createElement('div');
-          hidden.id = 'lumi-hidden-container';
-          hidden.style.display = 'none';
-          document.body.appendChild(hidden);
-        }
-        await window.Lumi.init({ container: '#lumi-hidden-container', columns: 1, rows: 1, gamesPerPage: 100000 });
-        if (Array.isArray(window.Lumi.games)) {
-          const seen = new Set(OS.games.map(g => (g.title || '').toLowerCase()));
-          window.Lumi.games.forEach(g => {
-            if (g && g.url && g.title && !seen.has(String(g.title).toLowerCase())) {
-              OS.games.push({ title: g.title, cover: g.cover || FALLBACK_IMG, url: g.url, source: g.source || 'Lumi' });
-              seen.add(String(g.title).toLowerCase());
-            }
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('Lumi SDK merge skipped:', e);
-    }
-
     OS.gamesLoaded = true;
+
+    // Merge the Lumin SDK catalog (headless mode) in the background
+    loadLuminCatalog();
   } catch (e) {
     console.error('Failed to load games:', e);
   } finally {
@@ -2085,12 +2062,7 @@ function onGamesSourceChange(val) {
 
 function getFilteredGames() {
   let games = OS.games;
-  if (gamesCurrentSource === 'Lumin') {
-    // Lumin SDK (luminsdk) shows GNMath + UGS + Daknux games
-    games = games.filter(g => g.source === 'GNMath' || g.source === 'UGS' || g.source === 'Daknux' || g.source === 'Lumi');
-  } else if (gamesCurrentSource !== 'All') {
-    games = games.filter(g => g.source === gamesCurrentSource);
-  }
+  if (gamesCurrentSource !== 'All') games = games.filter(g => g.source === gamesCurrentSource);
   if (gamesCurrentSearch) {
     const q = gamesCurrentSearch.toLowerCase();
     games = games.filter(g => g.title.toLowerCase().includes(q));
@@ -2118,6 +2090,8 @@ function renderGamesTab() {
   else if (gamesCurrentTab === 'library') renderGamesLibrary(body);
   else if (gamesCurrentTab === 'favorites') renderGamesFavorites(body);
   else if (gamesCurrentTab === 'recent') renderGamesRecent(body);
+
+  hydrateVisibleLuminCovers();
 }
 
 function loadLuminScript(callback) {
@@ -2164,6 +2138,106 @@ function initLuminContainer() {
   });
 }
 
+// Resolve Lumin SDK (headless) once and cache game cover blob URLs
+const luminCoverCache = {};
+let luminInitPromise = null;
+
+function ensureLuminReady() {
+  if (!luminInitPromise) {
+    luminInitPromise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Lumin SDK init timed out')), 12000);
+      const init = async () => {
+        try {
+          if (!window.__luminInited) {
+            await window.Lumin.init({ headless: true });
+            window.__luminInited = true;
+          }
+          clearTimeout(timeout);
+          resolve(window.Lumin);
+        } catch (e) {
+          clearTimeout(timeout);
+          reject(e);
+        }
+      };
+      if (window.Lumin && typeof window.Lumin.init === 'function') {
+        init();
+      } else {
+        loadLuminScript(() => {
+          if (window.Lumin && typeof window.Lumin.init === 'function') init();
+          else { clearTimeout(timeout); reject(new Error('Lumin SDK unavailable')); }
+        });
+      }
+    });
+  }
+  return luminInitPromise;
+}
+
+async function loadLuminCatalog() {
+  try {
+    await ensureLuminReady();
+    if (!window.Lumin || typeof window.Lumin.getGames !== 'function') return;
+    const seenIds = new Set(OS.games.filter(g => g.luminId).map(g => g.luminId));
+    let page = 1, pages = 1;
+    do {
+      const res = await window.Lumin.getGames({ page, limit: 100 });
+      const list = (res && res.games) || [];
+      pages = (res && res.pages) || pages;
+      list.forEach(g => {
+        if (!g || !g.id || !g.name || seenIds.has(g.id)) return;
+        seenIds.add(g.id);
+        OS.games.push({
+          title: g.name,
+          cover: 'https://s3.envato.com/files/fed15e2f-5abf-4758-a1a2-3e3d68013f0d/inline_image_preview.jpg',
+          url: '',
+          source: 'Lumin',
+          luminId: g.id,
+          imageToken: g.image_token || '',
+          lumin: true
+        });
+      });
+      page++;
+    } while (page <= pages && page <= 60);
+
+    // Refresh the games view if it is open
+    if (document.getElementById('games-body')) renderGamesTab();
+  } catch (e) {
+    console.warn('Lumin SDK catalog skipped:', e);
+  }
+}
+
+async function hydrateVisibleLuminCovers() {
+  if (!window.Lumin || typeof window.Lumin.getImageUrl !== 'function') return;
+  const imgs = [...document.querySelectorAll('#games-body img[data-lumin-id]')];
+  const pending = imgs.filter(img => !img.dataset.coverResolved);
+  await Promise.all(pending.map(async img => {
+    const id = img.dataset.luminId;
+    if (luminCoverCache[id]) { img.src = luminCoverCache[id]; img.dataset.coverResolved = '1'; return; }
+    try {
+      const url = await window.Lumin.getImageUrl(img.dataset.imageToken);
+      if (url && typeof url === 'string') {
+        luminCoverCache[id] = url;
+        img.src = url;
+        img.dataset.coverResolved = '1';
+      }
+    } catch (e) { /* keep fallback */ }
+  }));
+
+  // Featured banner cover
+  const feat = document.querySelector('#games-body .featured-game[data-feat-lumin-id]');
+  if (feat && !feat.dataset.coverResolved) {
+    const id = feat.dataset.featLuminId;
+    try {
+      let url = luminCoverCache[id];
+      if (!url) {
+        url = await window.Lumin.getImageUrl(feat.dataset.featImageToken);
+        if (url && typeof url === 'string') luminCoverCache[id] = url;
+      }
+      const bg = feat.querySelector('.featured-game-bg');
+      if (url && bg) { bg.style.backgroundImage = `url('${url}')`; feat.dataset.coverResolved = '1'; }
+    } catch (e) { /* keep fallback */ }
+  }
+}
+
 function renderGamesDiscover(body) {
   const filtered = getFilteredGames();
   const isSearching = gamesCurrentSearch || gamesCurrentSource !== 'All';
@@ -2175,8 +2249,10 @@ function renderGamesDiscover(body) {
   // Featured game (only when not searching)
   if (!isSearching && filtered.length > 0) {
     const feat = filtered[Math.floor(Math.random() * Math.min(50, filtered.length))];
-    html += `<div class="featured-game" onclick="playGame(${OS.games.indexOf(feat)})">
-      <div class="featured-game-bg" style="background-image:url('${feat.cover}')"></div>
+    const featCover = (feat.lumin && luminCoverCache[feat.luminId]) ? luminCoverCache[feat.luminId] : feat.cover;
+    const featAttrs = feat.lumin ? ` data-feat-lumin-id="${escHtml(feat.luminId)}" data-feat-image-token="${escHtml(feat.imageToken || '')}"` : '';
+    html += `<div class="featured-game"${featAttrs} onclick="playGame(${OS.games.indexOf(feat)})">
+      <div class="featured-game-bg" style="background-image:url('${featCover}')"></div>
       <div class="featured-game-content">
         <div class="featured-game-badge"><i data-lucide="star" style="width:10px;height:10px"></i> Featured</div>
         <div class="featured-game-title">${escHtml(feat.title)}</div>
@@ -2293,8 +2369,13 @@ function renderGamesRecent(body) {
 }
 
 function renderGameCard(game, idx, isFav) {
+  const luminAttrs = game.lumin
+    ? ` data-lumin-id="${escHtml(game.luminId)}" data-image-token="${escHtml(game.imageToken || '')}"`
+    : '';
+  const cover = (game.lumin && luminCoverCache[game.luminId]) ? luminCoverCache[game.luminId] : game.cover;
+  const resolved = (game.lumin && luminCoverCache[game.luminId]) ? ' data-cover-resolved="1"' : '';
   return `<div class="game-card" onclick="playGame(${idx})">
-    <img class="game-card-img" src="${game.cover}" alt="${escHtml(game.title)}" loading="lazy"
+    <img class="game-card-img" src="${cover}" alt="${escHtml(game.title)}" loading="lazy"${luminAttrs}${resolved}
          onerror="this.src='https://s3.envato.com/files/fed15e2f-5abf-4758-a1a2-3e3d68013f0d/inline_image_preview.jpg'">
     <div class="game-card-badge">${game.source}</div>
     <button class="game-card-fav ${isFav ? 'favorited' : ''}"
@@ -2371,7 +2452,8 @@ async function playGame(idx) {
         <i data-lucide="external-link" style="width:12px;height:12px"></i>
       </button>
     </div>
-    <iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups"
+    <iframe sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups allow-modals"
+            allow="autoplay; fullscreen; pointer-lock; gamepad"
             allowfullscreen style="opacity:0;transition:opacity 0.3s"
             onload="this.style.opacity='1';var ld=this.closest('.game-player').querySelector('.game-player-loading');if(ld)ld.style.display='none'"
             onerror="showGameError(this)"></iframe>
@@ -2381,6 +2463,16 @@ async function playGame(idx) {
   const iframe = document.querySelector(`#win-body-${win.id} iframe`);
 
   try {
+    // Lumin SDK games use a single-use playable URL from getGameUrl()
+    if (game.lumin) {
+      await ensureLuminReady();
+      const res = await window.Lumin.getGameUrl(game.luminId);
+      const url = res && (res.url || res);
+      if (!url) throw new Error('No playable URL');
+      if (iframe) iframe.src = url;
+      return;
+    }
+
     // Try fetching and injecting via srcdoc (like Lumi does)
     const resp = await fetch(game.url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
