@@ -1304,7 +1304,7 @@ const WALLPAPERS = [
 
   // Space & Anime Aesthetic
   { id: 'space-nebula', type: 'image', value: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2070&auto=format&fit=crop', label: 'Deep Nebula', category: 'Space' },
-  { id: 'anime-twilight', type: 'image', value: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop', label: 'Anime Twilight', category: 'Aesthetic' },
+  { id: 'anime-twilight', type: 'image', value: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop', label: 'Twilight Sky', category: 'Aesthetic' },
   { id: 'orbit-night', type: 'image', value: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', label: 'Earth Orbit', category: 'Space' },
 
   // Minimalist Gradients
@@ -3591,7 +3591,7 @@ function renderSettingsWallpaper(el) {
       <div class="wallpaper-grid" style="grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:12px">
         ${visibleWallpapers.map(wp => `
           <div class="wallpaper-option ${wp.id === OS.wallpaper ? 'active' : ''}" 
-               onclick="applyWallpaper('${wp.id}');renderSettingsTab()"
+               onclick="applyWallpaper('${wp.id}');this.closest('.wallpaper-grid').querySelectorAll('.wallpaper-option').forEach(el=>el.classList.remove('active'));this.classList.add('active')"
                style="position:relative;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/10">
             ${wp.type === 'image' 
               ? `<img src="${wp.thumb || wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
