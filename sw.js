@@ -11,7 +11,9 @@ const WASM_PATH = new URL("scramjet/scramjet.wasm.wasm", SCOPE).pathname;
 self.addEventListener("install", (event) => event.waitUntil(self.skipWaiting()));
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+  if (!event.data) return;
+  if (event.data.type === "SKIP_WAITING") self.skipWaiting();
+  if (event.data.type === "CLAIM") event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener("fetch", (event) => {
