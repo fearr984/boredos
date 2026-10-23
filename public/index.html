@@ -2949,21 +2949,33 @@ async function ensureProxy() {
 
     const swUrl = new URL('sw.js', PROXY_BASE);
     const scope = new URL('./', PROXY_BASE).pathname;
+    const wisp = getSelectedWisp();
     const dbPromise = ensureScramjetDb();
     const bundlePromise = window.$scramjetLoadController
       ? Promise.resolve()
       : import(new URL('scramjet/scramjet.bundle.js?v=4', PROXY_BASE).href);
-    const baremuxPromise = import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href);
 
-    const [, , baremuxModule] = await Promise.all([
-      dbPromise,
-      bundlePromise,
-      baremuxPromise
-    ]);
+    // The transport bundle is the largest download. Start it as soon as the
+    // small BareMux client is ready instead of waiting for the controller.
+    const connectionPromise = import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href)
+      .then(baremuxModule => {
+        const connection = new baremuxModule.BareMuxConnection(
+          new URL('baremux/worker.js', PROXY_BASE).href
+        );
+        const transportReady = connection.setTransport(
+          new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
+          [{ wisp: wisp.url }]
+        );
+        return { connection, transportReady };
+      });
+    connectionPromise.catch(() => {});
+
+    await Promise.all([dbPromise, bundlePromise]);
     if (!window.$scramjetLoadController) {
       throw new Error('Scramjet controller failed to load.');
     }
 
+    const { connection, transportReady } = await connectionPromise;
     const { ScramjetController } = window.$scramjetLoadController();
     const controller = new ScramjetController({
       prefix: new URL('service/', PROXY_BASE).pathname,
@@ -2974,19 +2986,10 @@ async function ensureProxy() {
       }
     });
 
-    const wisp = getSelectedWisp();
-    const connection = new baremuxModule.BareMuxConnection(
-      new URL('baremux/worker.js', PROXY_BASE).href
-    );
-
-    // Start the config write and transport download together. Register the
-    // service worker only after the database is complete so it cannot create
-    // an empty one before Scramjet does.
+    // Start the config write while the transport finishes. Register the service
+    // worker only after the database is complete so it cannot create an empty
+    // one before Scramjet does.
     const controllerReady = controller.init();
-    const transportReady = connection.setTransport(
-      new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
-      [{ wisp: wisp.url }]
-    );
     const swReadyPromise = controllerReady
       .then(() => navigator.serviceWorker.register(swUrl.href, { scope }))
       .then(registration => {
