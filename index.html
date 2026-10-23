@@ -2039,6 +2039,7 @@ function openGames() {
       </div>
       <select class="games-filter-btn" id="games-source-filter" onchange="onGamesSourceChange(this.value)" style="padding:8px 10px;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font);font-size:12px;outline:none;cursor:pointer">
         <option value="All">All Sources</option>
+        <option value="Lumin">⚡ Lumin SDK (Live)</option>
         <option value="GNMath">GNMath</option>
         <option value="UGS">UGS</option>
         <option value="Daknux">Daknux</option>
@@ -2084,7 +2085,12 @@ function onGamesSourceChange(val) {
 
 function getFilteredGames() {
   let games = OS.games;
-  if (gamesCurrentSource !== 'All') games = games.filter(g => g.source === gamesCurrentSource);
+  if (gamesCurrentSource === 'Lumin') {
+    // Lumin SDK (luminsdk) shows GNMath + UGS + Daknux games
+    games = games.filter(g => g.source === 'GNMath' || g.source === 'UGS' || g.source === 'Daknux' || g.source === 'Lumi');
+  } else if (gamesCurrentSource !== 'All') {
+    games = games.filter(g => g.source === gamesCurrentSource);
+  }
   if (gamesCurrentSearch) {
     const q = gamesCurrentSearch.toLowerCase();
     games = games.filter(g => g.title.toLowerCase().includes(q));
