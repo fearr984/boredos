@@ -3341,6 +3341,10 @@ async function browserGo() {
     if (!frame) throw new Error('Browser frame is not available.');
     input.value = targetUrl;
     frame.go(targetUrl);
+    // The proxy is ready at this point. Some sites (Discord, for example) keep
+    // loading resources for a long time and may never fire the iframe load
+    // event, so don't leave the full-screen status overlay covering the page.
+    hideBrowserStatus();
   } catch (e) {
     console.warn('Browser navigation failed:', e);
     browserProxyTarget = '';
