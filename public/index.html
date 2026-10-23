@@ -7,7 +7,6 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" async defer></script>
 <style>
 /* ═══════════════════════════════════════════
    BORED OS — Design System & Core Styles
@@ -1871,7 +1870,7 @@ function openHome() {
     if (!el) return;
     const n = new Date();
     el.textContent = n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    requestAnimationFrame(() => setTimeout(updateHomeClock, 1000));
+    setTimeout(updateHomeClock, 1000);
   }
   updateHomeClock();
 }
@@ -1997,6 +1996,32 @@ async function loadAllGames() {
     });
 
     OS.games = allGames.filter(g => g.url && g.title);
+
+    // Combine Vanta Lumi SDK games into the main games grid
+    try {
+      if (window.Lumi && typeof window.Lumi.init === 'function') {
+        let hidden = document.getElementById('lumi-hidden-container');
+        if (!hidden) {
+          hidden = document.createElement('div');
+          hidden.id = 'lumi-hidden-container';
+          hidden.style.display = 'none';
+          document.body.appendChild(hidden);
+        }
+        await window.Lumi.init({ container: '#lumi-hidden-container', columns: 1, rows: 1, gamesPerPage: 100000 });
+        if (Array.isArray(window.Lumi.games)) {
+          const seen = new Set(OS.games.map(g => (g.title || '').toLowerCase()));
+          window.Lumi.games.forEach(g => {
+            if (g && g.url && g.title && !seen.has(String(g.title).toLowerCase())) {
+              OS.games.push({ title: g.title, cover: g.cover || FALLBACK_IMG, url: g.url, source: g.source || 'Lumi' });
+              seen.add(String(g.title).toLowerCase());
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Lumi SDK merge skipped:', e);
+    }
+
     OS.gamesLoaded = true;
   } catch (e) {
     console.error('Failed to load games:', e);
@@ -2014,7 +2039,6 @@ function openGames() {
       </div>
       <select class="games-filter-btn" id="games-source-filter" onchange="onGamesSourceChange(this.value)" style="padding:8px 10px;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font);font-size:12px;outline:none;cursor:pointer">
         <option value="All">All Sources</option>
-        <option value="Lumin">⚡ Lumin SDK (Live)</option>
         <option value="GNMath">GNMath</option>
         <option value="UGS">UGS</option>
         <option value="Daknux">Daknux</option>
@@ -2090,35 +2114,48 @@ function renderGamesTab() {
   else if (gamesCurrentTab === 'recent') renderGamesRecent(body);
 }
 
+function loadLuminScript(callback) {
+  if (typeof Lumin !== 'undefined' && Lumin.init) {
+    if (callback) callback();
+    return;
+  }
+  const existing = document.getElementById('lumin-sdk-script');
+  if (existing) {
+    existing.addEventListener('load', () => { if (callback) callback(); });
+    return;
+  }
+  const script = document.createElement('script');
+  script.id = 'lumin-sdk-script';
+  script.src = 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js';
+  script.async = true;
+  script.onload = () => {
+    if (callback) callback();
+  };
+  script.onerror = () => {
+    console.warn('Lumin script failed to load from CDN');
+    const container = document.getElementById('games');
+    if (container) container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-tertiary);font-size:12px">Lumin SDK offline. All bored os built-in games remain available below!</div>';
+  };
+  document.body.appendChild(script);
+}
+
 function initLuminContainer() {
   const container = document.getElementById('games');
   if (!container) return;
-  try {
-    if (typeof Lumin !== 'undefined' && Lumin.init) {
-      container.innerHTML = '';
-      Lumin.init({
-        container: '#games',
-        theme: 'dark'
-      });
-    } else {
-      let tries = 0;
-      const interval = setInterval(() => {
-        tries++;
-        if (typeof Lumin !== 'undefined' && Lumin.init) {
-          clearInterval(interval);
-          container.innerHTML = '';
-          Lumin.init({
-            container: '#games',
-            theme: 'dark'
-          });
-        } else if (tries > 8) {
-          clearInterval(interval);
-        }
-      }, 500);
+  container.innerHTML = '<div style="padding:30px;text-align:center;color:var(--text-tertiary);font-size:12px">Connecting to Lumin SDK...</div>';
+  loadLuminScript(() => {
+    try {
+      if (typeof Lumin !== 'undefined' && Lumin.init) {
+        container.innerHTML = '';
+        Lumin.init({
+          container: '#games',
+          theme: 'dark'
+        });
+      }
+    } catch (e) {
+      console.error(e);
     }
-  } catch (err) {
-    console.error('Lumin init error:', err);
-  }
+  });
 }
 
 function renderGamesDiscover(body) {
@@ -2127,24 +2164,7 @@ function renderGamesDiscover(body) {
 
   let html = '';
 
-  // Seamless integrated Lumin Banner when on Discover
-  if (!isSearching) {
-    html += `
-      <div style="margin-bottom:18px;background:linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.12));border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-lg);padding:14px 18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px">⚡</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;color:#fff">Lumin SDK Active Catalog</div>
-              <div style="font-size:11px;color:var(--text-tertiary)">1,000+ unblocked web games combined with bored os library</div>
-            </div>
-          </div>
-          <button onclick="initLuminContainer()" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer">Refresh Lumin</button>
-        </div>
-        <div id="games" style="min-height:220px;max-height:300px;overflow-y:auto;border-radius:var(--radius-md);background:var(--bg-primary);border:1px solid rgba(255,255,255,0.06)"></div>
-      </div>
-    `;
-  }
+  // Lumin SDK games are now merged into the main games grid (see loadAllGames)
 
   // Featured game (only when not searching)
   if (!isSearching && filtered.length > 0) {
@@ -2195,9 +2215,6 @@ function renderGamesDiscover(body) {
   html += `</div>`;
   body.innerHTML = html;
   lucide.createIcons();
-  if (!isSearching && gamesCurrentTab === 'discover') {
-    setTimeout(initLuminContainer, 150);
-  }
 }
 
 function renderGamesLibrary(body) {
@@ -2545,7 +2562,7 @@ function openClock() {
     time.textContent = `${h}:${String(n.getMinutes()).padStart(2,'0')}`;
     date.textContent = n.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     secs.textContent = `:${String(n.getSeconds()).padStart(2,'0')} ${n.getHours() >= 12 ? 'PM' : 'AM'}`;
-    requestAnimationFrame(() => setTimeout(updateClockApp, 500));
+    setTimeout(updateClockApp, 500);
   }
   updateClockApp();
 }
@@ -2956,9 +2973,14 @@ function getProxyUrl(rawUrl) {
     targetUrl = rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : 'https://' + rawUrl;
   }
 
-  // Handle Discord Web (bypasses iframe restrictions)
+  // Handle Discord Web
   if (targetUrl.includes('discord.com')) {
     return 'https://webcord.app/app';
+  }
+
+  // If running on local server with Scramjet SW active, use local service prefix
+  if (window.location.protocol.startsWith('http') && window.location.hostname === 'localhost') {
+    return '/service/' + encodeURIComponent(targetUrl);
   }
 
   const currentGw = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
