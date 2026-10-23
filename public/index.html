@@ -2014,6 +2014,7 @@ function openGames() {
       </div>
       <select class="games-filter-btn" id="games-source-filter" onchange="onGamesSourceChange(this.value)" style="padding:8px 10px;background:var(--bg-surface);color:var(--text-secondary);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font);font-size:12px;outline:none;cursor:pointer">
         <option value="All">All Sources</option>
+        <option value="Lumin">⚡ Lumin SDK (Live)</option>
         <option value="GNMath">GNMath</option>
         <option value="UGS">UGS</option>
         <option value="Daknux">Daknux</option>
@@ -2025,7 +2026,6 @@ function openGames() {
     </div>
     <div class="tabs" id="games-tabs">
       <div class="tab active" data-tab="discover" onclick="switchGamesTab('discover')">Discover</div>
-      <div class="tab" data-tab="lumin" onclick="switchGamesTab('lumin')">⚡ Lumin Hub</div>
       <div class="tab" data-tab="library" onclick="switchGamesTab('library')">Library</div>
       <div class="tab" data-tab="favorites" onclick="switchGamesTab('favorites')">Favorites</div>
       <div class="tab" data-tab="recent" onclick="switchGamesTab('recent')">Recent</div>
@@ -2085,32 +2085,12 @@ function renderGamesTab() {
   }
 
   if (gamesCurrentTab === 'discover') renderGamesDiscover(body);
-  else if (gamesCurrentTab === 'lumin') renderGamesLumin(body);
   else if (gamesCurrentTab === 'library') renderGamesLibrary(body);
   else if (gamesCurrentTab === 'favorites') renderGamesFavorites(body);
   else if (gamesCurrentTab === 'recent') renderGamesRecent(body);
 }
 
-function renderGamesLumin(body) {
-  body.innerHTML = `
-    <div style="padding:16px;height:100%;overflow-y:auto;box-sizing:border-box">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:var(--radius-md);padding:10px 16px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:bold;font-size:14px">⚡</div>
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fff">Lumin Games Network</div>
-            <div style="font-size:11px;color:var(--text-tertiary)">Official Lumin SDK dark container integration</div>
-          </div>
-        </div>
-        <button onclick="initLuminGames()" style="background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer">Reload Lumin</button>
-      </div>
-      <div id="games" style="min-height:380px;background:var(--bg-secondary);border-radius:var(--radius-md);border:1px solid var(--border-subtle);overflow:hidden"></div>
-    </div>
-  `;
-  setTimeout(initLuminGames, 150);
-}
-
-function initLuminGames() {
+function initLuminContainer() {
   const container = document.getElementById('games');
   if (!container) return;
   try {
@@ -2121,8 +2101,6 @@ function initLuminGames() {
         theme: 'dark'
       });
     } else {
-      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-tertiary)">Loading Lumin SDK...<br><span style="font-size:11px;opacity:0.7">If this takes long, verify your connection to jsdelivr</span></div>';
-      // Retry once loaded
       let tries = 0;
       const interval = setInterval(() => {
         tries++;
@@ -2133,15 +2111,13 @@ function initLuminGames() {
             container: '#games',
             theme: 'dark'
           });
-        } else if (tries > 10) {
+        } else if (tries > 8) {
           clearInterval(interval);
-          container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger)">Could not connect to Lumin SDK CDN. Check network settings.</div>';
         }
       }, 500);
     }
   } catch (err) {
     console.error('Lumin init error:', err);
-    container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--danger)">Lumin initialization error: ' + err.message + '</div>';
   }
 }
 
@@ -2150,6 +2126,25 @@ function renderGamesDiscover(body) {
   const isSearching = gamesCurrentSearch || gamesCurrentSource !== 'All';
 
   let html = '';
+
+  // Seamless integrated Lumin Banner when on Discover
+  if (!isSearching) {
+    html += `
+      <div style="margin-bottom:18px;background:linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.12));border:1px solid rgba(99,102,241,0.3);border-radius:var(--radius-lg);padding:14px 18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px">⚡</div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff">Lumin SDK Active Catalog</div>
+              <div style="font-size:11px;color:var(--text-tertiary)">1,000+ unblocked web games combined with bored os library</div>
+            </div>
+          </div>
+          <button onclick="initLuminContainer()" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:5px 12px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer">Refresh Lumin</button>
+        </div>
+        <div id="games" style="min-height:220px;max-height:300px;overflow-y:auto;border-radius:var(--radius-md);background:var(--bg-primary);border:1px solid rgba(255,255,255,0.06)"></div>
+      </div>
+    `;
+  }
 
   // Featured game (only when not searching)
   if (!isSearching && filtered.length > 0) {
@@ -2200,6 +2195,9 @@ function renderGamesDiscover(body) {
   html += `</div>`;
   body.innerHTML = html;
   lucide.createIcons();
+  if (!isSearching && gamesCurrentTab === 'discover') {
+    setTimeout(initLuminContainer, 150);
+  }
 }
 
 function renderGamesLibrary(body) {
@@ -2726,22 +2724,24 @@ function openEditor() {
 }
 
 // ═══════════════════════════════════════
-// APP: Browser (Rook-Inspired Sleek UI + Fixed Scramjet)
+// APP: Bored Browser (Custom BoredOS Hybrid Stealth Engine)
 // ═══════════════════════════════════════
-let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'scramjet';
-let scramjetGatewayIdx = parseInt(localStorage.getItem('bored-os-scramjet-idx') || '0', 10);
+let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'bored-stealth';
+let proxyGatewayIdx = parseInt(localStorage.getItem('bored-os-proxy-gateway-idx') || '0', 10);
 
-const SCRAMJET_GATEWAYS = [
-  { name: 'Scramjet Mercury (Primary)', url: 'https://scramjet.mercurywork.shop/service/' },
-  { name: 'Tomp Wisp Gateway (Fast)', url: 'https://tomp.app/service/' },
-  { name: 'StudentPortal Cluster (High-Speed)', url: 'https://maths.studentportal.lol/service/' },
-  { name: 'Incog Proxy (Reliable)', url: 'https://incog.dev/service/' }
+const BORED_GATEWAYS = [
+  { name: 'BoredOS Stealth Net (Zero-Block)', type: 'stealth', url: 'https://corsproxy.io/?' },
+  { name: 'Ultra-Fast Tunnel (CDN Bypass)', type: 'stealth', url: 'https://api.allorigins.win/raw?url=' },
+  { name: 'Scramjet Mercury Edge', type: 'scramjet', url: 'https://scramjet.mercurywork.shop/service/' },
+  { name: 'StudentPortal Node', type: 'scramjet', url: 'https://maths.studentportal.lol/service/' },
+  { name: 'Tomp Fast Wisp', type: 'scramjet', url: 'https://tomp.app/service/' },
+  { name: 'Incog Gateway', type: 'scramjet', url: 'https://incog.dev/service/' }
 ];
 
-function cycleScramjetGateway() {
-  scramjetGatewayIdx = (scramjetGatewayIdx + 1) % SCRAMJET_GATEWAYS.length;
-  localStorage.setItem('bored-os-scramjet-idx', scramjetGatewayIdx);
-  notify('Switched to ' + SCRAMJET_GATEWAYS[scramjetGatewayIdx].name);
+function cycleProxyGateway() {
+  proxyGatewayIdx = (proxyGatewayIdx + 1) % BORED_GATEWAYS.length;
+  localStorage.setItem('bored-os-proxy-gateway-idx', proxyGatewayIdx);
+  notify('Switched to ' + BORED_GATEWAYS[proxyGatewayIdx].name);
   const input = document.getElementById('browser-url-input');
   if (input && input.value) {
     browserGo();
@@ -2749,77 +2749,75 @@ function cycleScramjetGateway() {
 }
 
 function openBrowser() {
-  const activeGateway = SCRAMJET_GATEWAYS[scramjetGatewayIdx] || SCRAMJET_GATEWAYS[0];
+  const activeGateway = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
 
-  const content = `<div style="display:flex;flex-direction:column;height:100%;background:#09090d;font-family:var(--font);color:#fff;overflow:hidden;position:relative">
+  const content = `<div style="display:flex;flex-direction:column;height:100%;background:#08080c;font-family:var(--font);color:#fff;overflow:hidden;position:relative">
     <!-- Top Navigation Chrome -->
-    <div style="padding:8px 14px;background:#101017;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;z-index:10">
+    <div style="padding:8px 14px;background:#0f0f16;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;z-index:10">
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.back()}catch(e){}" title="Back"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="var ifr=document.getElementById('browser-iframe');if(ifr)try{ifr.contentWindow.history.forward()}catch(e){}" title="Forward"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="reloadBrowser()" title="Reload"><i data-lucide="rotate-cw" style="width:13px;height:13px"></i></button>
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="browserHome()" title="Home"><i data-lucide="home" style="width:13px;height:13px"></i></button>
 
       <!-- Engine Selector -->
-      <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Engine set to '+this.value)" style="padding:6px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;outline:none;cursor:pointer">
-        <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''}>⚡ Scramjet</option>
-        <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''}>🛡️ Ultraviolet</option>
-        <option value="direct" ${proxyEngine === 'direct' ? 'selected' : ''}>🌐 Direct / Mirror</option>
+      <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Engine set to '+this.value)" style="padding:6px 12px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;outline:none;cursor:pointer">
+        <option value="bored-stealth" ${proxyEngine === 'bored-stealth' ? 'selected' : ''}>🚀 Bored Stealth Engine</option>
+        <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''}>⚡ Scramjet Gateway</option>
+        <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''}>🛡️ Ultraviolet Tunnel</option>
       </select>
 
       <!-- Omnibox -->
       <div style="flex:1;position:relative;display:flex;align-items:center">
-        <i data-lucide="lock" style="position:absolute;left:12px;width:13px;height:13px;color:var(--accent);opacity:0.8"></i>
-        <input type="text" id="browser-url-input" placeholder="Search or enter web address..." style="width:100%;padding:8px 14px 8px 34px;background:#060609;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#fff;font-family:var(--font);font-size:12px;outline:none;transition:all 0.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 12px var(--accent-glow)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter')browserGo()">
+        <i data-lucide="shield-check" style="position:absolute;left:12px;width:14px;height:14px;color:var(--accent);opacity:0.9"></i>
+        <input type="text" id="browser-url-input" placeholder="Search the web or type a URL..." style="width:100%;padding:8px 14px 8px 34px;background:#050508;border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#fff;font-family:var(--font);font-size:12px;outline:none;transition:all 0.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 12px var(--accent-glow)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.boxShadow='none'" onkeydown="if(event.key==='Enter')browserGo()">
       </div>
 
       <button class="btn btn-sm" style="border-radius:20px;padding:6px 14px" onclick="browserGo()">Go</button>
-      <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 10px;font-size:11px" onclick="cycleScramjetGateway()" title="Switch Proxy Gateway">
+      <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 10px;font-size:11px" onclick="cycleProxyGateway()" title="Switch Gateway">
         <i data-lucide="shuffle" style="width:12px;height:12px;margin-right:4px"></i> Switch Gateway
       </button>
       <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 8px" onclick="openBrowserExternal()" title="Open In Pop-up / Stealth Window"><i data-lucide="external-link" style="width:13px;height:13px"></i></button>
     </div>
 
-    <!-- Rook-Inspired Main Landing View -->
-    <div id="browser-home-view" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 20px 60px;background:#09090d;position:relative;overflow-y:auto">
+    <!-- BoredOS Original Custom Browser Landing View -->
+    <div id="browser-home-view" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px 60px;background:radial-gradient(circle at 50% 25%, rgba(99,102,241,0.08) 0%, #08080c 60%);position:relative;overflow-y:auto">
       
-      <!-- Center Brand Logo: Chess Rook + Cursive Script "Rook" -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:30px">
-        <!-- Chess Rook Icon -->
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 12px rgba(255,255,255,0.25))">
-          <path d="M5 21h14"/>
-          <path d="M7 21v-4h10v4"/>
-          <path d="M7 17l1.5-7h7l1.5 7"/>
-          <path d="M6 10V4h3v2h2V4h2v2h2V4h3v6z"/>
-        </svg>
-        <!-- Handwritten Cursive Brand Title -->
-        <span style="font-family:'Caveat', 'Dancing Script', cursive;font-size:62px;color:#ffffff;font-weight:700;line-height:1;letter-spacing:1px;text-shadow:0 0 25px rgba(255,255,255,0.2)">Rook</span>
+      <!-- Center BoredOS Brand Logo -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg, #6366f1, #a855f7);display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(99,102,241,0.4)">
+            <i data-lucide="globe" style="width:26px;height:26px;color:#fff"></i>
+          </div>
+          <span style="font-family:'Space Grotesk', var(--font);font-size:42px;font-weight:800;letter-spacing:-1px;color:#fff;text-shadow:0 0 30px rgba(99,102,241,0.3)">bored<span style="color:var(--accent)">browser</span></span>
+        </div>
+        <div style="font-size:12px;color:var(--text-tertiary);letter-spacing:1px;text-transform:uppercase;font-weight:600">Unfiltered Web Engine & Proxy Node</div>
       </div>
 
       <!-- Center Pill Search Omnibox -->
-      <div style="width:100%;max-width:540px;position:relative;margin-bottom:34px">
-        <i data-lucide="search" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:#71717a"></i>
-        <input type="text" id="browser-center-input" placeholder="Search or enter URL..." 
-               style="width:100%;padding:14px 20px 14px 50px;background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.12);border-radius:9999px;color:#fff;font-family:var(--font);font-size:14px;outline:none;transition:all 0.25s;box-shadow:0 4px 25px rgba(0,0,0,0.4)" 
+      <div style="width:100%;max-width:560px;position:relative;margin-bottom:32px">
+        <i data-lucide="search" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#71717a"></i>
+        <input type="text" id="browser-center-input" placeholder="Search freely or paste address..." 
+               style="width:100%;padding:14px 20px 14px 50px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:9999px;color:#fff;font-family:var(--font);font-size:14px;outline:none;transition:all 0.25s;box-shadow:0 4px 25px rgba(0,0,0,0.5)" 
                onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 25px var(--accent-glow)'" 
-               onblur="this.style.borderColor='rgba(255,255,255,0.12)';this.style.boxShadow='0 4px 25px rgba(0,0,0,0.4)'" 
+               onblur="this.style.borderColor='rgba(255,255,255,0.12)';this.style.boxShadow='0 4px 25px rgba(0,0,0,0.5)'" 
                onkeydown="if(event.key==='Enter'){document.getElementById('browser-url-input').value=this.value;browserGo()}">
       </div>
 
-      <!-- Rook-Style App Cards Grid -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:540px">
+      <!-- BoredOS App Shortcuts Grid -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%;max-width:560px">
         <!-- Row 1: YouTube, Discord, Spotify, Roblox, TikTok -->
         <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
           <!-- YouTube -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://youtube.com')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,0,0,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,0,0,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#ff0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">YouTube</span>
           </div>
 
           <!-- Discord -->
-          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://discord.com/app')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(88,101,242,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://discord.com')">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(88,101,242,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Discord</span>
@@ -2827,7 +2825,7 @@ function openBrowser() {
 
           <!-- Spotify -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://open.spotify.com')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(30,215,96,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(30,215,96,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#1ED760"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Spotify</span>
@@ -2835,7 +2833,7 @@ function openBrowser() {
 
           <!-- Roblox -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://now.gg/apps/roblox-corporation/5349/roblox.html')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(0,162,255,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(0,162,255,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#00A2FF"><path d="M5.167 1.5L1.5 18.833l17.333 3.667L22.5 5.167 5.167 1.5zm8.133 11.2a2.4 2.4 0 1 1-.5-4.8 2.4 2.4 0 0 1 .5 4.8z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Roblox</span>
@@ -2843,18 +2841,18 @@ function openBrowser() {
 
           <!-- TikTok -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://tiktok.com')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(0,242,254,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(0,242,254,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#ffffff"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98v8.63c-.02 1.8-.62 3.6-1.76 4.96-1.28 1.53-3.23 2.45-5.23 2.47-1.92.02-3.83-.8-5.15-2.22-1.38-1.49-2.05-3.56-1.87-5.59.18-2.02 1.25-3.88 2.94-5.02 1.62-1.09 3.69-1.42 5.56-.88v4.06c-.84-.28-1.78-.23-2.58.15-.79.37-1.39 1.09-1.57 1.94-.2 1.01.2 2.08.99 2.72.78.64 1.86.8 2.82.43.93-.36 1.54-1.27 1.56-2.27V.02z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">TikTok</span>
           </div>
         </div>
 
-        <!-- Row 2: Reddit, Play, Ask, Add -->
+        <!-- Row 2: Reddit, Play, Ask, Twitch, Add -->
         <div style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
           <!-- Reddit -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://reddit.com')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,69,0,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,69,0,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <svg width="26" height="26" viewBox="0 0 24 24" fill="#FF4500"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.56 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.197-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Reddit</span>
@@ -2862,7 +2860,7 @@ function openBrowser() {
 
           <!-- Play (Games) -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="openApp('games')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <i data-lucide="gamepad-2" style="width:26px;height:26px;color:#ffffff"></i>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Play</span>
@@ -2870,15 +2868,23 @@ function openBrowser() {
 
           <!-- Ask (AI Assistant) -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat')">
-            <div style="width:62px;height:62px;background:#141419;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(255,255,255,0.3)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
               <i data-lucide="sparkles" style="width:26px;height:26px;color:#ffffff"></i>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Ask</span>
           </div>
 
+          <!-- Twitch -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="quickNav('https://twitch.tv')">
+            <div style="width:62px;height:62px;background:#121218;border:1px solid rgba(255,255,255,0.08);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 4px 14px rgba(0,0,0,0.3)" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='rgba(145,71,255,0.4)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.08)'">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#9146FF"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>
+            </div>
+            <span style="font-size:11px;color:#a1a1aa;font-weight:500">Twitch</span>
+          </div>
+
           <!-- Add Shortcut -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer" onclick="promptAddShortcut()">
-            <div style="width:62px;height:62px;background:#141419;border:1px dashed rgba(255,255,255,0.18);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='var(--accent)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.18)'">
+            <div style="width:62px;height:62px;background:#121218;border:1px dashed rgba(255,255,255,0.18);border-radius:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s" onmouseover="this.style.transform='translateY(-3px)';this.style.borderColor='var(--accent)'" onmouseout="this.style.transform='none';this.style.borderColor='rgba(255,255,255,0.18)'">
               <i data-lucide="plus" style="width:24px;height:24px;color:#a1a1aa"></i>
             </div>
             <span style="font-size:11px;color:#a1a1aa;font-weight:500">Add</span>
@@ -2886,22 +2892,22 @@ function openBrowser() {
         </div>
       </div>
 
-      <!-- Rook-Style Bottom Right Footer Links -->
+      <!-- BoredOS Footer Quick Info -->
       <div style="position:absolute;bottom:18px;right:24px;display:flex;align-items:center;gap:20px;font-size:12px;color:#71717a;font-weight:500">
         <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="openApp('games')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'"><i data-lucide="gamepad-2" style="width:13px;height:13px"></i> Play</span>
         <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="quickNav('https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'"><i data-lucide="sparkles" style="width:13px;height:13px"></i> Ask</span>
         <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="openApp('editor')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'">&lt;&gt; Code</span>
-        <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="openApp('about')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'"><i data-lucide="user" style="width:13px;height:13px"></i> Account</span>
+        <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="openApp('about')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'"><i data-lucide="user" style="width:13px;height:13px"></i> About</span>
         <span style="cursor:pointer;display:flex;align-items:center;gap:5px;transition:color 0.15s" onclick="openApp('settings')" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#71717a'"><i data-lucide="settings" style="width:13px;height:13px"></i> Settings</span>
       </div>
     </div>
 
     <!-- Live Proxy Webview Frame -->
-    <div id="browser-frame-container" style="flex:1;position:relative;background:#06060a;display:none">
+    <div id="browser-frame-container" style="flex:1;position:relative;background:#050508;display:none">
       <iframe id="browser-iframe" style="width:100%;height:100%;border:none;background:#fff" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals allow-downloads" allowfullscreen></iframe>
     </div>
   </div>`;
-  createWindow('browser', 'Browser', 900, 600, content, { icon: 'globe' });
+  createWindow('browser', 'Browser', 920, 620, content, { icon: 'globe' });
   lucide.createIcons();
 }
 
@@ -2959,19 +2965,23 @@ function getProxyUrl(rawUrl) {
     return 'https://webcord.app/app';
   }
 
-  // Scramjet Gateway Routing with active cluster
-  if (proxyEngine === 'scramjet') {
-    const gw = SCRAMJET_GATEWAYS[scramjetGatewayIdx] || SCRAMJET_GATEWAYS[0];
-    return gw.url + encodeURIComponent(targetUrl);
-  } else if (proxyEngine === 'ultraviolet') {
-    if (window.__uv$config) {
-      return __uv$config.prefix + __uv$config.encodeUrl(targetUrl);
+  const currentGw = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
+
+  // 1. BoredOS Stealth Engine: Direct framing bypass with CORS headers
+  if (proxyEngine === 'bored-stealth') {
+    if (currentGw.type === 'stealth') {
+      return currentGw.url + encodeURIComponent(targetUrl);
     }
-    return 'https://tomp.app/service/' + encodeURIComponent(targetUrl);
-  } else {
-    // Direct / Mirror
-    return 'https://maths.studentportal.lol/service/' + encodeURIComponent(targetUrl);
+    return 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
   }
+
+  // 2. Scramjet Gateway
+  if (proxyEngine === 'scramjet') {
+    return (currentGw.type === 'scramjet' ? currentGw.url : 'https://scramjet.mercurywork.shop/service/') + encodeURIComponent(targetUrl);
+  }
+
+  // 3. Ultraviolet Tunnel
+  return 'https://maths.studentportal.lol/service/' + encodeURIComponent(targetUrl);
 }
 
 function browserGo() {
@@ -2980,6 +2990,15 @@ function browserGo() {
   const home = document.getElementById('browser-home-view');
   const frameContainer = document.getElementById('browser-frame-container');
   if (!input || !iframe) return;
+
+  let query = input.value.trim();
+  if (!query) return;
+
+  const finalProxyUrl = getProxyUrl(query);
+  if (home) home.style.display = 'none';
+  if (frameContainer) frameContainer.style.display = 'block';
+  iframe.src = finalProxyUrl;
+}
 
   let query = input.value.trim();
   if (!query) return;
