@@ -2372,6 +2372,8 @@ async function playGame(idx) {
   </div>`;
 
   const win = createWindow('game-play-' + idx, game.title, 850, 550, content, { icon: 'gamepad-2', allowMultiple: true });
+  // Open games fullscreen by default
+  maximizeWindow(win.id);
   const iframe = document.querySelector(`#win-body-${win.id} iframe`);
 
   try {
