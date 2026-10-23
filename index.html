@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js" async defer></script>
 <style>
 /* ═══════════════════════════════════════════
    BORED OS — Design System & Core Styles
@@ -2724,18 +2724,16 @@ function openEditor() {
 }
 
 // ═══════════════════════════════════════
-// APP: Bored Browser (Custom BoredOS Hybrid Stealth Engine)
+// APP: Bored Browser (Scramjet Wisp Proxy)
 // ═══════════════════════════════════════
-let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'bored-stealth';
+let proxyEngine = localStorage.getItem('bored-os-proxy-engine') || 'scramjet';
 let proxyGatewayIdx = parseInt(localStorage.getItem('bored-os-proxy-gateway-idx') || '0', 10);
 
 const BORED_GATEWAYS = [
-  { name: 'BoredOS Stealth Net (Zero-Block)', type: 'stealth', url: 'https://corsproxy.io/?' },
-  { name: 'Ultra-Fast Tunnel (CDN Bypass)', type: 'stealth', url: 'https://api.allorigins.win/raw?url=' },
-  { name: 'Scramjet Mercury Edge', type: 'scramjet', url: 'https://scramjet.mercurywork.shop/service/' },
-  { name: 'StudentPortal Node', type: 'scramjet', url: 'https://maths.studentportal.lol/service/' },
-  { name: 'Tomp Fast Wisp', type: 'scramjet', url: 'https://tomp.app/service/' },
-  { name: 'Incog Gateway', type: 'scramjet', url: 'https://incog.dev/service/' }
+  { name: 'Scramjet Mercury Edge (Fast)', type: 'scramjet', url: 'https://scramjet.mercurywork.shop/service/' },
+  { name: 'StudentPortal Cluster', type: 'scramjet', url: 'https://maths.studentportal.lol/service/' },
+  { name: 'Tomp Wisp Node', type: 'scramjet', url: 'https://tomp.app/service/' },
+  { name: 'Incog High-Speed', type: 'scramjet', url: 'https://incog.dev/service/' }
 ];
 
 function cycleProxyGateway() {
@@ -2760,11 +2758,9 @@ function openBrowser() {
       <button class="btn btn-sm btn-outline" style="padding:5px 8px;border-radius:var(--radius-sm)" onclick="browserHome()" title="Home"><i data-lucide="home" style="width:13px;height:13px"></i></button>
 
       <!-- Engine Selector -->
-      <select id="browser-engine-select" onchange="proxyEngine=this.value;localStorage.setItem('bored-os-proxy-engine',this.value);notify('Engine set to '+this.value)" style="padding:6px 12px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;outline:none;cursor:pointer">
-        <option value="bored-stealth" ${proxyEngine === 'bored-stealth' ? 'selected' : ''}>🚀 Bored Stealth Engine</option>
-        <option value="scramjet" ${proxyEngine === 'scramjet' ? 'selected' : ''}>⚡ Scramjet Gateway</option>
-        <option value="ultraviolet" ${proxyEngine === 'ultraviolet' ? 'selected' : ''}>🛡️ Ultraviolet Tunnel</option>
-      </select>
+      <div style="padding:6px 14px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;color:var(--accent);font-family:var(--font);font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px">
+        ⚡ Scramjet Wisp
+      </div>
 
       <!-- Omnibox -->
       <div style="flex:1;position:relative;display:flex;align-items:center">
@@ -2774,7 +2770,7 @@ function openBrowser() {
 
       <button class="btn btn-sm" style="border-radius:20px;padding:6px 14px" onclick="browserGo()">Go</button>
       <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 10px;font-size:11px" onclick="cycleProxyGateway()" title="Switch Gateway">
-        <i data-lucide="shuffle" style="width:12px;height:12px;margin-right:4px"></i> Switch Gateway
+        <i data-lucide="shuffle" style="width:12px;height:12px;margin-right:4px"></i> Switch Node
       </button>
       <button class="btn btn-sm btn-outline" style="border-radius:20px;padding:5px 8px" onclick="openBrowserExternal()" title="Open In Pop-up / Stealth Window"><i data-lucide="external-link" style="width:13px;height:13px"></i></button>
     </div>
@@ -2966,22 +2962,7 @@ function getProxyUrl(rawUrl) {
   }
 
   const currentGw = BORED_GATEWAYS[proxyGatewayIdx] || BORED_GATEWAYS[0];
-
-  // 1. BoredOS Stealth Engine: Direct framing bypass with CORS headers
-  if (proxyEngine === 'bored-stealth') {
-    if (currentGw.type === 'stealth') {
-      return currentGw.url + encodeURIComponent(targetUrl);
-    }
-    return 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-  }
-
-  // 2. Scramjet Gateway
-  if (proxyEngine === 'scramjet') {
-    return (currentGw.type === 'scramjet' ? currentGw.url : 'https://scramjet.mercurywork.shop/service/') + encodeURIComponent(targetUrl);
-  }
-
-  // 3. Ultraviolet Tunnel
-  return 'https://maths.studentportal.lol/service/' + encodeURIComponent(targetUrl);
+  return currentGw.url + encodeURIComponent(targetUrl);
 }
 
 function browserGo() {
