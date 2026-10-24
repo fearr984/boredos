@@ -4193,7 +4193,7 @@ function showNestedBoredosNotice(tab) {
   tab.failoverAttempts = 0;
   renderBrowserTabs();
   if (tab.id === activeBrowserTabId) {
-    setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true);
+    setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true, false);
   }
   try {
     tab.iframe.srcdoc = nestedBoredosNoticeHtml(tab.url);
@@ -4216,7 +4216,9 @@ function watchForNestedBoredos(tab) {
     try { doc = iframe.contentDocument; } catch (e) {}
     if (doc) {
       try {
-        if (doc.querySelector && doc.querySelector('meta[name="boredos-app"]')) {
+        const isBoredosApp = (doc.querySelector && doc.querySelector('meta[name="boredos-app"]')) ||
+          (doc.title && doc.title.trim().toLowerCase() === 'bored os');
+        if (isBoredosApp) {
           showNestedBoredosNotice(tab);
           return;
         }
@@ -4244,7 +4246,7 @@ function createBrowserTabIframe(tab) {
         tab.title = 'BoredOS (nested)';
         renderBrowserTabs();
         if (tab.id === activeBrowserTabId) {
-          setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true);
+          setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true, false);
         }
         return;
       }
@@ -4420,14 +4422,14 @@ document.addEventListener('keydown', (event) => {
 });
 
 
-function setBrowserStatus(message, spinning = true, isError = false) {
+function setBrowserStatus(message, spinning = true, isError = false, showSwitchHint = true) {
   const status = document.getElementById('browser-proxy-status');
   const text = document.getElementById('browser-proxy-status-text');
   if (!status || !text) return;
   status.style.display = 'flex';
   status.querySelector('.game-player-spinner').style.display = spinning ? 'block' : 'none';
   text.innerHTML = isError
-    ? `${escHtml(message)}<br><span style="font-size:11px;color:var(--text-tertiary)">Try the Switch Node button, then press Go again.</span>`
+    ? `${escHtml(message)}${showSwitchHint ? '<br><span style="font-size:11px;color:var(--text-tertiary)">Try the Switch Node button, then press Go again.</span>' : ''}`
     : escHtml(message);
   text.style.color = isError ? 'var(--danger)' : 'var(--text-secondary)';
 }
