@@ -1759,10 +1759,12 @@ html, body {
 // A CDN pull zone whose origin is this site serves this exact app at its
 // root. Loading that inside the BoredOS browser creates an infinite
 // BoredOS-in-BoredOS loop, so show a static notice instead of booting again.
-let boredNestedInstance = false;
-try {
-  boredNestedInstance = window.parent !== window && !!window.parent.__BOREDOS_APP__;
-} catch (e) {}
+let boredNestedInstance = /\/service\//.test(location.pathname);
+if (!boredNestedInstance) {
+  try {
+    boredNestedInstance = window.parent !== window && !!window.parent.__BOREDOS_APP__;
+  } catch (e) {}
+}
 if (boredNestedInstance) {
   let nestedTarget = location.href;
   try {
