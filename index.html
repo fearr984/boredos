@@ -3413,7 +3413,7 @@ function openBrowser() {
           <span id="browser-node-readout">FERN / SCRAMJET WISP</span>
         </div>
         <div class="browser-home-title"><span class="browser-home-prompt">~/</span>bored<span>/browser</span></div>
-        <div class="browser-home-sub">A quiet window to the unfiltered web. Type a URL or search query.</div>
+        <div class="browser-home-sub">Search or enter an address. Traffic runs through the selected Wisp node.</div>
         <div class="browser-search">
           <span class="browser-search-prompt">&gt;</span>
           <input type="text" id="browser-center-input" placeholder="Search or enter address" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')browserSearchGo()">
@@ -3645,6 +3645,9 @@ async function browserGo() {
   try {
     const controller = await ensureProxy();
     if (browserProxyTarget !== targetUrl) return;
+    if (!navigator.serviceWorker.controller) {
+      throw new Error('The proxy worker is still starting. Press Go again in a moment.');
+    }
     const frame = setupBrowserFrame(controller);
     if (!frame) throw new Error('Browser frame is not available.');
     input.value = targetUrl;
