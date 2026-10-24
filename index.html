@@ -136,8 +136,19 @@ html, body {
   transition: background-color 0.4s ease;
 }
 
+#desktop-wallpaper-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  display: none;
+  background: #000;
+}
+
 .wallpaper-overlay {
   position: absolute; inset: 0;
+  z-index: 1;
   background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.06) 0%, transparent 60%),
               radial-gradient(ellipse at 70% 80%, rgba(139,92,246,0.04) 0%, transparent 60%),
               rgba(0,0,0,0.12);
@@ -1389,8 +1400,16 @@ html, body {
 }
 .wallpaper-option:hover { border-color: var(--accent); transform: scale(1.03); }
 .wallpaper-option.active { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
-.wallpaper-option img, .wallpaper-option .wallpaper-color {
+.wallpaper-option img, .wallpaper-option .wallpaper-color, .wallpaper-option video {
   width: 100%; height: 100%; object-fit: cover;
+}
+.wallpaper-live-badge {
+  position: absolute; top: 6px; left: 6px;
+  background: rgba(239,68,68,0.9);
+  color: #fff; font-size: 9px; font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 2px 6px; border-radius: 4px;
+  box-shadow: 0 0 8px rgba(239,68,68,0.5);
 }
 
 /* Calculator */
@@ -1788,6 +1807,7 @@ html, body {
 
 <!-- ═══ Desktop ═══ -->
 <div id="desktop">
+  <video id="desktop-wallpaper-video" muted loop playsinline autoplay preload="none"></video>
   <div class="wallpaper-overlay"></div>
 
   <!-- Desktop Icons -->
@@ -2004,13 +2024,9 @@ function boot() {
     }, 800);
   }, 2800);
 
-  // Pre-load games in background
-  setTimeout(() => loadAllGames(), 1500);
-
-  // Warm the proxy in the background so the Browser app opens immediately.
-  setTimeout(() => {
-    if (document.visibilityState === 'visible') ensureProxy().catch(() => {});
-  }, 2800);
+  document.addEventListener('visibilitychange', () => {
+    syncDesktopWallpaperPlayback();
+  });
 }
 
 // ─── Clock ───
@@ -2068,7 +2084,7 @@ function applyFont(fontId) {
   localStorage.setItem('bored-os-font', fontId);
 }
 
-// ─── Wallpapers Library (Curated HD & Pixel) ───
+// ─── Wallpapers Library (Anime, GIFs & Minimal) ───
 const WALLPAPERS = [
   // Anime (Alpha Coders)
   { id: 'anime-demon-slayer', type: 'image', value: 'https://images7.alphacoders.com/137/thumb-1920-1371405.jpeg', thumb: 'https://images7.alphacoders.com/137/thumb-350-1371405.webp', label: 'Demon Slayer', category: 'Anime' },
@@ -2097,21 +2113,6 @@ const WALLPAPERS = [
   { id: 'anime-gif-rengoku', type: 'image', value: 'https://giffiles.alphacoders.com/221/221754.gif', thumb: 'https://giffiles.alphacoders.com/221/thumb-221754.jpg', label: 'Rengoku', category: 'Anime GIF' },
   { id: 'anime-gif-pikachu', type: 'image', value: 'https://giffiles.alphacoders.com/398/3987.gif', thumb: 'https://giffiles.alphacoders.com/398/thumb-3987.jpg', label: 'Pikachu', category: 'Anime GIF' },
 
-  // Pixel & Retro
-  { id: 'pixel-city', type: 'image', value: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop', label: 'Pixel Cyber City', category: 'Pixel / Retro' },
-  { id: 'retro-arcade', type: 'image', value: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop', label: 'Neon Arcade', category: 'Pixel / Retro' },
-  { id: 'vaporwave-grid', type: 'image', value: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=2000&auto=format&fit=crop', label: 'Synthwave Night', category: 'Pixel / Retro' },
-
-  // Cyberpunk & Lucide
-  { id: 'cyber-neon', type: 'image', value: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop', label: 'Cyberpunk Alley', category: 'Cyber' },
-  { id: 'lucide-purple', type: 'image', value: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2064&auto=format&fit=crop', label: 'Lucide Aura', category: 'Cyber' },
-  { id: 'matrix-terminal', type: 'image', value: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop', label: 'Matrix Terminal', category: 'Cyber' },
-
-  // Space & Anime Aesthetic
-  { id: 'space-nebula', type: 'image', value: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?q=80&w=2070&auto=format&fit=crop', label: 'Deep Nebula', category: 'Space' },
-  { id: 'anime-twilight', type: 'image', value: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=2094&auto=format&fit=crop', label: 'Twilight Sky', category: 'Aesthetic' },
-  { id: 'orbit-night', type: 'image', value: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop', label: 'Earth Orbit', category: 'Space' },
-
   // Minimalist Gradients
   { id: 'gradient-1', type: 'gradient', value: 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)', label: 'Midnight Blue', category: 'Minimal' },
   { id: 'gradient-2', type: 'gradient', value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Cosmic Violet', category: 'Minimal' },
@@ -2127,6 +2128,42 @@ function setWallpaperFilter(category) {
   renderSettingsTab();
 }
 
+function isVideoWallpaperUrl(url) {
+  return typeof url === 'string' && /\.(mp4|webm|ogg)(\?|#|$)/i.test(url);
+}
+
+function setDesktopWallpaperVideo(src, poster) {
+  const video = document.getElementById('desktop-wallpaper-video');
+  if (!video) return;
+  if (poster) video.poster = poster;
+  if (video.getAttribute('src') !== src) {
+    video.src = src;
+  }
+  video.style.display = 'block';
+  syncDesktopWallpaperPlayback();
+}
+
+function syncDesktopWallpaperPlayback() {
+  const video = document.getElementById('desktop-wallpaper-video');
+  if (!video || !video.getAttribute('src')) return;
+  const appWindowOpen = OS.windows.some(win => !win.minimized);
+  if (document.hidden || appWindowOpen) {
+    video.pause();
+  } else if (video.paused) {
+    video.play().catch(() => {});
+  }
+}
+
+function clearDesktopWallpaperVideo() {
+  const video = document.getElementById('desktop-wallpaper-video');
+  if (!video) return;
+  video.pause();
+  video.removeAttribute('src');
+  video.removeAttribute('poster');
+  video.load();
+  video.style.display = 'none';
+}
+
 function applyWallpaper(idOrUrl) {
   if (!idOrUrl) return;
   OS.wallpaper = idOrUrl;
@@ -2136,16 +2173,31 @@ function applyWallpaper(idOrUrl) {
   const preset = WALLPAPERS.find(w => w.id === idOrUrl);
   let bgValue = '';
   if (preset) {
+    if (preset.type === 'video') {
+      desktop.style.background = '#000';
+      setDesktopWallpaperVideo(preset.value, preset.thumb || '');
+      localStorage.setItem('bored-os-wallpaper', idOrUrl);
+      return;
+    }
+    clearDesktopWallpaperVideo();
     if (preset.type === 'image') {
       bgValue = `url('${preset.value}') center center / cover no-repeat`;
     } else {
       bgValue = preset.value;
     }
+  } else if (isVideoWallpaperUrl(idOrUrl)) {
+    desktop.style.background = '#000';
+    setDesktopWallpaperVideo(idOrUrl, '');
+    localStorage.setItem('bored-os-wallpaper', idOrUrl);
+    return;
   } else if (idOrUrl.startsWith('http://') || idOrUrl.startsWith('https://') || idOrUrl.startsWith('data:image')) {
+    clearDesktopWallpaperVideo();
     bgValue = `url('${idOrUrl}') center center / cover no-repeat`;
   } else if (idOrUrl.startsWith('linear-gradient') || idOrUrl.startsWith('radial-gradient') || idOrUrl.startsWith('#')) {
+    clearDesktopWallpaperVideo();
     bgValue = idOrUrl;
   } else {
+    clearDesktopWallpaperVideo();
     bgValue = 'linear-gradient(135deg, #0a0a0f 0%, #1a1035 50%, #0a0a1a 100%)';
   }
 
@@ -2163,7 +2215,7 @@ function addCustomWallpaperUrl() {
   const url = input.value.trim();
   if (!url) return;
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    notify('Please enter a valid image URL (https://...)');
+    notify('Please enter a valid image or video URL (https://...)');
     return;
   }
 
@@ -2460,6 +2512,7 @@ function focusWindow(id) {
     el.style.zIndex = ++OS.nextZIndex;
     el.classList.add('focused');
   }
+  syncDesktopWallpaperPlayback();
 }
 
 function minimizeWindow(id) {
@@ -2469,6 +2522,7 @@ function minimizeWindow(id) {
   const el = document.getElementById('win-' + id);
   if (el) el.classList.add('minimized');
   updateDock();
+  syncDesktopWallpaperPlayback();
 }
 
 function maximizeWindow(id) {
@@ -2508,6 +2562,7 @@ function closeWindow(id) {
   }
   OS.windows.splice(idx, 1);
   updateDock();
+  syncDesktopWallpaperPlayback();
 }
 
 function setupWindowDrag(el, id) {
@@ -3740,8 +3795,23 @@ function getWispNodes() {
 
 function getSelectedWisp() {
   const nodes = getWispNodes();
-  if (proxyGatewayIdx < 0 || proxyGatewayIdx >= nodes.length) proxyGatewayIdx = 0;
-  return nodes[proxyGatewayIdx];
+  const selectedUrl = localStorage.getItem('bored-os-wisp-selected');
+  const selectedIndex = nodes.findIndex(node => node.url === selectedUrl);
+  if (selectedIndex >= 0) {
+    proxyGatewayIdx = selectedIndex;
+    return nodes[selectedIndex];
+  }
+
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (isLocal && !localStorage.getItem('bored-os-wisp')) {
+    proxyGatewayIdx = 0;
+  } else if (!Number.isInteger(proxyGatewayIdx) || proxyGatewayIdx < 0 || proxyGatewayIdx >= nodes.length) {
+    proxyGatewayIdx = 0;
+  }
+
+  const node = nodes[proxyGatewayIdx];
+  localStorage.setItem('bored-os-wisp-selected', node.url);
+  return node;
 }
 
 async function setProxyTransport(wispUrl) {
@@ -3926,6 +3996,7 @@ async function cycleProxyGateway() {
   proxyGatewayIdx = (proxyGatewayIdx + 1) % nodes.length;
   localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
   const node = nodes[proxyGatewayIdx];
+  localStorage.setItem('bored-os-wisp-selected', node.url);
   notify('Proxy node: ' + node.name);
   updateBrowserNodeUI();
 
@@ -4709,6 +4780,7 @@ async function handleProxyFailure(tab, reason) {
   proxyGatewayIdx = (proxyGatewayIdx + 1) % nodes.length;
   localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
   const node = nodes[proxyGatewayIdx];
+  localStorage.setItem('bored-os-wisp-selected', node.url);
   if (tab.id === activeBrowserTabId) {
     setBrowserStatus('Proxy node failed. Switching to ' + node.name + '...');
   }
@@ -4927,10 +4999,10 @@ function renderSettingsWallpaper(el) {
     <!-- Custom Wallpaper Tools -->
     <div class="settings-section">
       <div class="settings-section-title">Custom Wallpaper</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Upload any image file from your device or paste an online image link:</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Upload an image from your device, or paste an online image or looping MP4 link:</div>
       
       <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input type="text" id="custom-wallpaper-input" placeholder="Paste image link (https://...)" 
+        <input type="text" id="custom-wallpaper-input" placeholder="Paste image or .mp4 link (https://...)" 
                style="flex:1;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border-medium);border-radius:var(--radius-md);color:#fff;font-family:var(--font);font-size:12px;outline:none"
                onkeydown="if(event.key==='Enter')addCustomWallpaperUrl()">
         <button class="btn btn-sm" onclick="addCustomWallpaperUrl()">Apply Link</button>
@@ -4956,7 +5028,9 @@ function renderSettingsWallpaper(el) {
           <div class="wallpaper-option ${OS.wallpaper === url ? 'active' : ''}" 
                style="position:relative"
                onclick="applyWallpaper('${escHtml(url)}');renderSettingsTab()">
-            <img src="${escHtml(url)}" style="width:100%;height:100%;object-fit:cover" alt="Custom ${idx+1}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070'">
+            ${isVideoWallpaperUrl(url)
+              ? `<video src="${escHtml(url)}" muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover"></video>`
+              : `<img src="${escHtml(url)}" style="width:100%;height:100%;object-fit:cover" alt="Custom ${idx+1}" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070'">`}
             <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.6);padding:3px 6px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:space-between">
               <span>Custom #${idx+1}</span>
               <button onclick="event.stopPropagation();removeCustomWallpaper('${escHtml(url)}')" style="background:none;border:none;color:#f87171;cursor:pointer;padding:0" title="Delete">✕</button>
@@ -4969,8 +5043,8 @@ function renderSettingsWallpaper(el) {
 
     <!-- Curated Wallpapers Collection -->
     <div class="settings-section">
-      <div class="settings-section-title">Curated Wallpapers (HD, Anime & Pixel)</div>
-      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:10px">Anime wallpapers and GIFs via Alpha Coders.</div>
+      <div class="settings-section-title">Curated Wallpapers (HD, Anime, GIFs & Live)</div>
+      <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:10px">Still images and GIFs via Alpha Coders. Animated live wallpapers via MotionBGS pause while apps are open to keep the desktop responsive.</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
         ${categories.map(cat => `
           <button class="btn btn-sm ${wallpaperFilter === cat ? '' : 'btn-outline'}"
@@ -4982,7 +5056,9 @@ function renderSettingsWallpaper(el) {
           <div class="wallpaper-option ${wp.id === OS.wallpaper ? 'active' : ''}" 
                onclick="applyWallpaper('${wp.id}');this.closest('.wallpaper-grid').querySelectorAll('.wallpaper-option').forEach(el=>el.classList.remove('active'));this.classList.add('active')"
                style="position:relative;border-radius:var(--radius-md);overflow:hidden;aspect-ratio:16/10">
-            ${wp.type === 'image' 
+            ${wp.type === 'video'
+              ? `<img src="${wp.thumb || wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover"><span class="wallpaper-live-badge">LIVE</span>`
+              : wp.type === 'image' 
               ? `<img src="${wp.thumb || wp.value}" alt="${escHtml(wp.label)}" loading="lazy" style="width:100%;height:100%;object-fit:cover">`
               : `<div class="wallpaper-color" style="background:${wp.value};width:100%;height:100%"></div>`
             }
@@ -5143,6 +5219,7 @@ async function saveWispServer() {
   const nodeIndex = getWispNodes().findIndex(n => n.url === val);
   proxyGatewayIdx = nodeIndex >= 0 ? nodeIndex : 0;
   localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
+  localStorage.setItem('bored-os-wisp-selected', val);
   updateBrowserNodeUI();
 
   try {
