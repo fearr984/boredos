@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>bored os</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="modulepreload" href="scramjet/scramjet.bundle.js?v=4">
-<link rel="modulepreload" href="baremux/index.mjs?v=4">
-<link rel="prefetch" href="scramjet/scramjet.all.js?v=4" as="script">
-<link rel="prefetch" href="libcurl/index.mjs?v=4" as="script">
+<link rel="modulepreload" href="scramjet/scramjet.bundle.js?v=6">
+<link rel="modulepreload" href="baremux/index.mjs?v=6">
+<link rel="prefetch" href="scramjet/scramjet.all.js?v=6" as="script">
+<link rel="prefetch" href="libcurl/index.mjs?v=6" as="script">
 <style>
 /* ═══════════════════════════════════════════
    BORED OS — Design System & Core Styles
@@ -922,6 +922,362 @@ html, body {
   .browser-home-title { font-size: 28px; }
 }
 
+/* Flare start page */
+.browser-app { position: relative; container-type: size; }
+.browser-app.home-mode .browser-toolbar { display: none; }
+.browser-tabbar {
+  display: flex; align-items: flex-end; gap: 4px;
+  height: 34px; padding: 5px 8px 0;
+  background: var(--browser-panel);
+  border-bottom: 1px solid var(--browser-line);
+  flex-shrink: 0;
+}
+.browser-tabs {
+  display: flex; align-items: flex-end; gap: 4px;
+  flex: 1; min-width: 0;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.browser-tabs::-webkit-scrollbar { height: 3px; }
+.browser-tabs::-webkit-scrollbar-thumb { background: var(--browser-line); }
+.browser-tab {
+  display: flex; align-items: center; gap: 7px;
+  min-width: 110px; max-width: 210px; height: 28px;
+  padding: 0 8px 0 10px;
+  border: 1px solid transparent; border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent; color: var(--browser-muted);
+  font-family: var(--font); font-size: 11px;
+  cursor: pointer; user-select: none; flex-shrink: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.browser-tab:hover { background: var(--browser-line-soft); color: var(--browser-text); }
+.browser-tab.active { background: var(--browser-bg); color: var(--browser-text); border-color: var(--browser-line); }
+.browser-tab-icon { display: flex; width: 12px; height: 12px; color: currentColor; flex-shrink: 0; }
+.browser-tab-icon svg { width: 12px; height: 12px; }
+.browser-tab-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.browser-tab-close {
+  width: 16px; height: 16px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 50%;
+  background: transparent; color: var(--browser-faint);
+  font-size: 14px; line-height: 1; cursor: pointer; flex-shrink: 0;
+}
+.browser-tab-close:hover { background: var(--browser-line); color: var(--browser-text); }
+.browser-newtab {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 7px;
+  background: transparent; color: var(--browser-muted);
+  cursor: pointer; flex-shrink: 0;
+}
+.browser-newtab:hover { background: var(--browser-line-soft); color: var(--browser-text); border-color: var(--browser-line); }
+.browser-newtab svg { width: 14px; height: 14px; }
+.browser-dev-badge {
+  height: 20px; padding: 0 7px;
+  border: 1px solid #5a4a1f; border-radius: 999px;
+  background: rgba(245, 185, 66, 0.08); color: #f5b942;
+  font-family: var(--browser-mono); font-size: 8px; letter-spacing: 0.1em;
+  cursor: pointer; flex-shrink: 0;
+}
+.browser-dev-badge:hover { background: rgba(245, 185, 66, 0.16); border-color: #8a6a2a; }
+.browser-tab-panels { position: absolute; inset: 0; display: flex; }
+.browser-tab-iframe { width: 100%; height: 100%; border: none; background: #fff; display: none; }
+.browser-tab-iframe.active { display: block; }
+.flare-home {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 0 16px;
+  overflow-y: auto;
+  background: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #111111 45%, #0d0d0d 100%);
+}
+.flare-logo {
+  font-family: 'Pacifico', 'Dancing Script', cursive;
+  font-size: 60px; line-height: 1.1;
+  color: #eee9df; margin-bottom: 10px;
+  user-select: none;
+  flex-shrink: 0;
+}
+.flare-search {
+  position: relative;
+  width: min(900px, 87%); height: 50px;
+  display: flex; align-items: center;
+  border: 1px solid rgba(238, 233, 223, 0.28);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.flare-search:focus-within {
+  border-color: rgba(238, 233, 223, 0.55);
+  box-shadow: 0 0 0 3px rgba(238, 233, 223, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+.flare-search-icon {
+  position: absolute; left: 18px;
+  width: 18px; height: 18px;
+  color: #7a7a7a; pointer-events: none;
+}
+.flare-search input {
+  width: 100%; height: 100%;
+  padding: 0 22px 0 48px;
+  border: none; outline: none; background: transparent;
+  color: #e8e8e8;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+}
+.flare-search input::placeholder { color: #777; }
+.flare-shortcuts {
+  width: calc(100% - 40px); max-width: 900px;
+  margin-top: 54px;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 13px;
+  flex-shrink: 0;
+}
+.flare-shortcut {
+  position: relative; width: 84px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.flare-shortcut-button {
+  width: 84px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 0; border: none; background: transparent;
+  color: inherit; cursor: pointer;
+  font-family: Inter, system-ui, sans-serif;
+}
+.flare-shortcut-tile {
+  width: 84px; height: 84px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 24px;
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+.flare-shortcut-button:hover .flare-shortcut-tile {
+  transform: translateY(-3px);
+  background: #1e1e1e;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.flare-shortcut-button:focus-visible { outline: none; }
+.flare-shortcut-button:focus-visible .flare-shortcut-tile {
+  border-color: rgba(238, 233, 223, 0.5);
+  box-shadow: 0 0 0 3px rgba(238, 233, 223, 0.06);
+}
+.flare-shortcut-tile svg, .flare-shortcut-tile img {
+  width: 32px; height: 32px; object-fit: contain;
+}
+.flare-shortcut-label {
+  max-width: 84px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: #9a9a9a; font-size: 11px; font-weight: 500;
+  line-height: 1.2; text-align: center;
+}
+.flare-shortcut-add {
+  border-style: dashed;
+  background: transparent;
+  color: #8a8a8a;
+}
+.flare-shortcut-button:hover .flare-shortcut-add {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #eee;
+}
+.flare-shortcut-edit {
+  position: absolute; top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: #222; border: 1px solid #3a3a3a;
+  color: #bbb; cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.flare-shortcut:hover .flare-shortcut-edit,
+.flare-shortcut-edit:focus-visible { opacity: 1; }
+.flare-shortcut-edit:hover { background: #2c2c2c; color: #fff; }
+.flare-shortcut-edit svg { width: 11px; height: 11px; }
+.flare-shortcut-fallback {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  color: #eee9df; font-size: 18px; font-weight: 600;
+}
+.flare-home-foot {
+  margin-top: auto; padding-top: 18px; padding-bottom: 2px;
+  display: flex; align-items: center; gap: 5px;
+  color: #6f6f6f;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.flare-home-foot select {
+  appearance: none;
+  background: transparent; border: none;
+  color: #8a8a8a;
+  font-family: inherit; font-size: 10px;
+  cursor: pointer; outline: none; padding: 0 2px;
+}
+.flare-home-foot select:hover { color: #d8d8d8; }
+.flare-modal {
+  position: absolute; inset: 0; z-index: 80;
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+.flare-modal.open { display: flex; }
+.flare-modal-card {
+  width: min(380px, 100%);
+  padding: 20px;
+  border-radius: 20px;
+  background: #171717;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  color: #eee;
+  font-family: Inter, system-ui, sans-serif;
+}
+.flare-modal-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 16px;
+}
+.flare-modal-kicker {
+  color: #6f6f6f; font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 4px;
+}
+.flare-modal-title {
+  color: #eee9df; font-size: 18px; font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.flare-modal-close {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: 50%;
+  background: transparent; color: #8a8a8a;
+  font-size: 18px; line-height: 1; cursor: pointer;
+}
+.flare-modal-close:hover { color: #eee; background: #222; border-color: #333; }
+.flare-field { display: block; margin-bottom: 12px; }
+.flare-field span {
+  display: block; margin-bottom: 6px;
+  color: #8a8a8a; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.flare-field em {
+  color: #5f5f5f; font-style: normal; font-weight: 400;
+  text-transform: none; letter-spacing: 0;
+}
+.flare-field input {
+  width: 100%; height: 38px; padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: #101010; color: #eee;
+  font-family: Inter, system-ui, sans-serif; font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.flare-field input::placeholder { color: #5f5f5f; }
+.flare-field input:focus {
+  border-color: rgba(238, 233, 223, 0.5);
+  box-shadow: 0 0 0 3px rgba(238, 233, 223, 0.05);
+}
+.flare-modal-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-top: 18px;
+}
+.flare-modal-actions-right {
+  display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+.flare-btn {
+  height: 32px; padding: 0 12px;
+  border: 1px solid #333; border-radius: 8px;
+  background: #222; color: #d8d8d8;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.flare-btn:hover { background: #2a2a2a; border-color: #444; color: #fff; }
+.flare-btn-primary { background: #eee9df; border-color: #eee9df; color: #111; }
+.flare-btn-primary:hover { background: #fff; border-color: #fff; color: #111; }
+.flare-btn-danger { background: transparent; border-color: #4a2626; color: #f87171; }
+.flare-btn-danger:hover { background: rgba(248, 113, 113, 0.08); border-color: #7a3030; color: #fca5a5; }
+.bored-setup-card { width: min(420px, 100%); }
+.bored-setup-global {
+  position: fixed; z-index: 6000;
+}
+.bored-setup-global .flare-modal-card {
+  max-height: calc(100vh - 40px); overflow-y: auto;
+}
+.bored-setup-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px;
+}
+.topbar-dev {
+  color: #f5b942;
+  background: rgba(245, 185, 66, 0.08);
+  border: 1px solid rgba(245, 185, 66, 0.25);
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+}
+.topbar-dev:hover {
+  background: rgba(245, 185, 66, 0.16);
+  color: #ffd77a;
+}
+.bored-setup-mark {
+  font-family: 'Pacifico', 'Dancing Script', cursive;
+  font-size: 38px; line-height: 1.1; color: #eee9df;
+  margin-bottom: 14px;
+}
+.bored-setup-kicker {
+  color: #f5b942; font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.bored-setup-title {
+  color: #eee9df; font-size: 20px; font-weight: 600;
+  letter-spacing: -0.01em; margin-bottom: 8px;
+}
+.bored-setup-copy {
+  margin: 0 0 14px; color: #a0a0a0;
+  font-size: 12px; line-height: 1.6;
+}
+.bored-setup-note {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 10px 12px; margin-bottom: 16px;
+  border: 1px solid #4a3a1a; border-radius: 10px;
+  background: rgba(245, 185, 66, 0.06);
+  color: #d8b56a; font-size: 11px; line-height: 1.5;
+}
+.bored-setup-note svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+.bored-setup-field {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 18px;
+}
+.bored-setup-field label {
+  color: #8a8a8a; font-size: 9px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.bored-setup-field select {
+  height: 32px; padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px;
+  background: #101010; color: #eee;
+  font-family: Inter, system-ui, sans-serif; font-size: 11px;
+  outline: none; cursor: pointer;
+}
+.bored-setup-actions { display: flex; justify-content: flex-end; }
+@container (max-width: 600px) {
+  .flare-home { padding: 22px 14px 14px; }
+  .flare-logo { font-size: 48px; }
+  .flare-search { width: 92%; height: 46px; }
+  .flare-shortcuts { margin-top: 38px; gap: 10px; }
+  .flare-shortcut, .flare-shortcut-button, .flare-shortcut-tile { width: 72px; }
+  .flare-shortcut-tile { height: 72px; border-radius: 20px; }
+  .flare-shortcut-tile svg, .flare-shortcut-tile img { width: 28px; height: 28px; }
+  .flare-shortcut-label { max-width: 72px; font-size: 10px; }
+}
+@container (max-height: 420px) {
+  .flare-home-foot { display: none; }
+}
+@media (hover: none) {
+  .flare-shortcut-edit { opacity: 1; }
+}
+
 /* Featured Game Banner */
 .featured-game {
   position: relative; border-radius: var(--radius-lg);
@@ -1332,6 +1688,7 @@ html, body {
     </div>
   </div>
   <div class="topbar-right">
+    <button class="topbar-btn topbar-dev" onclick="boredShowSetup()" title="BoredOS is in development">DEV</button>
     <button class="topbar-btn" onclick="openApp('settings')" title="Settings">
       <i data-lucide="settings" style="width:13px;height:13px"></i>
     </button>
@@ -1356,6 +1713,41 @@ html, body {
 
 <!-- ═══ Windows Container ═══ -->
 <div id="windows-container" style="position:absolute;inset:0;z-index:100;pointer-events:none;">
+</div>
+
+<!-- ═══ BoredOS Setup / Development Notice ═══ -->
+<div id="bored-setup" class="flare-modal bored-setup-global" onclick="if(event.target===this)boredCompleteSetup()">
+  <div class="flare-modal-card bored-setup-card">
+    <div class="bored-setup-head">
+      <div class="bored-setup-mark">bored.</div>
+      <button type="button" class="flare-modal-close" onclick="boredCompleteSetup()" aria-label="Close">&times;</button>
+    </div>
+    <div id="bored-setup-kicker" class="bored-setup-kicker">First run setup</div>
+    <div id="bored-setup-title" class="bored-setup-title">Welcome to BoredOS</div>
+    <p class="bored-setup-copy">Choose a theme and search engine. You can change these later in Settings.</p>
+    <div class="bored-setup-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <span>BoredOS is still in development. Some features may be unfinished, and you may run into bugs. Thanks for testing it out.</span>
+    </div>
+    <div class="bored-setup-field">
+      <label for="bored-setup-theme">Theme</label>
+      <select id="bored-setup-theme">
+        <option value="dark">Dark</option>
+        <option value="light">Light</option>
+      </select>
+    </div>
+    <div class="bored-setup-field">
+      <label for="bored-setup-engine">Search engine</label>
+      <select id="bored-setup-engine">
+        <option value="google">Google</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="bing">Bing</option>
+      </select>
+    </div>
+    <div class="bored-setup-actions">
+      <button type="button" id="bored-setup-continue" class="flare-btn flare-btn-primary" onclick="boredCompleteSetup()">Enter BoredOS</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1467,7 +1859,11 @@ function boot() {
   // Boot screen
   setTimeout(() => {
     document.getElementById('boot-screen').classList.add('hidden');
-    setTimeout(() => document.getElementById('boot-screen').remove(), 800);
+    setTimeout(() => {
+      const bootScreen = document.getElementById('boot-screen');
+      if (bootScreen) bootScreen.remove();
+      boredMaybeShowSetup();
+    }, 800);
   }, 2800);
 
   // Pre-load games in background
@@ -1687,14 +2083,17 @@ function buildDesktopIcons() {
     { id: 'files', label: 'Files', icon: 'folder' },
     { id: 'notes', label: 'Notes', icon: 'file-text' },
     { id: 'browser', label: 'Browser', icon: 'globe' },
+    { id: 'setup', label: 'Setup', icon: 'settings', action: 'boredShowSetup()' },
   ];
   const container = document.getElementById('desktop-icons');
-  container.innerHTML = icons.map(i => `
-    <div class="desktop-icon" ondblclick="openApp('${i.id}')" title="${i.label}">
+  container.innerHTML = icons.map(i => {
+    const action = i.action || `openApp('${i.id}')`;
+    return `
+    <div class="desktop-icon" ondblclick="${action}" title="${i.label}">
       <div class="icon-img"><i data-lucide="${i.icon}" style="width:22px;height:22px"></i></div>
       <span class="icon-label">${i.label}</span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ─── Dock ───
@@ -3201,12 +3600,12 @@ function getSelectedWisp() {
 
 async function setProxyTransport(wispUrl) {
   if (!proxyConnection || proxyWispUrl === wispUrl) return;
-  const { BareMuxConnection } = await import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href);
+  const { BareMuxConnection } = await import(new URL('baremux/index.mjs?v=6', PROXY_BASE).href);
   if (!(proxyConnection instanceof BareMuxConnection)) {
     proxyConnection = new BareMuxConnection(new URL('baremux/worker.js', PROXY_BASE).href);
   }
   await proxyConnection.setTransport(
-    new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
+    new URL('libcurl/index.mjs?v=6', PROXY_BASE).href,
     [{ wisp: wispUrl }]
   );
   proxyWispUrl = wispUrl;
@@ -3258,17 +3657,17 @@ async function ensureProxy() {
     const dbPromise = ensureScramjetDb();
     const bundlePromise = window.$scramjetLoadController
       ? Promise.resolve()
-      : import(new URL('scramjet/scramjet.bundle.js?v=4', PROXY_BASE).href);
+      : import(new URL('scramjet/scramjet.bundle.js?v=6', PROXY_BASE).href);
 
     // The transport bundle is the largest download. Start it as soon as the
     // small BareMux client is ready instead of waiting for the controller.
-    const connectionPromise = import(new URL('baremux/index.mjs?v=4', PROXY_BASE).href)
+    const connectionPromise = import(new URL('baremux/index.mjs?v=6', PROXY_BASE).href)
       .then(baremuxModule => {
         const connection = new baremuxModule.BareMuxConnection(
           new URL('baremux/worker.js', PROXY_BASE).href
         );
         const transportReady = connection.setTransport(
-          new URL('libcurl/index.mjs?v=4', PROXY_BASE).href,
+          new URL('libcurl/index.mjs?v=6', PROXY_BASE).href,
           [{ wisp: wisp.url }]
         );
         return { connection, transportReady };
@@ -3285,9 +3684,9 @@ async function ensureProxy() {
     const controller = new ScramjetController({
       prefix: new URL('service/', PROXY_BASE).pathname,
       files: {
-        wasm: new URL('scramjet/scramjet.wasm.wasm?v=4', PROXY_BASE).pathname,
-        all: new URL('scramjet/scramjet.all.js?v=4', PROXY_BASE).pathname,
-        sync: new URL('scramjet/scramjet.sync.js?v=4', PROXY_BASE).pathname
+        wasm: new URL('scramjet/scramjet.wasm.wasm?v=6', PROXY_BASE).pathname,
+        all: new URL('scramjet/scramjet.all.js?v=6', PROXY_BASE).pathname,
+        sync: new URL('scramjet/scramjet.sync.js?v=6', PROXY_BASE).pathname
       }
     });
 
@@ -3296,8 +3695,11 @@ async function ensureProxy() {
     // one before Scramjet does.
     const controllerReady = controller.init();
     const swReadyPromise = controllerReady
-      .then(() => navigator.serviceWorker.register(swUrl.href, { scope }))
+      .then(() => navigator.serviceWorker.register(swUrl.href, { scope, updateViaCache: 'none' }))
       .then(registration => {
+        // Ask the browser to check the worker script immediately. This avoids
+        // an old worker surviving a deploy and serving a stale proxy config.
+        registration.update().catch(() => {});
         if (registration.waiting) registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         const worker = registration.installing || registration.waiting;
         if (!worker || worker.state === 'activated') return navigator.serviceWorker.ready;
@@ -3342,6 +3744,16 @@ async function ensureProxy() {
       });
     }
 
+    // Make sure the active worker has the config for this deployment. A worker
+    // can be reused across a SW update, and a stale prefix would make it miss
+    // /service/ requests and fall through to the static host.
+    if (navigator.serviceWorker.controller) {
+      try { await controller.modifyConfig({}); } catch (e) {}
+      // postMessage is queued; give the worker one task turn to apply the
+      // config before the first proxied iframe navigation starts.
+      await new Promise(resolve => setTimeout(resolve, 60));
+    }
+
     proxyController = controller;
     proxyConnection = connection;
     proxyWispUrl = wisp.url;
@@ -3352,6 +3764,15 @@ async function ensureProxy() {
   });
 
   return proxyReadyPromise;
+}
+
+// Re-post the Scramjet config to the active worker before a navigation. The
+// worker can outlive a page reload, and a worker that missed the initial
+// loadConfig message would fall through to the static host ("Cannot GET").
+async function syncProxyConfig(controller) {
+  if (!controller || !navigator.serviceWorker.controller) return;
+  try { await controller.modifyConfig({}); } catch (e) {}
+  await new Promise(resolve => setTimeout(resolve, 60));
 }
 
 async function cycleProxyGateway() {
@@ -3374,7 +3795,12 @@ async function cycleProxyGateway() {
 }
 
 function openBrowser() {
-  const content = `<div class="browser-app">
+  const content = `<div class="browser-app home-mode">
+    <div class="browser-tabbar">
+      <div id="browser-tabs" class="browser-tabs"></div>
+      <button type="button" class="browser-newtab" onclick="browserNewTab()" title="New tab" aria-label="New tab"><i data-lucide="plus"></i></button>
+      <button type="button" class="browser-dev-badge" onclick="boredShowSetup()" title="BoredOS is in development">DEV</button>
+    </div>
     <div class="browser-toolbar">
       <div class="browser-nav">
         <button class="browser-icon-btn" onclick="browserBack()" title="Back"><i data-lucide="arrow-left"></i></button>
@@ -3396,112 +3822,509 @@ function openBrowser() {
       </div>
     </div>
 
-    <div class="browser-bookmarks">
-      <span class="browser-bookmarks-label">BOOKMARKS</span>
-      <button class="browser-bookmark" onclick="openApp('games')">Games</button>
-      <button class="browser-bookmark" onclick="quickNav('https://youtube.com')">YouTube</button>
-      <button class="browser-bookmark" onclick="quickNav('https://discord.com')">Discord</button>
-      <button class="browser-bookmark" onclick="quickNav('https://reddit.com')">Reddit</button>
-      <button class="browser-bookmark" onclick="quickNav('https://open.spotify.com')">Spotify</button>
-      <button class="browser-bookmark browser-bookmark-add" onclick="promptAddShortcut()">+ Add</button>
-    </div>
-
-    <div id="browser-home-view" class="browser-home">
-      <div class="browser-home-inner">
-        <div class="browser-home-kicker">
-          <span>BOREDOS / WEB CLIENT</span>
-          <span id="browser-node-readout">FERN / SCRAMJET WISP</span>
-        </div>
-        <div class="browser-home-title"><span class="browser-home-prompt">~/</span>bored<span>/browser</span></div>
-        <div class="browser-home-sub">Search or enter an address. Traffic runs through the selected Wisp node.</div>
-        <div class="browser-search">
-          <span class="browser-search-prompt">&gt;</span>
-          <input type="text" id="browser-center-input" placeholder="Search or enter address" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')browserSearchGo()">
-          <button class="browser-search-btn" onclick="browserSearchGo()">ENTER</button>
-        </div>
-        <div class="browser-home-section-head"><span>QUICK LINKS</span><span>10 ITEMS</span></div>
-        <div class="browser-links">
-          <button class="browser-link" style="--brand:#ff4444" onclick="quickNav('https://youtube.com')">
-            <span class="browser-link-num">01</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
-            <span class="browser-link-label">YouTube</span>
-            <span class="browser-link-domain">youtube.com</span>
-          </button>
-          <button class="browser-link" style="--brand:#7c8cff" onclick="quickNav('https://discord.com')">
-            <span class="browser-link-num">02</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg></span>
-            <span class="browser-link-label">Discord</span>
-            <span class="browser-link-domain">discord.com</span>
-          </button>
-          <button class="browser-link" style="--brand:#6ee7a8" onclick="quickNav('https://open.spotify.com')">
-            <span class="browser-link-num">03</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg></span>
-            <span class="browser-link-label">Spotify</span>
-            <span class="browser-link-domain">spotify.com</span>
-          </button>
-          <button class="browser-link" style="--brand:#ff7a45" onclick="quickNav('https://reddit.com')">
-            <span class="browser-link-num">04</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.56 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.197-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg></span>
-            <span class="browser-link-label">Reddit</span>
-            <span class="browser-link-domain">reddit.com</span>
-          </button>
-          <button class="browser-link" style="--brand:#b18cff" onclick="quickNav('https://twitch.tv')">
-            <span class="browser-link-num">05</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg></span>
-            <span class="browser-link-label">Twitch</span>
-            <span class="browser-link-domain">twitch.tv</span>
-          </button>
-          <button class="browser-link" style="--brand:#f4f4f5" onclick="quickNav('https://tiktok.com')">
-            <span class="browser-link-num">06</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98v8.63c-.02 1.8-.62 3.6-1.76 4.96-1.28 1.53-3.23 2.45-5.23 2.47-1.92.02-3.83-.8-5.15-2.22-1.38-1.49-2.05-3.56-1.87-5.59.18-2.02 1.25-3.88 2.94-5.02 1.62-1.09 3.69-1.42 5.56-.88v4.06c-.84-.28-1.78-.23-2.58.15-.79.37-1.39 1.09-1.57 1.94-.2 1.01.2 2.08.99 2.72.78.64 1.86.8 2.82.43.93-.36 1.54-1.27 1.56-2.27V.02z"/></svg></span>
-            <span class="browser-link-label">TikTok</span>
-            <span class="browser-link-domain">tiktok.com</span>
-          </button>
-          <button class="browser-link" style="--brand:#6ec8ff" onclick="quickNav('https://now.gg/apps/roblox-corporation/5349/roblox.html')">
-            <span class="browser-link-num">07</span>
-            <span class="browser-link-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.167 1.5L1.5 18.833l17.333 3.667L22.5 5.167 5.167 1.5zm8.133 11.2a2.4 2.4 0 1 1-.5-4.8 2.4 2.4 0 0 1 .5 4.8z"/></svg></span>
-            <span class="browser-link-label">Roblox</span>
-            <span class="browser-link-domain">now.gg</span>
-          </button>
-          <button class="browser-link" style="--brand:#a8c7fa" onclick="openApp('games')">
-            <span class="browser-link-num">08</span>
-            <span class="browser-link-icon"><i data-lucide="gamepad-2"></i></span>
-            <span class="browser-link-label">Games</span>
-            <span class="browser-link-domain">boredos</span>
-          </button>
-          <button class="browser-link" style="--brand:#f5b942" onclick="openApp('editor')">
-            <span class="browser-link-num">09</span>
-            <span class="browser-link-icon"><i data-lucide="file-code-2"></i></span>
-            <span class="browser-link-label">Editor</span>
-            <span class="browser-link-domain">boredos</span>
-          </button>
-          <button class="browser-link" style="--brand:#8b8b94" onclick="promptAddShortcut()">
-            <span class="browser-link-num">10</span>
-            <span class="browser-link-icon"><i data-lucide="plus"></i></span>
-            <span class="browser-link-label">Add shortcut</span>
-            <span class="browser-link-domain">custom</span>
-          </button>
-        </div>
-        <div class="browser-home-footer">
-          <span>BOREDOS BROWSER / SCRAMJET</span>
-          <span><button onclick="openApp('settings')">SETTINGS</button> &middot; <button onclick="openApp('about')">ABOUT</button></span>
-        </div>
+    <div id="browser-home-view" class="flare-home">
+      <div class="flare-logo">bored.</div>
+      <form class="flare-search" onsubmit="flareSearchGo(event)">
+        <svg class="flare-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.5-3.5"></path>
+        </svg>
+        <input id="flare-search-input" type="text" placeholder="Search or enter URL" autocomplete="off" spellcheck="false" aria-label="Search or enter URL">
+      </form>
+      <div id="flare-shortcut-row" class="flare-shortcuts"></div>
+      <div class="flare-home-foot">
+        <span>Search</span>
+        <select id="flare-search-engine" onchange="flareChangeSearchEngine(this.value)" aria-label="Search engine">
+          <option value="google">Google</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+        </select>
       </div>
     </div>
 
     <div id="browser-frame-container" class="browser-frame-container">
-      <iframe id="browser-iframe" src="about:blank" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals allow-downloads" allowfullscreen></iframe>
+      <div id="browser-tab-panels" class="browser-tab-panels"></div>
       <div id="browser-proxy-status" class="browser-proxy-status">
         <div class="game-player-spinner"></div>
         <div id="browser-proxy-status-text" class="browser-proxy-status-text">Connecting to proxy...</div>
       </div>
     </div>
+
+    <div id="flare-shortcut-modal" class="flare-modal" onclick="if(event.target===this)flareCloseShortcutModal()">
+      <form class="flare-modal-card" onsubmit="flareSaveShortcut(event)">
+        <div class="flare-modal-head">
+          <div>
+            <div class="flare-modal-kicker">Shortcut</div>
+            <div id="flare-modal-title" class="flare-modal-title">Add shortcut</div>
+          </div>
+          <button type="button" class="flare-modal-close" onclick="flareCloseShortcutModal()" aria-label="Close">&times;</button>
+        </div>
+        <label class="flare-field">
+          <span>Name</span>
+          <input id="flare-shortcut-name" type="text" maxlength="32" placeholder="My shortcut" required>
+        </label>
+        <label class="flare-field">
+          <span>URL</span>
+          <input id="flare-shortcut-url" type="text" placeholder="https://example.com" required>
+        </label>
+        <label class="flare-field">
+          <span>Icon URL <em>optional</em></span>
+          <input id="flare-shortcut-icon" type="text" placeholder="https://.../icon.png">
+        </label>
+        <div class="flare-modal-actions">
+          <button type="button" id="flare-shortcut-delete" class="flare-btn flare-btn-danger" onclick="flareDeleteShortcut()" style="display:none">Delete</button>
+          <div class="flare-modal-actions-right">
+            <button type="button" class="flare-btn" onclick="flareCloseShortcutModal()">Cancel</button>
+            <button type="submit" class="flare-btn flare-btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>`;
-  createWindow('browser', 'Browser', 920, 620, content, { icon: 'globe' });
+  const browserWidth = Math.min(920, Math.max(560, window.innerWidth - 48));
+  const browserHeight = Math.min(620, Math.max(320, window.innerHeight - 96));
+  const existingBrowser = OS.windows.find(w => w.appId === 'browser');
+  if (existingBrowser) {
+    const existingEl = document.getElementById('win-' + existingBrowser.id);
+    if (existingEl && !existingEl.querySelector('.flare-home')) {
+      const body = document.getElementById('win-body-' + existingBrowser.id);
+      if (body) body.innerHTML = content;
+      browserProxyTarget = '';
+      hideBrowserStatus();
+    }
+  }
+  createWindow('browser', 'Browser', browserWidth, browserHeight, content, { icon: 'globe' });
   lucide.createIcons();
   updateBrowserNodeUI();
+  flareLoadShortcuts();
+  flareRenderShortcuts();
+  flareRenderSearchEngine();
+  browserInitTabsIfNeeded();
+  boredMaybeShowSetup();
+  const browserApp = document.querySelector('.browser-app');
+  if (browserApp && browserApp.classList.contains('home-mode')) {
+    setTimeout(() => {
+      const setup = document.getElementById('bored-setup');
+      if (setup && setup.classList.contains('open')) return;
+      const searchInput = document.getElementById('flare-search-input');
+      if (searchInput) searchInput.focus();
+    }, 80);
+  }
   initBrowserProxy();
 }
+
+// ?? Flare start page ??
+const FLARE_SEARCH_ENGINES = {
+  google: { label: 'Google', url: 'https://www.google.com/search?q=' },
+  duckduckgo: { label: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+  bing: { label: 'Bing', url: 'https://www.bing.com/search?q=' }
+};
+let flareSearchEngine = 'google';
+try {
+  const savedEngine = localStorage.getItem('bored-flare-search-engine');
+  if (savedEngine && FLARE_SEARCH_ENGINES[savedEngine]) flareSearchEngine = savedEngine;
+} catch (e) {}
+
+const FLARE_ICONS = {
+  spotify: `<svg viewBox="0 0 24 24" fill="#1DB954" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>`,
+  instagram: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><defs><linearGradient id="flare-ig-grad" x1="2" y1="22" x2="22" y2="2" gradientUnits="userSpaceOnUse"><stop stop-color="#FFD600"/><stop offset=".3" stop-color="#FF7A00"/><stop offset=".6" stop-color="#FF0069"/><stop offset=".8" stop-color="#D300C5"/><stop offset="1" stop-color="#7638FA"/></linearGradient></defs><rect x="3" y="3" width="18" height="18" rx="5" stroke="url(#flare-ig-grad)" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="url(#flare-ig-grad)" stroke-width="2"/><circle cx="17.2" cy="6.8" r="1.2" fill="url(#flare-ig-grad)"/></svg>`,
+  discord: `<svg viewBox="0 0 24 24" fill="#5865F2" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>`,
+  roblox: `<svg viewBox="0 0 24 24" fill="#00A2FF" aria-hidden="true"><path d="M5.167 1.5L1.5 18.833l17.333 3.667L22.5 5.167 5.167 1.5zm8.133 11.2a2.4 2.4 0 1 1-.5-4.8 2.4 2.4 0 0 1 .5 4.8z"/></svg>`,
+  tiktok: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98v8.63c-.02 1.8-.62 3.6-1.76 4.96-1.28 1.53-3.23 2.45-5.23 2.47-1.92.02-3.83-.8-5.15-2.22-1.38-1.49-2.05-3.56-1.87-5.59.18-2.02 1.25-3.88 2.94-5.02 1.62-1.09 3.69-1.42 5.56-.88v4.06c-.84-.28-1.78-.23-2.58.15-.79.37-1.39 1.09-1.57 1.94-.2 1.01.2 2.08.99 2.72.78.64 1.86.8 2.82.43.93-.36 1.54-1.27 1.56-2.27V.02z" fill="#25F4EE" transform="translate(-.7 0)"/><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98v8.63c-.02 1.8-.62 3.6-1.76 4.96-1.28 1.53-3.23 2.45-5.23 2.47-1.92.02-3.83-.8-5.15-2.22-1.38-1.49-2.05-3.56-1.87-5.59.18-2.02 1.25-3.88 2.94-5.02 1.62-1.09 3.69-1.42 5.56-.88v4.06c-.84-.28-1.78-.23-2.58.15-.79.37-1.39 1.09-1.57 1.94-.2 1.01.2 2.08.99 2.72.78.64 1.86.8 2.82.43.93-.36 1.54-1.27 1.56-2.27V.02z" fill="#FE2C55" transform="translate(.7 0)"/><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.98v8.63c-.02 1.8-.62 3.6-1.76 4.96-1.28 1.53-3.23 2.45-5.23 2.47-1.92.02-3.83-.8-5.15-2.22-1.38-1.49-2.05-3.56-1.87-5.59.18-2.02 1.25-3.88 2.94-5.02 1.62-1.09 3.69-1.42 5.56-.88v4.06c-.84-.28-1.78-.23-2.58.15-.79.37-1.39 1.09-1.57 1.94-.2 1.01.2 2.08.99 2.72.78.64 1.86.8 2.82.43.93-.36 1.54-1.27 1.56-2.27V.02z" fill="#FFFFFF"/></svg>`
+};
+
+const FLARE_EDIT_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
+const FLARE_PLUS_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
+
+const FLARE_DEFAULT_SHORTCUTS = [
+  { id: 'spotify', name: 'Spotify', url: 'https://open.spotify.com/', iconKey: 'spotify' },
+  { id: 'instagram', name: 'Instagram', url: 'https://www.instagram.com/', iconKey: 'instagram' },
+  { id: 'discord', name: 'Discord', url: 'https://discord.com/app', iconKey: 'discord' },
+  { id: 'roblox', name: 'Roblox', url: 'https://www.roblox.com/', iconKey: 'roblox' },
+  { id: 'tiktok', name: 'TikTok', url: 'https://www.tiktok.com/', iconKey: 'tiktok' }
+];
+
+let flareCustomShortcuts = [];
+let flareEditingShortcutId = null;
+let browserTabs = [];
+let activeBrowserTabId = null;
+let browserTabSeq = 0;
+const BROWSER_TAB_HOME_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 21V12h6v9"/></svg>`;
+const BROWSER_TAB_GLOBE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.5 4 5.6 4 9s-1.5 6.5-4 9c-2.5-2.5-4-5.6-4-9s1.5-6.5 4-9Z"/></svg>`;
+
+function flareLoadShortcuts() {
+  try {
+    const raw = localStorage.getItem('bored-flare-shortcuts');
+    const parsed = raw ? JSON.parse(raw) : [];
+    flareCustomShortcuts = Array.isArray(parsed)
+      ? parsed.filter(s => s && s.id && s.name && s.url).map(s => ({
+          id: String(s.id),
+          name: String(s.name).slice(0, 32),
+          url: String(s.url),
+          icon: s.icon ? String(s.icon) : ''
+        }))
+      : [];
+  } catch (e) {
+    flareCustomShortcuts = [];
+  }
+}
+
+function flareSaveShortcuts() {
+  try {
+    localStorage.setItem('bored-flare-shortcuts', JSON.stringify(flareCustomShortcuts));
+  } catch (e) {}
+}
+
+function flareShortcutIcon(shortcut) {
+  const letter = escHtml((shortcut.name || '?').trim().charAt(0).toUpperCase() || '?');
+  if (shortcut.iconKey && FLARE_ICONS[shortcut.iconKey]) return FLARE_ICONS[shortcut.iconKey];
+  if (shortcut.icon) {
+    return `<img src="${escHtml(shortcut.icon)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="flare-shortcut-fallback" style="display:none">${letter}</span>`;
+  }
+  return `<span class="flare-shortcut-fallback">${letter}</span>`;
+}
+
+function flareShortcutHTML(shortcut, isCustom) {
+  return `<div class="flare-shortcut" data-id="${escHtml(shortcut.id)}">
+    <button type="button" class="flare-shortcut-button" data-url="${escHtml(shortcut.url)}" onclick="flareNavigate(this.dataset.url)" aria-label="${escHtml(shortcut.name)}">
+      <span class="flare-shortcut-tile">${flareShortcutIcon(shortcut)}</span>
+      <span class="flare-shortcut-label">${escHtml(shortcut.name)}</span>
+    </button>
+    ${isCustom ? `<button type="button" class="flare-shortcut-edit" data-id="${escHtml(shortcut.id)}" onclick="event.stopPropagation();flareOpenShortcutModal(this.dataset.id)" title="Edit shortcut" aria-label="Edit ${escHtml(shortcut.name)}">${FLARE_EDIT_ICON}</button>` : ''}
+  </div>`;
+}
+
+function flareRenderShortcuts() {
+  const row = document.getElementById('flare-shortcut-row');
+  if (!row) return;
+  row.innerHTML = FLARE_DEFAULT_SHORTCUTS.map(s => flareShortcutHTML(s, false)).join('') +
+    flareCustomShortcuts.map(s => flareShortcutHTML(s, true)).join('') +
+    `<div class="flare-shortcut"><button type="button" class="flare-shortcut-button" onclick="flareOpenShortcutModal()" aria-label="Add shortcut"><span class="flare-shortcut-tile flare-shortcut-add">${FLARE_PLUS_ICON}</span><span class="flare-shortcut-label">Add</span></button></div>`;
+}
+
+function flareRenderSearchEngine() {
+  const select = document.getElementById('flare-search-engine');
+  if (select) select.value = flareSearchEngine;
+}
+
+function flareChangeSearchEngine(value) {
+  if (!FLARE_SEARCH_ENGINES[value]) value = 'google';
+  flareSearchEngine = value;
+  try { localStorage.setItem('bored-flare-search-engine', value); } catch (e) {}
+}
+
+function flareLooksLikeUrl(value) {
+  if (!value || /\s/.test(value)) return false;
+  if (/^https?:\/\//i.test(value)) return true;
+  if (/^localhost(:\d+)?(\/.*)?$/i.test(value)) return true;
+  return /^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/i.test(value);
+}
+
+function flareNavigate(url) {
+  const input = document.getElementById('browser-url-input');
+  if (!input) return;
+  input.value = url;
+  browserGo();
+}
+
+function flareSearchGo(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById('flare-search-input');
+  if (!input) return;
+  const value = input.value.trim();
+  if (!value) return;
+  if (flareLooksLikeUrl(value)) {
+    flareNavigate(value);
+  } else {
+    const engine = FLARE_SEARCH_ENGINES[flareSearchEngine] || FLARE_SEARCH_ENGINES.google;
+    flareNavigate(engine.url + encodeURIComponent(value));
+  }
+}
+
+function setBrowserHomeMode(isHome) {
+  const home = document.getElementById('browser-home-view');
+  const app = home ? home.closest('.browser-app') : null;
+  if (app) app.classList.toggle('home-mode', !!isHome);
+}
+
+function flareOpenShortcutModal(id) {
+  const modal = document.getElementById('flare-shortcut-modal');
+  const title = document.getElementById('flare-modal-title');
+  const name = document.getElementById('flare-shortcut-name');
+  const url = document.getElementById('flare-shortcut-url');
+  const icon = document.getElementById('flare-shortcut-icon');
+  const del = document.getElementById('flare-shortcut-delete');
+  if (!modal || !title || !name || !url || !icon) return;
+  flareEditingShortcutId = id || null;
+  const shortcut = id ? flareCustomShortcuts.find(s => s.id === id) : null;
+  if (id && !shortcut) return;
+  title.textContent = shortcut ? 'Edit shortcut' : 'Add shortcut';
+  name.value = shortcut ? shortcut.name : '';
+  url.value = shortcut ? shortcut.url : '';
+  icon.value = shortcut && shortcut.icon ? shortcut.icon : '';
+  if (del) del.style.display = shortcut ? 'inline-flex' : 'none';
+  modal.classList.add('open');
+  setTimeout(() => name.focus(), 30);
+}
+
+function flareCloseShortcutModal() {
+  const modal = document.getElementById('flare-shortcut-modal');
+  if (modal) modal.classList.remove('open');
+  flareEditingShortcutId = null;
+}
+
+function flareSaveShortcut(event) {
+  if (event) event.preventDefault();
+  const nameInput = document.getElementById('flare-shortcut-name');
+  const urlInput = document.getElementById('flare-shortcut-url');
+  const iconInput = document.getElementById('flare-shortcut-icon');
+  const nameValue = (nameInput ? nameInput.value : '').trim();
+  let urlValue = (urlInput ? urlInput.value : '').trim();
+  let iconValue = (iconInput ? iconInput.value : '').trim();
+  if (!nameValue || !urlValue) return;
+  if (!/^https?:\/\//i.test(urlValue)) urlValue = 'https://' + urlValue.replace(/^\/+/, '');
+  if (!flareLooksLikeUrl(urlValue)) {
+    notify('Enter a valid URL, for example https://example.com');
+    return;
+  }
+  if (iconValue && !/^(https?:\/\/|data:image\/)/i.test(iconValue)) {
+    iconValue = 'https://' + iconValue.replace(/^\/+/, '');
+  }
+  const payload = { name: nameValue.slice(0, 32), url: urlValue, icon: iconValue };
+  if (flareEditingShortcutId) {
+    const index = flareCustomShortcuts.findIndex(s => s.id === flareEditingShortcutId);
+    if (index >= 0) flareCustomShortcuts[index] = { ...flareCustomShortcuts[index], ...payload };
+  } else {
+    flareCustomShortcuts.push({
+      id: 'custom-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+      ...payload
+    });
+  }
+  flareSaveShortcuts();
+  flareRenderShortcuts();
+  flareCloseShortcutModal();
+}
+
+function flareDeleteShortcut() {
+  if (!flareEditingShortcutId) return;
+  if (!confirm('Remove this shortcut?')) return;
+  flareCustomShortcuts = flareCustomShortcuts.filter(s => s.id !== flareEditingShortcutId);
+  flareSaveShortcuts();
+  flareRenderShortcuts();
+  flareCloseShortcutModal();
+}
+
+function getActiveBrowserTab() {
+  return browserTabs.find(t => t.id === activeBrowserTabId) || null;
+}
+
+function browserTabTitleForUrl(url) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./i, '');
+    return host || 'New Tab';
+  } catch (e) {
+    return url || 'New Tab';
+  }
+}
+
+function renderBrowserTabs() {
+  const strip = document.getElementById('browser-tabs');
+  if (!strip) return;
+  strip.innerHTML = browserTabs.map(tab => {
+    const active = tab.id === activeBrowserTabId;
+    const icon = tab.kind === 'home' ? BROWSER_TAB_HOME_ICON : BROWSER_TAB_GLOBE_ICON;
+    return `<div class="browser-tab${active ? ' active' : ''}" data-tab-id="${tab.id}" onclick="activateBrowserTab(this.dataset.tabId)" title="${escHtml(tab.title)}">
+      <span class="browser-tab-icon">${icon}</span>
+      <span class="browser-tab-title">${escHtml(tab.title)}</span>
+      <button type="button" class="browser-tab-close" data-tab-id="${tab.id}" onclick="event.stopPropagation();closeBrowserTab(this.dataset.tabId)" aria-label="Close tab">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function createBrowserTabIframe(tab) {
+  const panels = document.getElementById('browser-tab-panels');
+  if (!panels || tab.iframe) return tab.iframe;
+  const iframe = document.createElement('iframe');
+  iframe.className = 'browser-tab-iframe';
+  iframe.src = 'about:blank';
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals allow-downloads');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.style.display = 'none';
+  iframe.addEventListener('load', () => {
+    try {
+      const doc = iframe.contentDocument;
+      if (tab.kind !== 'web') return;
+      if (isProxyErrorDocument(doc)) {
+        const reason = 'The proxy did not load this page.';
+        tab.error = reason;
+        if (tab.id === activeBrowserTabId) setBrowserStatus(reason + ' Switching nodes...');
+        handleProxyFailure(tab, reason);
+        return;
+      }
+      const title = doc && doc.title ? doc.title.trim() : '';
+      if (title) {
+        tab.error = '';
+        tab.failoverAttempts = 0;
+        tab.title = title.slice(0, 80);
+        renderBrowserTabs();
+      }
+      if (tab.id === activeBrowserTabId) hideBrowserStatus();
+    } catch (e) {
+      if (tab.id === activeBrowserTabId) hideBrowserStatus();
+    }
+  });
+  panels.appendChild(iframe);
+  tab.iframe = iframe;
+  tab.frame = null;
+  return iframe;
+}
+
+function showBrowserTabPanel(tab) {
+  const panels = document.getElementById('browser-tab-panels');
+  if (panels) {
+    panels.querySelectorAll('iframe').forEach(frameEl => {
+      const active = !!tab && frameEl === tab.iframe;
+      frameEl.classList.toggle('active', active);
+      frameEl.style.display = active ? 'block' : 'none';
+    });
+  }
+  const home = document.getElementById('browser-home-view');
+  const frameContainer = document.getElementById('browser-frame-container');
+  if (home) home.style.display = 'none';
+  if (frameContainer) frameContainer.style.display = 'block';
+  setBrowserHomeMode(false);
+}
+
+function activateBrowserTab(tabId) {
+  const tab = browserTabs.find(t => t.id === tabId);
+  if (!tab) return;
+  activeBrowserTabId = tab.id;
+  browserProxyFrame = tab.frame || null;
+  browserProxyTarget = tab.url || '';
+  const input = document.getElementById('browser-url-input');
+  if (input) input.value = tab.url || '';
+  if (tab.kind === 'home') {
+    const home = document.getElementById('browser-home-view');
+    const frameContainer = document.getElementById('browser-frame-container');
+    if (home) home.style.display = 'flex';
+    if (frameContainer) frameContainer.style.display = 'none';
+    hideBrowserStatus();
+    setBrowserHomeMode(true);
+    setTimeout(() => {
+      const setup = document.getElementById('bored-setup');
+      if (setup && setup.classList.contains('open')) return;
+      const searchInput = document.getElementById('flare-search-input');
+      if (searchInput) searchInput.focus();
+    }, 30);
+  } else {
+    showBrowserTabPanel(tab);
+    if (!tab.iframe) setBrowserStatus('Connecting to the proxy...');
+    else if (tab.error) setBrowserStatus(tab.error, false, true);
+    else hideBrowserStatus();
+  }
+  renderBrowserTabs();
+}
+
+function browserNewTab(makeActive = true) {
+  const tab = {
+    id: 'btab-' + (++browserTabSeq),
+    kind: 'home',
+    title: 'New Tab',
+    url: '',
+    iframe: null,
+    frame: null,
+    error: ''
+  };
+  browserTabs.push(tab);
+  if (makeActive) activateBrowserTab(tab.id);
+  else renderBrowserTabs();
+  return tab;
+}
+
+function closeBrowserTab(tabId) {
+  const index = browserTabs.findIndex(t => t.id === tabId);
+  if (index === -1) return;
+  const tab = browserTabs[index];
+  if (tab.iframe) tab.iframe.remove();
+  tab.iframe = null;
+  tab.frame = null;
+  browserTabs.splice(index, 1);
+  if (activeBrowserTabId === tabId) {
+    const next = browserTabs[index] || browserTabs[index - 1];
+    if (next) activateBrowserTab(next.id);
+    else browserNewTab(true);
+  } else {
+    renderBrowserTabs();
+  }
+}
+
+function browserInitTabsIfNeeded() {
+  const strip = document.getElementById('browser-tabs');
+  if (!strip) return;
+  if (!strip.children.length || !browserTabs.length) {
+    browserTabs = [];
+    activeBrowserTabId = null;
+    browserNewTab(true);
+  } else if (!getActiveBrowserTab()) {
+    activateBrowserTab(browserTabs[0].id);
+  } else {
+    renderBrowserTabs();
+  }
+}
+
+function boredMaybeShowSetup() {
+  try {
+    if (localStorage.getItem('boredos-setup-v1') === '1') return false;
+  } catch (e) {}
+  return boredShowSetup();
+}
+
+function boredShowSetup() {
+  const modal = document.getElementById('bored-setup');
+  if (!modal) return false;
+  let completed = false;
+  try { completed = localStorage.getItem('boredos-setup-v1') === '1'; } catch (e) {}
+  const theme = document.getElementById('bored-setup-theme');
+  if (theme) theme.value = OS.theme || 'dark';
+  const engine = document.getElementById('bored-setup-engine');
+  if (engine) engine.value = (typeof flareSearchEngine === 'string') ? flareSearchEngine : 'google';
+  const kicker = document.getElementById('bored-setup-kicker');
+  if (kicker) kicker.textContent = completed ? 'Development notice' : 'First run setup';
+  const title = document.getElementById('bored-setup-title');
+  if (title) title.textContent = completed ? 'BoredOS is in development' : 'Welcome to BoredOS';
+  const button = document.getElementById('bored-setup-continue');
+  if (button) button.textContent = completed ? 'Close' : 'Enter BoredOS';
+  modal.classList.add('open');
+  setTimeout(() => { if (theme) theme.focus(); }, 50);
+  return true;
+}
+
+function boredCompleteSetup() {
+  const theme = document.getElementById('bored-setup-theme');
+  if (theme && theme.value && theme.value !== OS.theme) applyTheme(theme.value);
+  const engine = document.getElementById('bored-setup-engine');
+  if (engine && engine.value && typeof flareChangeSearchEngine === 'function') {
+    flareChangeSearchEngine(engine.value);
+  }
+  try { localStorage.setItem('boredos-setup-v1', '1'); } catch (e) {}
+  const modal = document.getElementById('bored-setup');
+  if (modal) modal.classList.remove('open');
+  const searchInput = document.getElementById('flare-search-input');
+  if (searchInput) searchInput.focus();
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  const setup = document.getElementById('bored-setup');
+  if (setup && setup.classList.contains('open')) {
+    boredCompleteSetup();
+    return;
+  }
+  const modal = document.getElementById('flare-shortcut-modal');
+  if (modal && modal.classList.contains('open')) flareCloseShortcutModal();
+});
+
+
 function setBrowserStatus(message, spinning = true, isError = false) {
   const status = document.getElementById('browser-proxy-status');
   const text = document.getElementById('browser-proxy-status-text');
@@ -3519,30 +4342,31 @@ function hideBrowserStatus() {
   if (status) status.style.display = 'none';
 }
 
-function setupBrowserFrame(controller) {
-  const iframe = document.getElementById('browser-iframe');
-  if (!iframe) return null;
+function setupBrowserFrame(controller, tab) {
+  if (!tab || !tab.iframe) return null;
+  if (tab.frame) return tab.frame;
 
-  if (browserProxyFrame && browserProxyFrame.frame === iframe) return browserProxyFrame;
-
-  browserProxyFrame = controller.createFrame(iframe);
-  iframe.addEventListener('load', () => {
-    if (browserProxyTarget) hideBrowserStatus();
+  tab.frame = controller.createFrame(tab.iframe);
+  tab.frame.addEventListener('urlchange', (event) => {
+    if (!event.url) return;
+    tab.url = String(event.url);
+    tab.title = browserTabTitleForUrl(tab.url);
+    if (tab.id === activeBrowserTabId) {
+      const input = document.getElementById('browser-url-input');
+      if (input) input.value = tab.url;
+      browserProxyTarget = tab.url;
+      browserProxyFrame = tab.frame;
+    }
+    renderBrowserTabs();
   });
-  browserProxyFrame.addEventListener('urlchange', (event) => {
-    const input = document.getElementById('browser-url-input');
-    if (input && event.url) input.value = String(event.url);
-  });
-  return browserProxyFrame;
+  return tab.frame;
 }
 
 async function initBrowserProxy() {
   try {
-    const controller = await ensureProxy();
-    setupBrowserFrame(controller);
+    await ensureProxy();
   } catch (e) {
     console.warn('Proxy setup failed:', e);
-    setBrowserStatus(e.message || 'Proxy setup failed.', false, true);
   }
 }
 
@@ -3555,44 +4379,53 @@ function updateBrowserNodeUI() {
   if (readout) readout.textContent = `${shortName} / ${PROXY_ENGINE_LABEL.toUpperCase()}`;
 }
 
-function browserSearchGo() {
-  const center = document.getElementById('browser-center-input');
-  const input = document.getElementById('browser-url-input');
-  if (center && input) input.value = center.value;
-  browserGo();
-}
-
-function promptAddShortcut() {
-  const url = prompt('Enter website URL (e.g. https://twitch.tv):');
-  if (!url) return;
-  quickNav(url);
-}
-
 function quickNav(url) {
-  const inp = document.getElementById('browser-url-input');
-  if (inp) { inp.value = url; browserGo(); }
+  flareNavigate(url);
 }
 
 function browserHome() {
+  const tab = getActiveBrowserTab();
+  if (!tab) {
+    browserNewTab(true);
+    return;
+  }
+  if (tab.iframe) {
+    tab.iframe.remove();
+    tab.iframe = null;
+    tab.frame = null;
+  }
+  tab.kind = 'home';
+  tab.url = '';
+  tab.title = 'New Tab';
+  browserProxyTarget = '';
+  browserProxyFrame = null;
   const inp = document.getElementById('browser-url-input');
   if (inp) inp.value = '';
-  const centerInp = document.getElementById('browser-center-input');
-  if (centerInp) centerInp.value = '';
+  const searchInp = document.getElementById('flare-search-input');
+  if (searchInp) searchInp.value = '';
   const home = document.getElementById('browser-home-view');
   const frameContainer = document.getElementById('browser-frame-container');
-  const ifr = document.getElementById('browser-iframe');
-  browserProxyTarget = '';
   hideBrowserStatus();
   if (home) home.style.display = 'flex';
   if (frameContainer) frameContainer.style.display = 'none';
-  if (ifr) ifr.src = 'about:blank';
+  setBrowserHomeMode(true);
+  renderBrowserTabs();
+  setTimeout(() => {
+    const setup = document.getElementById('bored-setup');
+    if (setup && setup.classList.contains('open')) return;
+    const focused = document.getElementById('flare-search-input');
+    if (focused) focused.focus();
+  }, 60);
 }
 
 function normalizeBrowserTarget(rawUrl) {
-  if (rawUrl.includes(' ') || !rawUrl.includes('.')) {
-    return 'https://duckduckgo.com/?q=' + encodeURIComponent(rawUrl);
+  const value = String(rawUrl || '').trim();
+  if (!value) return '';
+  if (flareLooksLikeUrl(value)) {
+    return /^https?:\/\//i.test(value) ? value : 'https://' + value;
   }
-  return rawUrl.startsWith('http://') || rawUrl.startsWith('https://') ? rawUrl : 'https://' + rawUrl;
+  const engine = FLARE_SEARCH_ENGINES[flareSearchEngine] || FLARE_SEARCH_ENGINES.google;
+  return engine.url + encodeURIComponent(value);
 }
 
 function getProxyUrl(rawUrl) {
@@ -3611,10 +4444,6 @@ function browserForward() {
 
 function reloadBrowser() {
   if (browserProxyFrame && browserProxyTarget) browserProxyFrame.reload();
-  else {
-    const ifr = document.getElementById('browser-iframe');
-    if (ifr && ifr.style.display !== 'none') ifr.src = ifr.src;
-  }
 }
 
 function openBrowserExternal() {
@@ -3623,43 +4452,122 @@ function openBrowserExternal() {
     window.open(getProxyUrl(inp.value.trim()), '_blank');
     return;
   }
-  const ifr = document.getElementById('browser-iframe');
-  if (ifr && ifr.src && ifr.src !== 'about:blank') window.open(ifr.src, '_blank');
+  const tab = getActiveBrowserTab();
+  if (tab && tab.iframe && tab.iframe.src && tab.iframe.src !== 'about:blank') {
+    window.open(tab.iframe.src, '_blank');
+  }
 }
 
-async function browserGo() {
+function isProxyErrorDocument(doc) {
+  if (!doc) return false;
+  try {
+    if (doc.querySelector && doc.querySelector('[data-boredos-proxy-error]')) return true;
+    const title = doc.title || '';
+    const text = doc.body ? (doc.body.innerText || '') : '';
+    return /Cannot GET \/service\//i.test(text) ||
+      /Page not found · GitHub Pages/i.test(title) ||
+      (/File not found/i.test(text) && /GitHub Pages/i.test(text));
+  } catch (e) {
+    return false;
+  }
+}
+
+async function handleProxyFailure(tab, reason) {
+  if (!tab || !browserTabs.includes(tab)) return;
+  const nodes = getWispNodes();
+  tab.failoverAttempts = tab.failoverAttempts || 0;
+  if (tab.failoverAttempts >= Math.max(1, nodes.length - 1)) {
+    tab.error = reason || 'The proxy could not load this page.';
+    if (tab.id === activeBrowserTabId) {
+      setBrowserStatus(tab.error, false, true);
+    }
+    return;
+  }
+
+  tab.failoverAttempts++;
+  proxyGatewayIdx = (proxyGatewayIdx + 1) % nodes.length;
+  localStorage.setItem('bored-os-wisp-idx', String(proxyGatewayIdx));
+  const node = nodes[proxyGatewayIdx];
+  if (tab.id === activeBrowserTabId) {
+    setBrowserStatus('Proxy node failed. Switching to ' + node.name + '...');
+  }
+  updateBrowserNodeUI();
+
+  try {
+    if (proxyConnection) await setProxyTransport(node.url);
+    const controller = await ensureProxy();
+    await syncProxyConfig(controller);
+    if (!browserTabs.includes(tab)) return;
+    if (tab.iframe) {
+      tab.iframe.remove();
+      tab.iframe = null;
+      tab.frame = null;
+    }
+    if (tab.id !== activeBrowserTabId) activateBrowserTab(tab.id);
+    await browserGo(true);
+  } catch (e) {
+    tab.error = 'Proxy switch failed: ' + (e.message || 'unknown error');
+    if (tab.id === activeBrowserTabId) setBrowserStatus(tab.error, false, true);
+  }
+}
+
+async function browserGo(fromFailover = false) {
   const input = document.getElementById('browser-url-input');
-  const home = document.getElementById('browser-home-view');
-  const frameContainer = document.getElementById('browser-frame-container');
   if (!input) return;
 
   const query = input.value.trim();
   if (!query) return;
 
+  let tab = getActiveBrowserTab();
+  if (!tab) tab = browserNewTab(true);
+  if (!fromFailover) tab.failoverAttempts = 0;
+
   const targetUrl = normalizeBrowserTarget(query);
+  tab.kind = 'web';
+  tab.url = targetUrl;
+  tab.title = browserTabTitleForUrl(targetUrl);
+  tab.error = '';
   browserProxyTarget = targetUrl;
-  if (home) home.style.display = 'none';
-  if (frameContainer) frameContainer.style.display = 'block';
+  browserProxyFrame = tab.frame || null;
+  showBrowserTabPanel(tab);
+  renderBrowserTabs();
   setBrowserStatus('Connecting to the proxy...');
 
   try {
     const controller = await ensureProxy();
-    if (browserProxyTarget !== targetUrl) return;
+    if (!browserTabs.includes(tab)) return;
     if (!navigator.serviceWorker.controller) {
       throw new Error('The proxy worker is still starting. Press Go again in a moment.');
     }
-    const frame = setupBrowserFrame(controller);
+    // Re-post the config before every navigation. A worker can be reused after
+    // a reload/update and would otherwise fall through to the static host.
+    await syncProxyConfig(controller);
+    if (!browserTabs.includes(tab)) return;
+    // Create the iframe only after the worker is active and controlling this
+    // page. Creating it earlier can race the first proxy request and let the
+    // navigation fall through to the static host (the old "Cannot GET" page).
+    if (!tab.iframe) createBrowserTabIframe(tab);
+    if (!tab.iframe || !document.body.contains(tab.iframe)) return;
+    const frame = setupBrowserFrame(controller, tab);
     if (!frame) throw new Error('Browser frame is not available.');
-    input.value = targetUrl;
+    if (tab.id === activeBrowserTabId) {
+      browserProxyFrame = frame;
+      browserProxyTarget = targetUrl;
+      input.value = targetUrl;
+    }
     frame.go(targetUrl);
     // The proxy is ready at this point. Some sites (Discord, for example) keep
     // loading resources for a long time and may never fire the iframe load
     // event, so don't leave the full-screen status overlay covering the page.
-    hideBrowserStatus();
+    if (tab.id === activeBrowserTabId) hideBrowserStatus();
   } catch (e) {
     console.warn('Browser navigation failed:', e);
-    browserProxyTarget = '';
-    setBrowserStatus(`Could not load ${targetUrl}. ${e.message || 'Proxy unavailable.'}`, false, true);
+    const message = `Could not load ${targetUrl}. ${e.message || 'Proxy unavailable.'}`;
+    tab.error = message;
+    if (tab.id === activeBrowserTabId) {
+      browserProxyTarget = '';
+      setBrowserStatus(message, false, true);
+    }
   }
 }
 
