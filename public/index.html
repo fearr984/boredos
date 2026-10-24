@@ -1755,6 +1755,25 @@ html, body {
    BORED OS — Complete Operating System Engine
    ═══════════════════════════════════════════════════════ */
 
+// ─── Nested-instance guard ───
+// A CDN pull zone whose origin is this site serves this exact app at its
+// root. Loading that inside the BoredOS browser creates an infinite
+// BoredOS-in-BoredOS loop, so show a static notice instead of booting again.
+let boredNestedInstance = false;
+try {
+  boredNestedInstance = window.parent !== window && !!window.parent.__BOREDOS_APP__;
+} catch (e) {}
+if (boredNestedInstance) {
+  let nestedTarget = location.href;
+  try {
+    const match = location.pathname.match(/\/service\/(.+)$/);
+    if (match) nestedTarget = decodeURIComponent(match[1]);
+  } catch (e) {}
+  document.body.innerHTML = `<div data-boredos-nested="1" style="min-height:100vh;display:grid;place-items:center;background:#111;color:#eee;font-family:Inter,system-ui,sans-serif;padding:24px"><div style="max-width:420px;text-align:center"><div style="font-family:Caveat,cursive;font-size:42px;color:#fff">bored.</div><h1 style="font-size:18px;margin:16px 0 10px">This URL is serving BoredOS itself.</h1><p style="font-size:13px;line-height:1.6;color:#aaa;margin:0 0 18px">Opening it inside the BoredOS browser would create an infinite BoredOS-in-BoredOS loop. Open it in a normal tab instead.</p><button type="button" onclick="window.parent.open(${JSON.stringify(nestedTarget)}, '_blank', 'noopener')" style="border:0;border-radius:999px;padding:10px 18px;background:#fff;color:#111;font-weight:600;cursor:pointer">Open in new tab</button></div></div>`;
+  throw new Error('BoredOS nested instance blocked');
+}
+window.__BOREDOS_APP__ = true;
+
 // ─── State ───
 const OS = {
   windows: [],
@@ -4154,6 +4173,15 @@ function createBrowserTabIframe(tab) {
     try {
       const doc = iframe.contentDocument;
       if (tab.kind !== 'web') return;
+      if (doc && doc.querySelector && doc.querySelector('[data-boredos-nested]')) {
+        tab.error = 'This URL is serving BoredOS itself.';
+        tab.title = 'BoredOS (nested)';
+        renderBrowserTabs();
+        if (tab.id === activeBrowserTabId) {
+          setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true);
+        }
+        return;
+      }
       if (isProxyErrorDocument(doc)) {
         const reason = 'The proxy did not load this page.';
         tab.error = reason;
