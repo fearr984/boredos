@@ -1654,6 +1654,111 @@ html, body {
 .modal-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
+/* ═══ Soundboard ═══ */
+.soundboard-app {
+  display: flex; flex-direction: column;
+  height: 100%; min-height: 0;
+  background: var(--bg-secondary);
+}
+.soundboard-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex: 0 0 auto; flex-wrap: wrap;
+}
+.soundboard-heading { min-width: 140px; }
+.soundboard-title { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+.soundboard-subtitle { margin-top: 2px; font-size: 11px; color: var(--text-tertiary); }
+.soundboard-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.soundboard-search-wrap {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 10px; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md); background: var(--bg-surface);
+}
+.soundboard-search-wrap svg { width: 14px; height: 14px; color: var(--text-tertiary); flex: 0 0 auto; }
+.soundboard-search-wrap input {
+  width: 150px; border: none; outline: none; background: none;
+  color: var(--text-primary); font-family: var(--font); font-size: 12px;
+}
+.soundboard-search-wrap input::placeholder { color: var(--text-tertiary); }
+.soundboard-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md); background: var(--bg-surface);
+  color: var(--text-secondary); font-family: var(--font); font-size: 12px;
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.soundboard-btn:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.soundboard-btn svg { width: 13px; height: 13px; }
+.soundboard-vol { display: flex; align-items: center; gap: 6px; color: var(--text-tertiary); }
+.soundboard-vol svg { width: 14px; height: 14px; }
+.soundboard-vol input { width: 76px; accent-color: var(--accent); cursor: pointer; }
+.soundboard-categories {
+  display: flex; gap: 6px; padding: 10px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto; flex: 0 0 auto; scrollbar-width: thin;
+}
+.soundboard-cat {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full); background: transparent;
+  color: var(--text-secondary); font-family: var(--font); font-size: 11px;
+  cursor: pointer; white-space: nowrap; transition: all var(--transition-fast);
+}
+.soundboard-cat span { font-size: 9px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.soundboard-cat:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.soundboard-cat.active { background: var(--accent-subtle); border-color: var(--accent); color: var(--accent-hover); }
+.soundboard-cat.active span { color: var(--accent-hover); opacity: 0.8; }
+.soundboard-grid {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 8px; padding: 14px 18px 16px; align-content: start;
+}
+.soundboard-pad {
+  position: relative; display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: flex-end; gap: 3px;
+  min-height: 66px; padding: 10px 11px;
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--pad-color) 16%, var(--bg-tertiary)), var(--bg-tertiary));
+  color: var(--text-primary); font-family: var(--font);
+  text-align: left; cursor: pointer; overflow: hidden;
+  transition: transform 0.08s ease, border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.soundboard-pad::before {
+  content: ''; position: absolute; inset: 0 0 auto 0;
+  height: 2px; background: var(--pad-color); opacity: 0.85;
+}
+.soundboard-pad:hover {
+  transform: translateY(-1px); border-color: var(--pad-color);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.24);
+}
+.soundboard-pad:active, .soundboard-pad.playing {
+  transform: scale(0.98); border-color: var(--pad-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pad-color) 32%, transparent);
+}
+.soundboard-pad-name { position: relative; z-index: 1; font-size: 12px; font-weight: 600; line-height: 1.25; }
+.soundboard-pad-cat {
+  position: relative; z-index: 1; font-size: 9px; font-weight: 500;
+  letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-tertiary);
+}
+.soundboard-pad:focus-visible, .soundboard-cat:focus-visible, .soundboard-btn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.soundboard-empty { padding: 36px 20px; text-align: center; color: var(--text-tertiary); font-size: 13px; }
+.soundboard-status {
+  flex: 0 0 auto; padding: 8px 18px; border-top: 1px solid var(--border-subtle);
+  font-size: 11px; color: var(--text-tertiary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+@media (max-width: 560px) {
+  .soundboard-head { padding: 12px 14px; }
+  .soundboard-categories { padding: 8px 14px; }
+  .soundboard-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); padding: 12px 14px; }
+  .soundboard-search-wrap input { width: 100px; }
+  .soundboard-vol input { width: 60px; }
+}
+
 /* Resize handle */
 .resize-handle {
   position: absolute; bottom: 0; right: 0;
@@ -2102,6 +2207,7 @@ function removeCustomWallpaper(url) {
 function buildDesktopIcons() {
   const icons = [
     { id: 'games', label: 'Games', icon: 'gamepad-2' },
+    { id: 'soundboard', label: 'Soundboard', icon: 'audio-lines' },
     { id: 'files', label: 'Files', icon: 'folder' },
     { id: 'notes', label: 'Notes', icon: 'file-text' },
     { id: 'browser', label: 'Browser', icon: 'globe' },
@@ -2162,6 +2268,7 @@ function updateDock() {
 const ALL_APPS = [
   { id: 'home', label: 'Home', icon: 'home', category: 'system' },
   { id: 'games', label: 'Games', icon: 'gamepad-2', category: 'entertainment' },
+  { id: 'soundboard', label: 'Soundboard', icon: 'audio-lines', category: 'entertainment' },
   { id: 'calculator', label: 'Calculator', icon: 'calculator', category: 'tools' },
   { id: 'notes', label: 'Notes', icon: 'file-text', category: 'productivity' },
   { id: 'clock', label: 'Clock', icon: 'clock', category: 'tools' },
@@ -2378,6 +2485,8 @@ function maximizeWindow(id) {
 function closeWindow(id) {
   const idx = OS.windows.findIndex(w => w.id === id);
   if (idx === -1) return;
+  const closing = OS.windows[idx];
+  if (closing && closing.appId === 'soundboard') soundboardStopAll();
   const el = document.getElementById('win-' + id);
   if (el) {
     el.style.animation = 'windowClose 0.2s ease forwards';
@@ -2455,6 +2564,7 @@ function openApp(appId) {
   switch (appId) {
     case 'home': openHome(); break;
     case 'games': openGames(); break;
+    case 'soundboard': openSoundboard(); break;
     case 'calculator': openCalculator(); break;
     case 'notes': openNotes(); break;
     case 'clock': openClock(); break;
@@ -5113,6 +5223,716 @@ function openAbout() {
     </div>
   </div>`;
   createWindow('about', 'About bored os', 480, 380, content, { icon: 'info' });
+}
+
+// ═══════════════════════════════════════
+// APP: Soundboard
+// 200 sounds, synthesized live with the Web Audio API.
+// ═══════════════════════════════════════
+const SB_NOTES = [
+  130.81, 146.83, 164.81, 174.61, 196.00,
+  220.00, 246.94, 261.63, 293.66, 329.63,
+  349.23, 392.00, 440.00, 493.88, 523.25,
+  587.33, 659.25, 698.46, 783.99, 880.00
+];
+
+const SB_CHORD_INTERVALS = [
+  [0, 4, 7], [0, 3, 7], [0, 2, 7], [0, 5, 7], [0, 3, 6],
+  [0, 4, 8], [0, 4, 7, 11], [0, 3, 7, 10], [0, 4, 7, 10], [0, 4, 7, 14],
+  [0, 3, 7, 14], [0, 4, 7, 14], [0, 7, 12], [0, 7], [0, 4, 7],
+  [0, 3, 7], [0, 4, 7, 11], [0, 4, 7, 14], [0, 4, 7], [0, 3, 7]
+];
+
+const SB_PERC_KINDS = [
+  'kick', 'snare', 'hat', 'openhat', 'clap',
+  'rim', 'tomlow', 'tomhigh', 'cowbell', 'shaker',
+  'cymbal', 'kickpunch', 'snaresnap', 'hattick', 'clapburst',
+  'tomdrop', 'rimclick', 'cowbellhit', 'shakerroll', 'crash'
+];
+
+const SB_CATEGORIES = [
+  {
+    id: 'tones',
+    name: 'Tones',
+    color: '#818cf8',
+    names: [
+      'Pure Sine', 'Soft Triangle', 'Glass Square', 'Warm Saw', 'Detuned Pair',
+      'High Blip', 'Low Hum', 'Vibrato Tone', 'Filtered Sine', 'Pulse Width',
+      'Bell Tone', 'Octave Stack', 'Fifth Stack', 'Minor Second', 'Tremolo Tone',
+      'Long Drone', 'Short Tick', 'Airy Sine', 'Buzz Saw', 'Crystal Tone'
+    ],
+    make(i) {
+      const dur = [0.12, 0.2, 0.32, 0.55, 0.9][i % 5];
+      return {
+        type: 'tone',
+        wave: ['sine', 'triangle', 'square', 'sawtooth'][i % 4],
+        freq: SB_NOTES[(i * 3) % SB_NOTES.length] * (i % 5 === 0 ? 2 : 1),
+        dur,
+        gain: 0.15,
+        attack: dur > 0.5 ? 0.15 : 0.006,
+        release: Math.min(0.18, dur * 0.4),
+        detune: i % 7 === 0 ? 9 : 0,
+        vibrato: i % 8 === 0 ? { rate: 5.5, depth: 7 } : null,
+        filter: i % 6 === 3 ? { type: 'lowpass', freq: 700 + i * 70, q: 1.2 } : null,
+        slideTo: i === 10 ? SB_NOTES[(i * 3) % SB_NOTES.length] * 1.5 : null
+      };
+    }
+  },
+  {
+    id: 'chords',
+    name: 'Chords',
+    color: '#a78bfa',
+    names: [
+      'Major Triad', 'Minor Triad', 'Sus2', 'Sus4', 'Diminished',
+      'Augmented', 'Major 7', 'Minor 7', 'Dominant 7', 'Major 9',
+      'Minor 9', 'Add9', 'Power Chord', 'Open Fifth', 'Stab Major',
+      'Stab Minor', 'Soft Pad Chord', 'Glass Chord', 'Strummed Major', 'Strummed Minor'
+    ],
+    make(i) {
+      const intervals = SB_CHORD_INTERVALS[i];
+      const root = SB_NOTES[(i * 3) % SB_NOTES.length] / (i % 4 === 0 ? 2 : 1);
+      return {
+        type: 'chord',
+        freqs: intervals.map(semi => root * Math.pow(2, semi / 12)),
+        wave: ['triangle', 'sine', 'sawtooth', 'square'][i % 4],
+        dur: [0.45, 0.8, 1.4][i % 3],
+        gain: 0.11,
+        attack: 0.012,
+        release: 0.18,
+        strum: i >= 18 ? 0.03 : 0,
+        pan: ((i % 5) - 2) * 0.18
+      };
+    }
+  },
+  {
+    id: 'bass',
+    name: 'Bass',
+    color: '#f472b6',
+    names: [
+      'Sub Sine', 'Deep Square', 'Acid Bass', 'Rubber Bass', 'Wobble Bass',
+      'Pluck Bass', 'FM Bass', 'Growl Bass', 'Octave Bass', 'Slide Bass',
+      'Short Sub', 'Long Sub', 'Reese Bass', 'Saw Bass', 'Square Bass',
+      'Sine Drop', 'Dirty Bass', 'Clean Bass', 'Bass Pop', 'Bass Thump'
+    ],
+    make(i) {
+      const base = 36 + (i % 12) * 3;
+      return {
+        type: 'tone',
+        wave: ['sine', 'square', 'sawtooth', 'triangle'][i % 4],
+        freq: base,
+        slideTo: i % 4 === 0 ? Math.max(28, base * 0.6) : (i % 4 === 1 ? base * 1.5 : null),
+        dur: [0.16, 0.28, 0.45, 0.7][i % 4],
+        gain: 0.24,
+        attack: 0.006,
+        release: 0.08,
+        filter: { type: 'lowpass', freq: 180 + (i % 8) * 110, q: i % 3 === 0 ? 5 : 1.5 },
+        detune: i % 6 === 0 ? 12 : 0
+      };
+    }
+  },
+  {
+    id: 'leads',
+    name: 'Leads',
+    color: '#fb923c',
+    names: [
+      'Bright Saw', 'Square Lead', 'Chip Lead', 'Portamento Lead', 'Trill Lead',
+      'Detune Lead', 'Soft Lead', 'Hard Lead', 'Whistle Lead', 'Fifth Lead',
+      'Octave Lead', 'Fast Arp', 'Slow Arp', 'Vibrato Lead', 'Filter Lead',
+      'Sync Lead', 'Pluck Lead', 'Bell Lead', 'Air Lead', 'Razor Lead'
+    ],
+    make(i) {
+      const freq = SB_NOTES[(i * 2 + 5) % SB_NOTES.length] * (i % 3 === 0 ? 2 : 1);
+      return {
+        type: 'tone',
+        wave: ['sawtooth', 'square', 'triangle'][i % 3],
+        freq,
+        slideTo: i % 5 === 0 ? freq * 1.5 : (i % 5 === 1 ? freq * 0.75 : null),
+        dur: [0.18, 0.26, 0.42, 0.65][i % 4],
+        gain: 0.12,
+        attack: 0.008,
+        release: 0.1,
+        vibrato: i % 4 === 0 ? { rate: 6, depth: 8 } : null,
+        filter: { type: 'lowpass', freq: 1400 + (i % 6) * 450, q: 2 }
+      };
+    }
+  },
+  {
+    id: 'percussion',
+    name: 'Percussion',
+    color: '#fbbf24',
+    names: [
+      'Kick', 'Snare', 'Hi-Hat', 'Open Hat', 'Clap',
+      'Rimshot', 'Low Tom', 'High Tom', 'Cowbell', 'Shaker',
+      'Cymbal', 'Kick Punch', 'Snare Snap', 'Hat Tick', 'Clap Burst',
+      'Tom Drop', 'Rim Click', 'Cowbell Hit', 'Shaker Roll', 'Crash'
+    ],
+    make(i) {
+      return { type: 'perc', kind: SB_PERC_KINDS[i], gain: 0.24 };
+    }
+  },
+  {
+    id: 'noise',
+    name: 'Noise',
+    color: '#94a3b8',
+    names: [
+      'White Noise', 'Pink Noise', 'Brown Noise', 'Static', 'Wind',
+      'Rain', 'Ocean', 'Vinyl Crackle', 'Radio Tune', 'Filter Sweep',
+      'High Pass Sweep', 'Low Pass Sweep', 'Band Pass Sweep', 'Noise Burst', 'Noise Tick',
+      'Noise Riser', 'Noise Faller', 'Digital Hiss', 'Tape Hiss', 'Dust'
+    ],
+    make(i) {
+      return {
+        type: 'noise',
+        color: ['white', 'pink', 'brown'][i % 3],
+        dur: [0.12, 0.25, 0.5, 0.9][i % 4],
+        gain: 0.13,
+        filterType: ['bandpass', 'lowpass', 'highpass'][i % 3],
+        freq: 300 + (i % 10) * 260,
+        to: i % 4 === 0 ? 80 + (i % 5) * 40 : (i % 4 === 1 ? 4500 : null),
+        q: 0.7 + (i % 4) * 0.5,
+        attack: 0.005
+      };
+    }
+  },
+  {
+    id: 'fx',
+    name: 'FX',
+    color: '#22d3ee',
+    names: [
+      'Riser', 'Faller', 'Laser', 'Zap', 'Alarm',
+      'Siren', 'Glitch', 'Stutter', 'Reverse Swell', 'Whoosh',
+      'Boom', 'Impact', 'Metal Hit', 'Glass Break', 'Power Down',
+      'Power Up', 'Teleport', 'Sonar', 'Radar', 'Warp'
+    ],
+    make(i) {
+      switch (i % 6) {
+        case 0:
+          return { type: 'tone', wave: 'sawtooth', freq: 80 + i * 10, slideTo: 900 + i * 50, dur: 0.6 + (i % 4) * 0.15, gain: 0.12, attack: 0.02, release: 0.2, filter: { type: 'lowpass', freq: 1800, q: 2 }, pan: (i % 3 - 1) * 0.3 };
+        case 1:
+          return { type: 'tone', wave: 'square', freq: Math.max(120, 1800 - i * 60), slideTo: 60, dur: 0.5 + (i % 3) * 0.1, gain: 0.1, attack: 0.01, release: 0.15, pan: (1 - i % 3) * 0.3 };
+        case 2:
+          return { type: 'tone', wave: 'square', freq: 2400, slideTo: 120, dur: 0.18, gain: 0.12, attack: 0.002, release: 0.05 };
+        case 3:
+          return { type: 'noise', color: 'white', dur: 0.35, filterType: 'bandpass', freq: 500 + i * 80, to: 3500, q: 2, gain: 0.14 };
+        case 4:
+          return { type: 'seq', wave: 'square', freqs: [880, 660, 880, 660], step: 0.12, dur: 0.09, gain: 0.1, repeat: 2 };
+        default:
+          return { type: 'seq', wave: 'sine', freqs: [600, 900], step: 0.35, dur: 0.3, gain: 0.12, repeat: 3 };
+      }
+    }
+  },
+  {
+    id: 'retro',
+    name: 'Retro',
+    color: '#4ade80',
+    names: [
+      'Coin', 'Jump', 'Powerup', 'One-Up', 'Hurt',
+      'Explosion', 'Game Over', 'Level Clear', 'Menu Select', 'Menu Back',
+      'Text Blip', 'Text Fast', 'Shoot', 'Enemy Hit', 'Boss Hit',
+      'Checkpoint', 'Secret', 'Spring', 'Teleport 8-Bit', 'Victory'
+    ],
+    make(i) {
+      switch (i) {
+        case 0: return { type: 'seq', wave: 'square', freqs: [988, 1319], step: 0.07, dur: 0.08, gain: 0.12 };
+        case 1: return { type: 'tone', wave: 'square', freq: 320, slideTo: 720, dur: 0.18, gain: 0.12, attack: 0.002, release: 0.05 };
+        case 2: return { type: 'seq', wave: 'square', freqs: [523, 659, 784, 1047, 1319], step: 0.06, dur: 0.06, gain: 0.1 };
+        case 3: return { type: 'seq', wave: 'square', freqs: [659, 784, 988, 1319], step: 0.08, dur: 0.08, gain: 0.1 };
+        case 4: return { type: 'tone', wave: 'sawtooth', freq: 520, slideTo: 90, dur: 0.35, gain: 0.14, attack: 0.002, release: 0.1 };
+        case 5: return { type: 'noise', color: 'brown', dur: 0.55, filterType: 'lowpass', freq: 1400, to: 120, q: 0.8, gain: 0.2 };
+        case 6: return { type: 'seq', wave: 'square', freqs: [392, 330, 262, 196], step: 0.18, dur: 0.14, gain: 0.12 };
+        case 7: return { type: 'seq', wave: 'square', freqs: [523, 659, 784, 1047], step: 0.1, dur: 0.09, gain: 0.1 };
+        case 8: return { type: 'tone', wave: 'square', freq: 880, dur: 0.06, gain: 0.1, attack: 0.002, release: 0.02 };
+        case 9: return { type: 'tone', wave: 'square', freq: 440, dur: 0.07, gain: 0.1, attack: 0.002, release: 0.02 };
+        case 10: return { type: 'tone', wave: 'square', freq: 1200, dur: 0.04, gain: 0.08, attack: 0.002, release: 0.01 };
+        case 11: return { type: 'tone', wave: 'square', freq: 1600, dur: 0.03, gain: 0.07, attack: 0.002, release: 0.01 };
+        case 12: return { type: 'tone', wave: 'square', freq: 1400, slideTo: 200, dur: 0.12, gain: 0.12, attack: 0.002, release: 0.03 };
+        case 13: return { type: 'noise', color: 'white', dur: 0.12, filterType: 'bandpass', freq: 900, q: 1.5, gain: 0.16 };
+        case 14: return { type: 'noise', color: 'brown', dur: 0.3, filterType: 'lowpass', freq: 600, to: 120, q: 1, gain: 0.22 };
+        case 15: return { type: 'seq', wave: 'square', freqs: [659, 880, 1047], step: 0.1, dur: 0.08, gain: 0.1 };
+        case 16: return { type: 'seq', wave: 'triangle', freqs: [784, 1047, 1319, 1568], step: 0.09, dur: 0.08, gain: 0.1 };
+        case 17: return { type: 'tone', wave: 'sine', freq: 220, slideTo: 880, dur: 0.3, gain: 0.14, attack: 0.01, release: 0.08 };
+        case 18: return { type: 'seq', wave: 'square', freqs: [1200, 1600, 2000, 2400], step: 0.05, dur: 0.04, gain: 0.08 };
+        default: return { type: 'seq', wave: 'square', freqs: [523, 659, 784, 1047, 1319, 1568], step: 0.12, dur: 0.1, gain: 0.1 };
+      }
+    }
+  },
+  {
+    id: 'ambience',
+    name: 'Ambience',
+    color: '#60a5fa',
+    names: [
+      'Warm Pad', 'Cold Pad', 'Deep Drone', 'Space Drone', 'Chime',
+      'Bell Chime', 'Glass Bell', 'Music Box', 'Wind Chime', 'Soft Air',
+      'Dark Air', 'Shimmer', 'Halo', 'Cave', 'Underwater',
+      'Night Sky', 'Slow Pulse', 'Breathing Pad', 'Frozen Pad', 'Horizon'
+    ],
+    make(i) {
+      if (i % 5 === 3) {
+        return {
+          type: 'noise',
+          color: ['pink', 'brown'][i % 2],
+          dur: 2.4 + (i % 4) * 0.6,
+          gain: 0.07,
+          filterType: 'lowpass',
+          freq: 420 + (i % 5) * 160,
+          q: 0.6,
+          attack: 0.5,
+          release: 0.8,
+          pan: ((i % 5) - 2) * 0.2
+        };
+      }
+      const root = SB_NOTES[(i * 3) % SB_NOTES.length] / 2;
+      return {
+        type: 'chord',
+        freqs: [root, root * Math.pow(2, 4 / 12), root * Math.pow(2, 7 / 12), root * Math.pow(2, 11 / 12)],
+        wave: ['sine', 'triangle'][i % 2],
+        dur: 2.2 + (i % 5) * 0.7,
+        gain: 0.085,
+        attack: 0.35 + (i % 3) * 0.15,
+        release: 0.7,
+        filter: { type: 'lowpass', freq: 600 + (i % 5) * 250, q: 0.7 },
+        detune: i % 4 === 0 ? 6 : 0,
+        pan: ((i % 5) - 2) * 0.2
+      };
+    }
+  },
+  {
+    id: 'misc',
+    name: 'Misc',
+    color: '#f87171',
+    names: [
+      'Pop', 'Click', 'Bubble', 'Boing', 'Bloop',
+      'Thud', 'Tap', 'Knock', 'Snap', 'Squeak',
+      'Whistle', 'Slide Whistle', 'Duck', 'Frog', 'Cat',
+      'Robot', 'Coin Drop', 'Water Drop', 'Spring Boing', 'Cartoon Run'
+    ],
+    make(i) {
+      switch (i) {
+        case 0: return { type: 'tone', wave: 'sine', freq: 600, slideTo: 300, dur: 0.08, gain: 0.15, attack: 0.002, release: 0.03 };
+        case 1: return { type: 'tone', wave: 'square', freq: 1800, dur: 0.025, gain: 0.1, attack: 0.001, release: 0.01 };
+        case 2: return { type: 'tone', wave: 'sine', freq: 400, slideTo: 900, dur: 0.12, gain: 0.12, attack: 0.005, release: 0.04 };
+        case 3: return { type: 'tone', wave: 'sine', freq: 220, slideTo: 660, dur: 0.28, gain: 0.16, attack: 0.01, release: 0.08 };
+        case 4: return { type: 'tone', wave: 'triangle', freq: 300, slideTo: 120, dur: 0.16, gain: 0.14, attack: 0.005, release: 0.05 };
+        case 5: return { type: 'tone', wave: 'sine', freq: 120, slideTo: 50, dur: 0.2, gain: 0.2, attack: 0.002, release: 0.08 };
+        case 6: return { type: 'tone', wave: 'square', freq: 900, dur: 0.04, gain: 0.1, attack: 0.001, release: 0.01 };
+        case 7: return { type: 'tone', wave: 'square', freq: 300, dur: 0.08, gain: 0.14, attack: 0.001, release: 0.03 };
+        case 8: return { type: 'noise', color: 'white', dur: 0.05, filterType: 'highpass', freq: 2000, q: 1, gain: 0.14 };
+        case 9: return { type: 'tone', wave: 'sine', freq: 1200, slideTo: 1800, dur: 0.12, gain: 0.1, attack: 0.01, release: 0.04, vibrato: { rate: 12, depth: 10 } };
+        case 10: return { type: 'tone', wave: 'sine', freq: 800, slideTo: 1400, dur: 0.3, gain: 0.1, attack: 0.02, release: 0.08 };
+        case 11: return { type: 'tone', wave: 'sine', freq: 600, slideTo: 1400, dur: 0.4, gain: 0.1, attack: 0.02, release: 0.1, vibrato: { rate: 8, depth: 14 } };
+        case 12: return { type: 'tone', wave: 'sawtooth', freq: 260, slideTo: 180, dur: 0.18, gain: 0.12, attack: 0.005, release: 0.06 };
+        case 13: return { type: 'tone', wave: 'square', freq: 180, slideTo: 90, dur: 0.15, gain: 0.14, attack: 0.005, release: 0.05 };
+        case 14: return { type: 'tone', wave: 'sine', freq: 900, slideTo: 1400, dur: 0.25, gain: 0.1, attack: 0.02, release: 0.08, vibrato: { rate: 10, depth: 12 } };
+        case 15: return { type: 'seq', wave: 'square', freqs: [220, 330, 220, 440], step: 0.08, dur: 0.06, gain: 0.1 };
+        case 16: return { type: 'tone', wave: 'triangle', freq: 1200, slideTo: 600, dur: 0.12, gain: 0.12, attack: 0.002, release: 0.04 };
+        case 17: return { type: 'tone', wave: 'sine', freq: 1000, slideTo: 300, dur: 0.14, gain: 0.14, attack: 0.002, release: 0.05 };
+        case 18: return { type: 'tone', wave: 'sine', freq: 180, slideTo: 700, dur: 0.35, gain: 0.15, attack: 0.01, release: 0.1, vibrato: { rate: 7, depth: 10 } };
+        default: return { type: 'seq', wave: 'square', freqs: [523, 659, 784, 659, 523], step: 0.07, dur: 0.05, gain: 0.09 };
+      }
+    }
+  }
+];
+
+const SB_SOUNDS = SB_CATEGORIES.flatMap(cat => cat.names.map((name, i) => {
+  const spec = cat.make(i);
+  return {
+    ...spec,
+    id: cat.id + '-' + i,
+    name,
+    category: cat.id,
+    categoryName: cat.name,
+    color: cat.color
+  };
+}));
+const SB_BY_ID = Object.fromEntries(SB_SOUNDS.map(sound => [sound.id, sound]));
+if (SB_SOUNDS.length !== 200) {
+  console.warn('Soundboard expected 200 sounds, got', SB_SOUNDS.length);
+}
+
+let sbCtx = null;
+let sbMaster = null;
+let sbActive = new Set();
+let sbCategory = 'all';
+let sbQuery = '';
+let sbVolume = 0.7;
+try {
+  const savedVolume = parseFloat(localStorage.getItem('boredos-soundboard-volume'));
+  if (Number.isFinite(savedVolume)) sbVolume = Math.min(1, Math.max(0, savedVolume));
+} catch (e) {}
+
+function ensureSoundboardAudio() {
+  const AudioCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtor) return null;
+  if (!sbCtx) {
+    sbCtx = new AudioCtor();
+    sbMaster = sbCtx.createGain();
+    sbMaster.gain.value = sbVolume;
+    sbMaster.connect(sbCtx.destination);
+  }
+  if (sbCtx.state === 'suspended') sbCtx.resume().catch(() => {});
+  return sbCtx;
+}
+
+function sbRegister(source, gainNode) {
+  const entry = { source, gain: gainNode };
+  sbActive.add(entry);
+  source.addEventListener('ended', () => {
+    sbActive.delete(entry);
+    try { gainNode.disconnect(); } catch (e) {}
+  }, { once: true });
+  return entry;
+}
+
+function sbTone(spec, ctx, dest, t) {
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const dur = Math.max(0.03, spec.dur || 0.2);
+  const peak = Math.max(0.0005, spec.gain == null ? 0.15 : spec.gain);
+  const attack = Math.min(Math.max(0.001, spec.attack == null ? 0.008 : spec.attack), dur * 0.45);
+  const release = Math.min(Math.max(0.01, spec.release == null ? 0.1 : spec.release), dur * 0.6);
+
+  osc.type = spec.wave || 'sine';
+  osc.frequency.setValueAtTime(Math.max(1, spec.freq || 440), t);
+  if (spec.slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(1, spec.slideTo), t + dur);
+  if (spec.detune) osc.detune.value = spec.detune;
+
+  let node = osc;
+  if (spec.filter) {
+    const filter = ctx.createBiquadFilter();
+    filter.type = spec.filter.type || 'lowpass';
+    filter.frequency.setValueAtTime(Math.max(20, spec.filter.freq || 1200), t);
+    if (spec.filter.to) filter.frequency.exponentialRampToValueAtTime(Math.max(20, spec.filter.to), t + dur);
+    filter.Q.value = spec.filter.q == null ? 1 : spec.filter.q;
+    node.connect(filter);
+    node = filter;
+  }
+
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(peak, t + attack);
+  gain.gain.setValueAtTime(peak, t + Math.max(attack, dur - release));
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  node.connect(gain);
+
+  if (spec.pan && ctx.createStereoPanner) {
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = Math.max(-1, Math.min(1, spec.pan));
+    gain.connect(panner);
+    panner.connect(dest);
+  } else {
+    gain.connect(dest);
+  }
+
+  if (spec.vibrato) {
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.value = spec.vibrato.rate || 5;
+    lfoGain.gain.value = spec.vibrato.depth || 5;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    lfo.start(t);
+    lfo.stop(t + dur + 0.02);
+  }
+
+  osc.start(t);
+  osc.stop(t + dur + 0.02);
+  sbRegister(osc, gain);
+}
+
+function sbChord(spec, ctx, dest, t) {
+  const freqs = spec.freqs || [261.63, 329.63, 392.0];
+  const perNote = Math.max(0.02, (spec.gain == null ? 0.12 : spec.gain) / Math.sqrt(freqs.length));
+  freqs.forEach((freq, i) => {
+    sbTone({
+      ...spec,
+      type: 'tone',
+      freq,
+      gain: perNote,
+      detune: (spec.detune || 0) + (i % 2 ? 4 : -4)
+    }, ctx, dest, t + (spec.strum ? i * spec.strum : 0));
+  });
+}
+
+function sbNoise(spec, ctx, dest, t) {
+  const dur = Math.max(0.02, spec.dur || 0.2);
+  const frames = Math.max(1, Math.ceil(ctx.sampleRate * dur));
+  const buffer = ctx.createBuffer(1, frames, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < frames; i++) {
+    const white = Math.random() * 2 - 1;
+    if (spec.color === 'brown') {
+      last = (last + 0.02 * white) / 1.02;
+      data[i] = Math.max(-1, Math.min(1, last * 3.5));
+    } else if (spec.color === 'pink') {
+      last = 0.98 * last + 0.02 * white;
+      data[i] = Math.max(-1, Math.min(1, last * 3));
+    } else {
+      data[i] = white;
+    }
+  }
+
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  const filter = ctx.createBiquadFilter();
+  filter.type = spec.filterType || 'bandpass';
+  filter.frequency.setValueAtTime(Math.max(20, spec.freq || 1200), t);
+  if (spec.to) filter.frequency.exponentialRampToValueAtTime(Math.max(20, spec.to), t + dur);
+  filter.Q.value = spec.q == null ? 1 : spec.q;
+
+  const gain = ctx.createGain();
+  const peak = Math.max(0.0005, spec.gain == null ? 0.15 : spec.gain);
+  const attack = Math.min(Math.max(0.001, spec.attack == null ? 0.005 : spec.attack), dur * 0.45);
+  const release = Math.min(Math.max(0.01, spec.release == null ? 0.08 : spec.release), dur * 0.6);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(peak, t + attack);
+  gain.gain.setValueAtTime(peak, t + Math.max(attack, dur - release));
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  src.connect(filter);
+  filter.connect(gain);
+  if (spec.pan && ctx.createStereoPanner) {
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = Math.max(-1, Math.min(1, spec.pan));
+    gain.connect(panner);
+    panner.connect(dest);
+  } else {
+    gain.connect(dest);
+  }
+
+  src.start(t);
+  src.stop(t + dur + 0.02);
+  sbRegister(src, gain);
+}
+
+function sbPerc(spec, ctx, dest, t) {
+  const g = spec.gain == null ? 0.24 : spec.gain;
+  switch (spec.kind) {
+    case 'kick':
+      sbTone({ wave: 'sine', freq: 150, slideTo: 42, dur: 0.32, gain: g, attack: 0.002, release: 0.08 }, ctx, dest, t);
+      break;
+    case 'snare':
+      sbNoise({ color: 'white', dur: 0.18, filterType: 'bandpass', freq: 1800, q: 0.8, gain: g, attack: 0.002, release: 0.06 }, ctx, dest, t);
+      sbTone({ wave: 'triangle', freq: 180, dur: 0.12, gain: g * 0.45, attack: 0.002, release: 0.04 }, ctx, dest, t);
+      break;
+    case 'hat':
+      sbNoise({ color: 'white', dur: 0.06, filterType: 'highpass', freq: 8000, q: 0.7, gain: g * 0.7, attack: 0.001, release: 0.02 }, ctx, dest, t);
+      break;
+    case 'openhat':
+      sbNoise({ color: 'white', dur: 0.28, filterType: 'highpass', freq: 7000, q: 0.7, gain: g * 0.6, attack: 0.002, release: 0.1 }, ctx, dest, t);
+      break;
+    case 'clap':
+      for (let i = 0; i < 4; i++) {
+        sbNoise({ color: 'white', dur: 0.06, filterType: 'bandpass', freq: 1200, q: 1.2, gain: g * 0.55, attack: 0.001, release: 0.02 }, ctx, dest, t + i * 0.012);
+      }
+      break;
+    case 'rim':
+      sbTone({ wave: 'square', freq: 1800, dur: 0.035, gain: g * 0.8, attack: 0.001, release: 0.01 }, ctx, dest, t);
+      break;
+    case 'tomlow':
+      sbTone({ wave: 'sine', freq: 110, slideTo: 60, dur: 0.28, gain: g * 0.9, attack: 0.002, release: 0.08 }, ctx, dest, t);
+      break;
+    case 'tomhigh':
+      sbTone({ wave: 'sine', freq: 220, slideTo: 120, dur: 0.22, gain: g * 0.8, attack: 0.002, release: 0.06 }, ctx, dest, t);
+      break;
+    case 'cowbell':
+      sbTone({ wave: 'square', freq: 540, dur: 0.12, gain: g * 0.45, attack: 0.001, release: 0.04 }, ctx, dest, t);
+      sbTone({ wave: 'square', freq: 800, dur: 0.12, gain: g * 0.45, attack: 0.001, release: 0.04 }, ctx, dest, t);
+      break;
+    case 'shaker':
+      sbNoise({ color: 'white', dur: 0.12, filterType: 'highpass', freq: 6000, q: 0.7, gain: g * 0.5, attack: 0.005, release: 0.04 }, ctx, dest, t);
+      break;
+    case 'cymbal':
+      sbNoise({ color: 'white', dur: 0.6, filterType: 'highpass', freq: 5000, q: 0.6, gain: g * 0.4, attack: 0.005, release: 0.25 }, ctx, dest, t);
+      break;
+    case 'kickpunch':
+      sbTone({ wave: 'sine', freq: 190, slideTo: 38, dur: 0.4, gain: g * 1.1, attack: 0.002, release: 0.1 }, ctx, dest, t);
+      break;
+    case 'snaresnap':
+      sbNoise({ color: 'white', dur: 0.16, filterType: 'bandpass', freq: 2200, q: 0.9, gain: g * 1.1, attack: 0.001, release: 0.05 }, ctx, dest, t);
+      sbTone({ wave: 'triangle', freq: 220, dur: 0.1, gain: g * 0.4, attack: 0.001, release: 0.03 }, ctx, dest, t);
+      break;
+    case 'hattick':
+      sbNoise({ color: 'white', dur: 0.035, filterType: 'highpass', freq: 10000, q: 0.7, gain: g * 0.7, attack: 0.001, release: 0.01 }, ctx, dest, t);
+      break;
+    case 'clapburst':
+      for (let i = 0; i < 5; i++) {
+        sbNoise({ color: 'white', dur: 0.05, filterType: 'bandpass', freq: 1400, q: 1.3, gain: g * 0.5, attack: 0.001, release: 0.02 }, ctx, dest, t + i * 0.015);
+      }
+      break;
+    case 'tomdrop':
+      sbTone({ wave: 'sine', freq: 180, slideTo: 55, dur: 0.45, gain: g * 0.9, attack: 0.002, release: 0.12 }, ctx, dest, t);
+      break;
+    case 'rimclick':
+      sbTone({ wave: 'square', freq: 2400, dur: 0.03, gain: g * 0.9, attack: 0.001, release: 0.008 }, ctx, dest, t);
+      break;
+    case 'cowbellhit':
+      sbTone({ wave: 'square', freq: 540, dur: 0.16, gain: g * 0.5, attack: 0.001, release: 0.05 }, ctx, dest, t);
+      sbTone({ wave: 'square', freq: 800, dur: 0.16, gain: g * 0.5, attack: 0.001, release: 0.05 }, ctx, dest, t);
+      break;
+    case 'shakerroll':
+      for (let i = 0; i < 6; i++) {
+        sbNoise({ color: 'white', dur: 0.08, filterType: 'highpass', freq: 6500, q: 0.7, gain: g * 0.35, attack: 0.003, release: 0.03 }, ctx, dest, t + i * 0.05);
+      }
+      break;
+    case 'crash':
+      sbNoise({ color: 'white', dur: 0.9, filterType: 'highpass', freq: 4000, q: 0.5, gain: g * 0.45, attack: 0.005, release: 0.4 }, ctx, dest, t);
+      break;
+    default:
+      sbTone({ wave: 'sine', freq: 150, slideTo: 50, dur: 0.3, gain: g, attack: 0.002, release: 0.08 }, ctx, dest, t);
+  }
+}
+
+function sbSeq(spec, ctx, dest, t) {
+  const freqs = spec.freqs || [440];
+  const step = spec.step || 0.1;
+  const dur = spec.dur || 0.08;
+  const repeat = spec.repeat || 1;
+  const cycle = step * freqs.length + 0.05;
+  for (let r = 0; r < repeat; r++) {
+    freqs.forEach((freq, i) => {
+      sbTone({
+        ...spec,
+        type: 'tone',
+        freq,
+        dur,
+        gain: spec.gain == null ? 0.1 : spec.gain,
+        attack: 0.002,
+        release: Math.min(0.05, dur * 0.4)
+      }, ctx, dest, t + r * cycle + i * step);
+    });
+  }
+}
+
+function playSoundSpec(spec, ctx, dest, t) {
+  switch (spec.type) {
+    case 'chord': sbChord(spec, ctx, dest, t); break;
+    case 'noise': sbNoise(spec, ctx, dest, t); break;
+    case 'perc': sbPerc(spec, ctx, dest, t); break;
+    case 'seq': sbSeq(spec, ctx, dest, t); break;
+    case 'tone':
+    default: sbTone(spec, ctx, dest, t); break;
+  }
+}
+
+function soundboardPlay(id) {
+  const sound = SB_BY_ID[id];
+  if (!sound) return;
+  const ctx = ensureSoundboardAudio();
+  if (!ctx) {
+    notify('Audio is not supported in this browser');
+    return;
+  }
+  if (sbActive.size > 40) soundboardStopAll();
+  try {
+    playSoundSpec(sound, ctx, sbMaster, ctx.currentTime + 0.015);
+  } catch (e) {
+    console.warn('Soundboard failed to play:', e);
+    notify('Could not play that sound');
+    return;
+  }
+  const pad = document.querySelector(`.soundboard-pad[data-id="${id}"]`);
+  if (pad) {
+    pad.classList.add('playing');
+    setTimeout(() => pad.classList.remove('playing'), 180);
+  }
+  const status = document.getElementById('soundboard-status');
+  if (status) status.textContent = 'Playing: ' + sound.name + ' · ' + sound.categoryName;
+}
+
+function soundboardStopAll() {
+  for (const entry of sbActive) {
+    try { entry.source.stop(); } catch (e) {}
+    try { entry.source.disconnect(); } catch (e) {}
+    try { entry.gain.disconnect(); } catch (e) {}
+  }
+  sbActive.clear();
+  const status = document.getElementById('soundboard-status');
+  if (status) status.textContent = 'Stopped. Click a pad to play.';
+}
+
+function soundboardSetVolume(value) {
+  const volume = parseFloat(value);
+  if (!Number.isFinite(volume)) return;
+  sbVolume = Math.min(1, Math.max(0, volume));
+  if (sbMaster && sbCtx) {
+    sbMaster.gain.setTargetAtTime(sbVolume, sbCtx.currentTime, 0.015);
+  }
+  try { localStorage.setItem('boredos-soundboard-volume', String(sbVolume)); } catch (e) {}
+}
+
+function soundboardSetCategory(id) {
+  sbCategory = id;
+  soundboardRender();
+}
+
+function soundboardSearch(value) {
+  sbQuery = value || '';
+  soundboardRender();
+}
+
+function soundboardRender() {
+  const cats = document.getElementById('soundboard-categories');
+  const grid = document.getElementById('soundboard-grid');
+  const empty = document.getElementById('soundboard-empty');
+  if (!cats || !grid) return;
+
+  const categories = [{ id: 'all', name: 'All' }, ...SB_CATEGORIES];
+  cats.innerHTML = categories.map(cat => {
+    const count = cat.id === 'all' ? SB_SOUNDS.length : SB_SOUNDS.filter(sound => sound.category === cat.id).length;
+    const active = sbCategory === cat.id ? ' active' : '';
+    return `<button type="button" class="soundboard-cat${active}" onclick="soundboardSetCategory('${cat.id}')">${escHtml(cat.name)} <span>${count}</span></button>`;
+  }).join('');
+
+  const query = sbQuery.trim().toLowerCase();
+  const filtered = SB_SOUNDS.filter(sound => {
+    if (sbCategory !== 'all' && sound.category !== sbCategory) return false;
+    if (!query) return true;
+    return sound.name.toLowerCase().includes(query) || sound.categoryName.toLowerCase().includes(query);
+  });
+
+  grid.innerHTML = filtered.map(sound => `
+    <button type="button" class="soundboard-pad" data-id="${sound.id}" style="--pad-color:${sound.color}" onclick="soundboardPlay('${sound.id}')" title="${escHtml(sound.name)} — ${escHtml(sound.categoryName)}">
+      <span class="soundboard-pad-name">${escHtml(sound.name)}</span>
+      <span class="soundboard-pad-cat">${escHtml(sound.categoryName)}</span>
+    </button>`).join('');
+  if (empty) empty.style.display = filtered.length ? 'none' : 'block';
+}
+
+function openSoundboard() {
+  const content = `<div class="soundboard-app">
+    <div class="soundboard-head">
+      <div class="soundboard-heading">
+        <div class="soundboard-title">Soundboard</div>
+        <div class="soundboard-subtitle">200 synthesized sounds · no downloads</div>
+      </div>
+      <div class="soundboard-tools">
+        <label class="soundboard-search-wrap">
+          <i data-lucide="search"></i>
+          <input id="soundboard-search" type="search" placeholder="Search 200 sounds..." autocomplete="off" oninput="soundboardSearch(this.value)">
+        </label>
+        <button type="button" class="soundboard-btn" onclick="soundboardStopAll()">
+          <i data-lucide="square"></i> Stop all
+        </button>
+        <label class="soundboard-vol" title="Volume">
+          <i data-lucide="volume-2"></i>
+          <input id="soundboard-volume" type="range" min="0" max="1" step="0.01" value="${sbVolume}" oninput="soundboardSetVolume(this.value)">
+        </label>
+      </div>
+    </div>
+    <div id="soundboard-categories" class="soundboard-categories"></div>
+    <div id="soundboard-grid" class="soundboard-grid"></div>
+    <div id="soundboard-empty" class="soundboard-empty" style="display:none">No sounds match that search.</div>
+    <div id="soundboard-status" class="soundboard-status">Click a pad to play. Everything is synthesized live in your browser.</div>
+  </div>`;
+  createWindow('soundboard', 'Soundboard', 860, 640, content, { icon: 'audio-lines' });
+  sbQuery = '';
+  const search = document.getElementById('soundboard-search');
+  if (search) search.value = '';
+  const volume = document.getElementById('soundboard-volume');
+  if (volume) volume.value = String(sbVolume);
+  soundboardRender();
+  lucide.createIcons();
 }
 
 // ─── Utility ───
