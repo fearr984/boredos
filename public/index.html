@@ -4652,6 +4652,9 @@ async function browserGo(fromFailover = false) {
       browserProxyTarget = targetUrl;
       input.value = targetUrl;
     }
+    // A previous nested-app notice uses srcdoc, which takes precedence over
+    // src. Clear it before navigating to a real URL again.
+    try { tab.iframe.removeAttribute('srcdoc'); } catch (e) {}
     frame.go(targetUrl);
     watchForNestedBoredos(tab);
     // The proxy is ready at this point. Some sites (Discord, for example) keep
