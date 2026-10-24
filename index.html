@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="boredos-app" content="1">
 <title>bored os</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Dancing+Script:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;600;700&family=VT323&display=swap" rel="stylesheet">
@@ -4162,6 +4163,69 @@ function renderBrowserTabs() {
   }).join('');
 }
 
+function stopNestedBoredosWatch(tab) {
+  if (tab && tab.nestedWatch) {
+    clearInterval(tab.nestedWatch);
+    tab.nestedWatch = null;
+  }
+}
+
+function nestedBoredosNoticeHtml(targetUrl) {
+  const safeTarget = JSON.stringify(targetUrl || '');
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;display:grid;place-items:center;background:#111;color:#eee;font-family:Inter,system-ui,sans-serif;padding:24px}
+    .wrap{max-width:430px;text-align:center}.logo{font-family:Caveat,cursive;font-size:44px;color:#fff;line-height:1}
+    h1{font-size:18px;margin:18px 0 10px}p{font-size:13px;line-height:1.65;color:#a3a3a3;margin:0 0 20px}
+    button{border:0;border-radius:999px;padding:11px 20px;background:#fff;color:#111;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+    button:hover{background:#e5e5e5}
+  </style></head><body data-boredos-nested="1"><div class="wrap"><div class="logo">bored.</div>
+    <h1>This URL is serving BoredOS itself.</h1>
+    <p>Opening it inside the BoredOS browser would create an infinite BoredOS-in-BoredOS loop. Open it in a normal tab instead.</p>
+    <button type="button" onclick="window.parent.open(${safeTarget}, '_blank', 'noopener')">Open in new tab</button>
+  </div></body></html>`;
+}
+
+function showNestedBoredosNotice(tab) {
+  if (!tab || !tab.iframe) return;
+  stopNestedBoredosWatch(tab);
+  tab.error = 'This URL is serving BoredOS itself.';
+  tab.title = 'BoredOS (nested)';
+  tab.failoverAttempts = 0;
+  renderBrowserTabs();
+  if (tab.id === activeBrowserTabId) {
+    setBrowserStatus('This URL is serving BoredOS itself. Open it in a normal tab instead.', false, true);
+  }
+  try {
+    tab.iframe.srcdoc = nestedBoredosNoticeHtml(tab.url);
+  } catch (e) {
+    try { tab.iframe.src = 'about:blank'; } catch (e2) {}
+  }
+}
+
+function watchForNestedBoredos(tab) {
+  if (!tab || !tab.iframe) return;
+  stopNestedBoredosWatch(tab);
+  const iframe = tab.iframe;
+  const started = Date.now();
+  tab.nestedWatch = setInterval(() => {
+    if (!tab.iframe || tab.iframe !== iframe || !iframe.isConnected) {
+      stopNestedBoredosWatch(tab);
+      return;
+    }
+    let doc = null;
+    try { doc = iframe.contentDocument; } catch (e) {}
+    if (doc) {
+      try {
+        if (doc.querySelector && doc.querySelector('meta[name="boredos-app"]')) {
+          showNestedBoredosNotice(tab);
+          return;
+        }
+      } catch (e) {}
+    }
+    if (Date.now() - started > 20000) stopNestedBoredosWatch(tab);
+  }, 25);
+}
+
 function createBrowserTabIframe(tab) {
   const panels = document.getElementById('browser-tab-panels');
   if (!panels || tab.iframe) return tab.iframe;
@@ -4275,6 +4339,7 @@ function closeBrowserTab(tabId) {
   const index = browserTabs.findIndex(t => t.id === tabId);
   if (index === -1) return;
   const tab = browserTabs[index];
+  stopNestedBoredosWatch(tab);
   if (tab.iframe) tab.iframe.remove();
   tab.iframe = null;
   tab.frame = null;
@@ -4586,6 +4651,7 @@ async function browserGo(fromFailover = false) {
       input.value = targetUrl;
     }
     frame.go(targetUrl);
+    watchForNestedBoredos(tab);
     // The proxy is ready at this point. Some sites (Discord, for example) keep
     // loading resources for a long time and may never fire the iframe load
     // event, so don't leave the full-screen status overlay covering the page.
