@@ -5874,7 +5874,6 @@ function soundboardSearch(value) {
 function soundboardRender() {
   const cats = document.getElementById('soundboard-categories');
   const grid = document.getElementById('soundboard-grid');
-  const empty = document.getElementById('soundboard-empty');
   if (!cats || !grid) return;
 
   const categories = [{ id: 'all', name: 'All' }, ...SB_CATEGORIES];
@@ -5891,12 +5890,13 @@ function soundboardRender() {
     return sound.name.toLowerCase().includes(query) || sound.categoryName.toLowerCase().includes(query);
   });
 
-  grid.innerHTML = filtered.map(sound => `
+  grid.innerHTML = filtered.length
+    ? filtered.map(sound => `
     <button type="button" class="soundboard-pad" data-id="${sound.id}" style="--pad-color:${sound.color}" onclick="soundboardPlay('${sound.id}')" title="${escHtml(sound.name)} — ${escHtml(sound.categoryName)}">
       <span class="soundboard-pad-name">${escHtml(sound.name)}</span>
       <span class="soundboard-pad-cat">${escHtml(sound.categoryName)}</span>
-    </button>`).join('');
-  if (empty) empty.style.display = filtered.length ? 'none' : 'block';
+    </button>`).join('')
+    : '<div class="soundboard-empty" style="grid-column:1/-1">No sounds match that search.</div>';
 }
 
 function openSoundboard() {
@@ -5909,21 +5909,20 @@ function openSoundboard() {
       <div class="soundboard-tools">
         <label class="soundboard-search-wrap">
           <i data-lucide="search"></i>
-          <input id="soundboard-search" type="search" placeholder="Search 200 sounds..." autocomplete="off" oninput="soundboardSearch(this.value)">
+          <input id="soundboard-search" type="search" placeholder="Search 200 sounds..." aria-label="Search sounds" autocomplete="off" oninput="soundboardSearch(this.value)">
         </label>
         <button type="button" class="soundboard-btn" onclick="soundboardStopAll()">
           <i data-lucide="square"></i> Stop all
         </button>
         <label class="soundboard-vol" title="Volume">
           <i data-lucide="volume-2"></i>
-          <input id="soundboard-volume" type="range" min="0" max="1" step="0.01" value="${sbVolume}" oninput="soundboardSetVolume(this.value)">
+          <input id="soundboard-volume" type="range" min="0" max="1" step="0.01" value="${sbVolume}" aria-label="Volume" oninput="soundboardSetVolume(this.value)">
         </label>
       </div>
     </div>
     <div id="soundboard-categories" class="soundboard-categories"></div>
     <div id="soundboard-grid" class="soundboard-grid"></div>
-    <div id="soundboard-empty" class="soundboard-empty" style="display:none">No sounds match that search.</div>
-    <div id="soundboard-status" class="soundboard-status">Click a pad to play. Everything is synthesized live in your browser.</div>
+    <div id="soundboard-status" class="soundboard-status" role="status" aria-live="polite">Click a pad to play. Everything is synthesized live in your browser.</div>
   </div>`;
   createWindow('soundboard', 'Soundboard', 860, 640, content, { icon: 'audio-lines' });
   sbQuery = '';
