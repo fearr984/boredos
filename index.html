@@ -2497,7 +2497,10 @@ function closeWindow(id) {
   const idx = OS.windows.findIndex(w => w.id === id);
   if (idx === -1) return;
   const closing = OS.windows[idx];
-  if (closing && closing.appId === 'soundboard') soundboardStopAll();
+  if (closing && closing.appId === 'soundboard') {
+    soundboardStopAll();
+    soundboardClearPreloads();
+  }
   const el = document.getElementById('win-' + id);
   if (el) {
     el.style.animation = 'windowClose 0.2s ease forwards';
@@ -5327,6 +5330,13 @@ function soundboardPreload(id) {
   audio.src = sound.url;
   sbAudioPreloads.set(id, audio);
   try { audio.load(); } catch (e) {}
+}
+
+function soundboardClearPreloads() {
+  for (const audio of sbAudioPreloads.values()) {
+    try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch (e) {}
+  }
+  sbAudioPreloads.clear();
 }
 
 function sbStopEntry(entry) {
